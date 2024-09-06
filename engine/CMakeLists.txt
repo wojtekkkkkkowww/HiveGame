@@ -1,0 +1,5 @@
+file(GLOB_RECURSE ENGINE_SOURCES "*.cpp")
+file(GLOB_RECURSE ENGINE_HEADERS "*.h")
+
+add_library(GameEngine ${ENGINE_SOURCES} ${ENGINE_HEADERS})
+
