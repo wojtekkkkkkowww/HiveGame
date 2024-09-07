@@ -1,9 +1,9 @@
 #ifndef Ant_H
 #define Ant_H
-#include "Piece.h"
+#include "Tile.h"
 
 namespace hge {
-    class Ant : public Piece {
+    class Ant : public Tile {
     public:
         Ant();
     };

@@ -1,9 +1,9 @@
 #ifndef Beetle_H
 #define Beetle_H
-#include "Piece.h"
+#include "Tile.h"
 
 namespace hge {
-    class Beetle : public Piece {
+    class Beetle : public Tile {
     public:
         Beetle();
     };

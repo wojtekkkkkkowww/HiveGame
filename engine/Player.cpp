@@ -1,16 +1,16 @@
 #include "Player.h"
-#include "Pieces/Ant.h"
-#include "Pieces/Beetle.h"
-#include "Pieces/GrassHopper.h"
-#include "Pieces/Spider.h"
-#include "Pieces/QueenBee.h"
+#include "Tiles/Ant.h"
+#include "Tiles/Beetle.h"
+#include "Tiles/GrassHopper.h"
+#include "Tiles/Spider.h"
+#include "Tiles/QueenBee.h"
 
 hge::Player::Player(){
-    makePieces();
+    makeTiles();
 }
 
-void hge::Player::makePieces(){
-    pieces = {hge::QueenBee(),
+void hge::Player::makeTiles(){
+    tiles = {hge::QueenBee(),
               hge::Spider(),
               hge::Spider(),
               hge::Beetle(),

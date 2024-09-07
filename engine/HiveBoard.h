@@ -3,18 +3,18 @@
 
 #include <map>
 #include "Player.h"
-#include "Pieces/Piece.h"
+#include "Tiles/Tile.h"
 
 namespace hge {
 
     class HiveBoard {
     public:
         HiveBoard();
-
-        std::map<int,Piece> tiles;
-        std::map<int,Piece> emptyTiles;
+        std::map<std::pair<int,int>,Tile> tiles;
+        std::map<std::pair<int,int>,Tile> emptyTiles;
+        void resetBoard();
     };
-
+    
 } // namespace hge
 
 #endif 

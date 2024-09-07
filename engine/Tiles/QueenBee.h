@@ -1,9 +1,9 @@
 #ifndef QUEEN_BEE_H
 #define QUEEN_BEE_H
-#include "Piece.h"
+#include "Tile.h"
 
 namespace hge {
-    class QueenBee : public Piece {
+    class QueenBee : public Tile {
     public:
         QueenBee();
     };

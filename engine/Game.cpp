@@ -13,7 +13,7 @@ namespace hge {
 
     void Game::start() {
         currentTurn = Turn::PLAYER1;
-        
+        board.resetBoard();
         /*
         clear board
         */

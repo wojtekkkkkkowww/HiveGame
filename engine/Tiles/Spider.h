@@ -1,9 +1,9 @@
 #ifndef Spider_H
 #define Spider_H
-#include "Piece.h"
+#include "Tile.h"
 
 namespace hge {
-    class Spider : public Piece {
+    class Spider : public Tile {
     public:
         Spider();
     };

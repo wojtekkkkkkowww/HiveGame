@@ -18,7 +18,7 @@ TEST_F(GameEngineTest, PiecesAtStart) {
     /*
     check available pieces for both players
     */
-    std::vector<hge::Piece> startPieces = {
+    std::vector<hge::Tile> startPieces = {
         hge::QueenBee(),
         hge::Spider(),
         hge::Spider(),
@@ -34,8 +34,8 @@ TEST_F(GameEngineTest, PiecesAtStart) {
     /*
     check if both players have the same pieces
     */
-    ASSERT_EQ(game.player1.pieces, startPieces);
-    ASSERT_EQ(game.player2.pieces, startPieces);
+    ASSERT_EQ(game.player1.tiles, startPieces);
+    ASSERT_EQ(game.player2.tiles, startPieces);
 
 }
 
@@ -45,8 +45,10 @@ TEST_F(GameEngineTest, BoardInit) {
     check if board has no pieces after game start
     */
     ASSERT_TRUE(game.board.tiles.empty());
-
-
+    std::cout << game.board.emptyTiles.size() << std::endl;
+    ASSERT_EQ(game.board.emptyTiles.size(), 1);
+    auto tileType = game.board.emptyTiles[{0,0}].type;
+    ASSERT_EQ(tileType, hge::TileType::EMPTY );
 }
 
 

@@ -1,9 +1,9 @@
 #ifndef Grass_Hopper_H
 #define Grass_Hopper_H
-#include "Piece.h"
+#include "Tile.h"
 
 namespace hge {
-    class GrassHopper : public Piece {
+    class GrassHopper : public Tile {
     public:
         GrassHopper();
     };
