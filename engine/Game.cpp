@@ -4,6 +4,7 @@ namespace hge {
 
     Game::Game() : currentTurn(Turn::PLAYER1) {
         // Constructor implementation
+        start();
     }
 
     Game::~Game() {
@@ -11,13 +12,17 @@ namespace hge {
     }
 
     void Game::start() {
-        // Start the game
         currentTurn = Turn::PLAYER1;
+        
+        /*
+        clear board
+        */
+
+        /*
+        craete pieces for both players
+        */
     }
 
-    void Game::stop() {
-        // Stop the game
-    }
 
     Turn Game::getTurn() const {
         return currentTurn;

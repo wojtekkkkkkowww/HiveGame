@@ -1,6 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "Player.h"
+#include "HiveBoard.h"
+
 namespace hge {
 
     enum class Turn {
@@ -14,11 +17,13 @@ namespace hge {
         ~Game();
 
         void start();
-        void stop();
         Turn getTurn() const;
 
-    private:
         Turn currentTurn;
+        Player player1;
+        Player player2;
+        HiveBoard board;
+
     };
 
 } // namespace hge

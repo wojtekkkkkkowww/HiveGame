@@ -1,21 +1,56 @@
+#include <vector>
 #include <gtest/gtest.h>
 #include "HiveGameEngine.h"
 
-TEST(GameEngineTest, GameConstructor) {
+
+class GameEngineTest : public ::testing::Test {
+protected:
+    void SetUp() override {    }
+
     hge::Game game;
+};
+
+TEST_F(GameEngineTest, GameConstructor) {
     SUCCEED();
 }
 
-TEST(GameEngineTest, StartGame) {
-    hge::Game game;
-    game.start();
+TEST_F(GameEngineTest, PiecesAtStart) {
     /*
-    check avaliable pieces for both players
+    check available pieces for both players
     */
+    std::vector<hge::Piece> startPieces = {
+        hge::QueenBee(),
+        hge::Spider(),
+        hge::Spider(),
+        hge::Beetle(),
+        hge::Beetle(),
+        hge::Beetle(),
+        hge::GrassHopper(),
+        hge::GrassHopper(),
+        hge::GrassHopper(),
+        hge::Ant(),
+        hge::Ant()
+    };
+    /*
+    check if both players have the same pieces
+    */
+    ASSERT_EQ(game.player1.pieces, startPieces);
+    ASSERT_EQ(game.player2.pieces, startPieces);
+
 }
 
-TEST(GameEngineTest, TurnAfterStart) {
-    hge::Game game;
-    game.start();
+TEST_F(GameEngineTest, BoardInit) {
+    
+    /*
+    check if board has no pieces after game start
+    */
+    ASSERT_TRUE(game.board.tiles.empty());
+
+
+}
+
+
+
+TEST_F(GameEngineTest, TurnAfterStart) {
     ASSERT_EQ(game.getTurn(), hge::Turn::PLAYER1);
 }
