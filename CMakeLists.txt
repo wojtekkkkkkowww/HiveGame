@@ -15,6 +15,9 @@ FetchContent_MakeAvailable(googletest)
 #set(SFML_DIR "/usr/lib64/cmake/SFML") 
 #find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
+enable_testing()
+
+
 add_subdirectory(engine)
 add_subdirectory(gui)
 add_subdirectory(main)
