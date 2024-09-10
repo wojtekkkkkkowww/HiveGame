@@ -1,5 +1,6 @@
-file(GLOB_RECURSE GUI_SOURCES "*.cpp")
-file(GLOB_RECURSE GUI_HEADERS "*.h")
+file(GLOB_RECURSE GUI_SOURCES "src/*.cpp")
+file(GLOB_RECURSE GUI_HEADERS "include/*.h")
 
 add_library(GUI ${GUI_SOURCES} ${GUI_HEADERS})
-target_link_libraries(GUI sfml-graphics sfml-window sfml-system)
+
+target_include_directories(GUI PUBLIC ${CMAKE_SOURCE_DIR}/gui/include)

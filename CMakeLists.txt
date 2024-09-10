@@ -11,10 +11,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-
-set(SFML_DIR "/usr/lib64/cmake/SFML") 
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
-
+# może gui w pytonie?
+#set(SFML_DIR "/usr/lib64/cmake/SFML") 
+#find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 add_subdirectory(engine)
 add_subdirectory(gui)

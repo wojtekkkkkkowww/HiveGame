@@ -1,20 +1,22 @@
 enable_testing()
 
+file(GLOB_RECURSE TEST_SOURCES "*.cpp")
+
 add_executable(
-  test_GameEngine
-  test_GameEngine.cpp
+  test_GameLogic
+  ${TEST_SOURCES}
 )
 
 target_link_libraries(
-  test_GameEngine
+  test_GameLogic
   GTest::gtest_main
   GameEngine
 )
 
 target_include_directories(
-  test_GameEngine PRIVATE
-  ${CMAKE_SOURCE_DIR}/engine  
+  test_GameLogic PRIVATE
+  ${CMAKE_SOURCE_DIR}/engine/include  
 )
 
 include(GoogleTest)
-gtest_discover_tests(test_GameEngine)
+gtest_discover_tests(test_GameLogic)

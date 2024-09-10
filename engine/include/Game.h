@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <memory>
 #include "Player.h"
 #include "HiveBoard.h"
 
@@ -22,10 +23,10 @@ namespace hge {
         Turn currentTurn;
         Player player1;
         Player player2;
-        HiveBoard board;
+        std::shared_ptr<HiveBoard> board;
 
     };
 
-} // namespace hge
+} 
 
-#endif // GAME_H
+#endif

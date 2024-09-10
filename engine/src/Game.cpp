@@ -2,18 +2,16 @@
 
 namespace hge {
 
-    Game::Game() : currentTurn(Turn::PLAYER1) {
-        // Constructor implementation
+    Game::Game() : currentTurn(Turn::PLAYER1), board(std::make_shared<HiveBoard>()), player1(board), player2(board) {
         start();
     }
 
     Game::~Game() {
-        // Destructor implementation
     }
 
     void Game::start() {
         currentTurn = Turn::PLAYER1;
-        board.resetBoard();
+        board->resetBoard();
         /*
         clear board
         */
@@ -28,4 +26,4 @@ namespace hge {
         return currentTurn;
     }
 
-} // namespace hge
+}

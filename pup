@@ -1,0 +1,5 @@
+[  8%] Built target gtest
+[ 17%] Built target gmock
+[ 26%] Built target gmock_main
+[ 34%] Built target gtest_main
+[ 39%] Building CXX object engine/CMakeFiles/GameEngine.dir/Player.cpp.o
