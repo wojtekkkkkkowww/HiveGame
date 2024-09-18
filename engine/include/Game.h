@@ -7,20 +7,16 @@
 
 namespace hge {
 
-    enum class Turn {
-        PLAYER1,
-        PLAYER2
-    };
-
+    
     class Game {
     public:
         Game();
         ~Game();
 
-        void start();
-        Turn getTurn() const;
+        void reset();
+        PlayerColor getTurn() const;
 
-        Turn currentTurn;
+        PlayerColor currentTurn;
         Player player1;
         Player player2;
         std::shared_ptr<HiveBoard> board;

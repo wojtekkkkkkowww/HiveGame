@@ -1,0 +1,6 @@
+proste 
+najpiierw gostek se klika pozniej 
+dostaje to kontroler
+i kontroler mówi modelowi = grze że ma zrobić ruch
+no i tam jest wiadomo kogo jest kolej no i 
+wtedy jest wywoływana funkcja ruch z poziomu gracza

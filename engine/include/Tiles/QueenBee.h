@@ -1,26 +1,27 @@
 #ifndef QUEEN_BEE_H
 #define QUEEN_BEE_H
-#include "Tile.h"
+#include "Piece.h"
 
-namespace hge {
-    class QueenBee : public Tile {
+namespace hge
+{
+    class QueenBee : public Piece
+    {
     public:
-        QueenBee() : Tile(TileType::QUEEN) {}
-        QueenBee(std::shared_ptr<HiveBoard> board) : Tile(TileType::QUEEN, board) {}
-        std::set<std::pair<int, int>> getAvailableMoves() override {
-            std::set<std::pair<int,int>> neighbours = getNeighbours();
-            std::set<std::pair<int,int>> moves;
+        QueenBee(std::shared_ptr<HiveBoard> board) : Piece(TileType::QUEEN, board) {}
+        std::set<std::pair<int, int>> getAvailableMoves() override
+        {
+            std::set<std::pair<int, int>> neighbours = getNeighbours();
+            std::set<std::pair<int, int>> moves;
 
-            for (auto& neighbour : neighbours) {
-                if (!board->isEmptyTile(neighbour)) 
+            for (auto &neighbour : neighbours)
+            {
+                if (board->isEmpty(neighbour))
                     moves.insert(neighbour);
             }
 
             return moves;
         }
     };
-} 
-
-
+}
 
 #endif

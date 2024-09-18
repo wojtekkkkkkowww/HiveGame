@@ -2,27 +2,20 @@
 
 namespace hge {
 
-    Game::Game() : currentTurn(Turn::PLAYER1), board(std::make_shared<HiveBoard>()), player1(board), player2(board) {
-        start();
+    Game::Game() : currentTurn(PlayerColor::WHITE_PLAYER), board(std::make_shared<HiveBoard>()), player1(board), player2(board) {
+        reset();
     }
 
     Game::~Game() {
     }
 
-    void Game::start() {
-        currentTurn = Turn::PLAYER1;
+    void Game::reset() {
+        currentTurn = PlayerColor::WHITE_PLAYER;
         board->resetBoard();
-        /*
-        clear board
-        */
-
-        /*
-        craete pieces for both players
-        */
     }
 
 
-    Turn Game::getTurn() const {
+    PlayerColor Game::getTurn() const {
         return currentTurn;
     }
 

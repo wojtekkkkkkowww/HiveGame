@@ -1,0 +1,66 @@
+@startuml
+namespace hge {
+    class HiveBoard {
+        +map<Position, Tile> tiles
+        +set<Position> emptyPositions
+        +createEmptyTilesAroundBoard()
+        +addTile(Position position, Tile tile)
+        +removeTile(Position position)
+        +isEmptyTile(Position position): bool
+    }
+
+    class Tile {
+        +TileType type
+        +bool placed
+        +std::shared_ptr<HiveBoard> board
+        +std::pair<int, int> position
+    }
+
+    abstract class Piece extends Tile {
+        +Piece(TileType type, std::shared_ptr<HiveBoard> board)
+        +getAvailableMoves(): set<Position>
+    }
+
+    class Ant extends Piece {
+        +getAvailableMoves(): set<Position>
+    }
+
+    class Beetle extends Piece {
+        +getAvailableMoves(): set<Position>
+    }
+
+    class GrassHopper extends Piece {
+        +getAvailableMoves(): set<Position>
+    }
+
+    class QueenBee extends Piece {
+        +getAvailableMoves(): set<Position>
+    }
+
+    class Spider extends Piece {
+        +getAvailableMoves(): set<Position>
+    }
+
+    class EmptyTile extends Tile {
+        +EmptyTile()
+    }
+
+    class Player {
+        +placeTile(Tile tile, Position position)
+        +moveTile(Position from, Position to)
+    }
+
+    class Game {
+        +start()
+        +end()
+        +reset()
+    }
+
+    HiveBoard "1..*" --> Tile
+    Tile --> HiveBoard
+    Player --> HiveBoard
+    Player --> Tile
+    Game --> HiveBoard
+    Game --> Player
+}
+@enduml

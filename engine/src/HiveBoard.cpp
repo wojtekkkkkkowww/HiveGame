@@ -1,27 +1,53 @@
 #include "HiveBoard.h"
 
-hge::HiveBoard::HiveBoard(){
+hge::HiveBoard::HiveBoard()
+{
     resetBoard();
 }
 
-void hge::HiveBoard::resetBoard(){
-    EmptyTile tile;
-    tiles.clear();
+void hge::HiveBoard::addEmptyTilesAroundBoard()
+{
     emptyTiles.clear();
-    addEmptyTile(std::make_pair(0,0));
+    for (auto [key, pieceList] : pieces)
+    {
+        auto piece = pieceList.front();
+        for (auto neighbourPosition : piece->getNeighbours())
+        {
+            if (isEmpty(neighbourPosition))
+            {
+                addEmptyTile(neighbourPosition);
+            }
+        }
+    }
 }
 
-void hge::HiveBoard::addEmptyTile(std::pair<int, int> position){
+bool hge::HiveBoard::isEmpty(std::pair<int, int> neighbourPosition)
+{
+    return pieces.find(neighbourPosition) == pieces.end();
+}
+
+void hge::HiveBoard::resetBoard()
+{
+    pieces.clear();
+    emptyTiles.clear();
+    addEmptyTile(std::make_pair(0, 0));
+}
+
+void hge::HiveBoard::addEmptyTile(std::pair<int, int> position)
+{
     EmptyTile tile;
     tile.position = position;
     emptyTiles[position] = tile;
 }
 
-void hge::HiveBoard::addTile(std::pair<int, int> position, std::shared_ptr<Tile> tile){
-    tile->position = position;
-    tiles[position] = tile;
-}
+void hge::HiveBoard::addPiece(std::pair<int, int> position, std::shared_ptr<Piece> piece)
+{
+    piece->position = position;
 
-bool hge::HiveBoard::isEmptyTile(std::pair<int, int> position){
-    return emptyTiles.find(position) != emptyTiles.end();   
+    if (isEmpty(position))
+    {
+        pieces[position] = std::list<std::shared_ptr<Piece>>();
+    }
+
+    pieces[position].push_back(piece);
 }

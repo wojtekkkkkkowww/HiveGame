@@ -19,8 +19,19 @@ void hge::Player::makeTiles(){
         addNewTile(TileType::ANT),
         addNewTile(TileType::ANT)
     };
-    tiles = std::move(tempTiles); // podoba mi sie bo prawdpopodobnie usuwa stare obiekty
+    pieces = std::move(tempTiles); // podoba mi sie bo prawdpopodobnie usuwa stare obiekty
 }
+
+void hge::Player::placeTile(std::shared_ptr<Tile> tile, std::pair<int, int> position)
+{ /*
+    tu będzie sporo warunków które trzeba spełnić żeby w ogóle można było postawić pionka
+    */
+   /*
+   tutaj z poziomu gracza już coś można zrobić na przykład sprawdzić czyj to jest pionek
+   */
+}
+
+
 
 std::shared_ptr<hge::Tile> hge::Player::addNewTile(TileType type)
 {
@@ -39,3 +50,13 @@ std::shared_ptr<hge::Tile> hge::Player::addNewTile(TileType type)
             return std::make_shared<EmptyTile>(); 
     }
 }
+
+bool hge::Player::ownsPiece(std::pair<int, int> position){
+    for(auto tile : pieces){
+        if(tile->position == position){
+            return true;
+        }
+    }
+    return false;
+}
+

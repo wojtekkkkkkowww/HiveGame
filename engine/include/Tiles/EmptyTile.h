@@ -8,9 +8,6 @@ namespace hge {
     class EmptyTile : public Tile {
     public:
         EmptyTile() : Tile(TileType::EMPTY) {}
-        std::set<std::pair<int,int>> getAvailableMoves() override {
-            return std::set<std::pair<int,int>>();
-        }
     };
 }
 
