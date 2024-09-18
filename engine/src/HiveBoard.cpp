@@ -1,4 +1,4 @@
-#include "HiveBoard.h"
+#include "HiveBoard.hpp"
 
 hge::HiveBoard::HiveBoard()
 {

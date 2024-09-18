@@ -1,16 +1,15 @@
-#ifndef Player_H
-#define Player_H
+#pragma once
 
 #include <vector>
 
-#include "HiveBoard.h"
-#include "Tiles/Tile.h"
-#include "Tiles/Ant.h"
-#include "Tiles/Beetle.h"
-#include "Tiles/GrassHopper.h"
-#include "Tiles/Spider.h"
-#include "Tiles/QueenBee.h"
-#include "Tiles/EmptyTile.h"
+#include "HiveBoard.hpp"
+#include "Tiles/Tile.hpp"
+#include "Tiles/Ant.hpp"
+#include "Tiles/Beetle.hpp"
+#include "Tiles/GrassHopper.hpp"
+#include "Tiles/Spider.hpp"
+#include "Tiles/QueenBee.hpp"
+#include "Tiles/EmptyTile.hpp"
 
 
 
@@ -40,4 +39,3 @@ namespace hge {
     };
 } 
 
-#endif

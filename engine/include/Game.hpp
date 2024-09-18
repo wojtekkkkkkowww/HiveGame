@@ -1,14 +1,14 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
 #include <memory>
-#include "Player.h"
-#include "HiveBoard.h"
+#include "Player.hpp"
+#include "HiveBoard.hpp"
 
-namespace hge {
+namespace hge
+{
 
-    
-    class Game {
+    class Game
+    {
     public:
         Game();
         ~Game();
@@ -20,9 +20,7 @@ namespace hge {
         Player player1;
         Player player2;
         std::shared_ptr<HiveBoard> board;
-
     };
 
-} 
+}
 
-#endif

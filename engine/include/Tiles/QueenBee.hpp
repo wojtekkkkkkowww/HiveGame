@@ -1,6 +1,6 @@
-#ifndef QUEEN_BEE_H
-#define QUEEN_BEE_H
-#include "Piece.h"
+#pragma once
+
+#include "Piece.hpp"
 
 namespace hge
 {
@@ -23,5 +23,3 @@ namespace hge
         }
     };
 }
-
-#endif

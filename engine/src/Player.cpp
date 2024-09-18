@@ -1,4 +1,4 @@
-#include "Player.h"
+#include "Player.hpp"
 
 
 hge::Player::Player(std::shared_ptr<HiveBoard> board) : board(board){
