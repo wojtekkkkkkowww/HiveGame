@@ -1,5 +1,5 @@
 file(GLOB_RECURSE GUI_SOURCES "src/*.cpp")
-file(GLOB_RECURSE GUI_HEADERS "include/*.h")
+file(GLOB_RECURSE GUI_HEADERS "include/*.hpp")
 
 add_library(GUI ${GUI_SOURCES} ${GUI_HEADERS})
 

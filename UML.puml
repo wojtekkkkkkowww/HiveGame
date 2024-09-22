@@ -1,6 +1,6 @@
 @startuml
-namespace hge {
-    class HiveBoard {
+namespace hive {
+    class Board {
         +map<Position, Tile> tiles
         +set<Position> emptyPositions
         +createEmptyTilesAroundBoard()
@@ -12,12 +12,12 @@ namespace hge {
     class Tile {
         +TileType type
         +bool placed
-        +std::shared_ptr<HiveBoard> board
+        +std::shared_ptr<Board> board
         +std::pair<int, int> position
     }
 
     abstract class Piece extends Tile {
-        +Piece(TileType type, std::shared_ptr<HiveBoard> board)
+        +Piece(TileType type, std::shared_ptr<Board> board)
         +getAvailableMoves(): set<Position>
     }
 
@@ -56,11 +56,11 @@ namespace hge {
         +reset()
     }
 
-    HiveBoard "1..*" --> Tile
-    Tile --> HiveBoard
-    Player --> HiveBoard
+    Board "1..*" --> Tile
+    Tile --> Board
+    Player --> Board
     Player --> Tile
-    Game --> HiveBoard
+    Game --> Board
     Game --> Player
 }
 @enduml

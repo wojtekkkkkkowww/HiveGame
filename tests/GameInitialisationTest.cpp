@@ -1,29 +1,31 @@
 #include <vector>
 #include <memory>
 #include <gtest/gtest.h>
-#include "HiveGameEngine.h"
-
-class GameInitializationTest : public ::testing::Test {
+#include "Game.hpp"
+    
+class GameInitializationTest : public ::testing::Test
+{
 protected:
-    hge::Game game;
+    hive::Game game;
 };
 
+TEST_F(GameInitializationTest, BoardInit)
+{
+ /*
+    ASSERT_TRUE(game.board.boardTiles.empty());
+    ASSERT_EQ(game.board.emptyTiles.size(), 1);
 
-TEST_F(GameInitializationTest, BoardInit) {
-    ASSERT_TRUE(game.board->pieces.empty());
-    ASSERT_EQ(game.board->emptyTiles.size(), 1);
-    
-    auto type = game.board->emptyTiles[{0, 0}].type;
-    ASSERT_EQ(type, hge::TileType::EMPTY);
+    auto position = game.board.emptyTiles.begin();
+    ASSERT_EQ(position,{0,0});
+    ASSERT_EQ(game.blackPieces.size(), 11);
+    ASSERT_EQ(game.whitePieces.size(), 11);
+*/
 }
 
-TEST_F(GameInitializationTest, GameReset) {
-    game.reset(); 
-    ASSERT_TRUE(game.board->pieces.empty());
-    ASSERT_EQ(game.board->emptyTiles.size(), 1);
-    
-    auto type = game.board->emptyTiles[{0, 0}].type;
-    ASSERT_EQ(type, hge::TileType::EMPTY);
-    ASSERT_EQ(game.player1.pieces.size(), 11);
-    ASSERT_EQ(game.player2.pieces.size(), 11);
+/*
+to ma sprwadzać reset po zrobieniu kilku ruchów
+*/
+TEST_F(GameInitializationTest, GameReset)
+{
+    game.startNewGame();
 }

@@ -1,62 +1,32 @@
 #include "Player.hpp"
 
-
-hge::Player::Player(std::shared_ptr<HiveBoard> board) : board(board){
-    makeTiles();
-}
-
-void hge::Player::makeTiles(){
-    std::vector<std::shared_ptr<Tile>> tempTiles = {
-        addNewTile(TileType::QUEEN),
-        addNewTile(TileType::SPIDER),
-        addNewTile(TileType::SPIDER),
-        addNewTile(TileType::BEETLE),
-        addNewTile(TileType::BEETLE),
-        addNewTile(TileType::BEETLE),
-        addNewTile(TileType::GRASSHOPPER),
-        addNewTile(TileType::GRASSHOPPER),
-        addNewTile(TileType::GRASSHOPPER),
-        addNewTile(TileType::ANT),
-        addNewTile(TileType::ANT)
-    };
-    pieces = std::move(tempTiles); // podoba mi sie bo prawdpopodobnie usuwa stare obiekty
-}
-
-void hge::Player::placeTile(std::shared_ptr<Tile> tile, std::pair<int, int> position)
-{ /*
-    tu będzie sporo warunków które trzeba spełnić żeby w ogóle można było postawić pionka
-    */
-   /*
-   tutaj z poziomu gracza już coś można zrobić na przykład sprawdzić czyj to jest pionek
-   */
-}
-
-
-
-std::shared_ptr<hge::Tile> hge::Player::addNewTile(TileType type)
+hive::Player::Player(Color color) : color(color)
 {
-    switch(type){
-        case TileType::QUEEN:
-            return std::make_shared<QueenBee>(board);
-        case TileType::SPIDER:
-            return std::make_shared<Spider>(board);
-        case TileType::BEETLE:
-            return std::make_shared<Beetle>(board);
-        case TileType::GRASSHOPPER:
-            return std::make_shared<GrassHopper>(board);
-        case TileType::ANT:
-            return std::make_shared<Ant>(board);
-        default:
-            return std::make_shared<EmptyTile>(); 
-    }
+    pieceCounters = {
+        {TileType::QUEEN, 1},
+        {TileType::SPIDER, 2},
+        {TileType::BEETLE, 2},
+        {TileType::GRASSHOPPER, 3},
+        {TileType::ANT, 3}};
 }
 
-bool hge::Player::ownsPiece(std::pair<int, int> position){
-    for(auto tile : pieces){
-        if(tile->position == position){
-            return true;
-        }
+hive::Tile hive::Player::takeTile(TileType type)
+{
+    if (pieceCounters[type] == 0)
+    {
+        throw std::invalid_argument("No more pieces of this type available");
     }
-    return false;
+    pieceCounters[type]--;
+
+    return Tile(type, color);
 }
 
+std::ostream &hive::operator<<(std::ostream &os, const Player &player)
+{
+    os << "Player piece counters:\n";
+    for (const auto &counter : player.pieceCounters)
+    {
+        os << "TileType: " << static_cast<int>(counter.first) << " Count: " << counter.second << "\n";
+    }
+    return os;
+}

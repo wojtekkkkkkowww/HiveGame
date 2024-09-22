@@ -1,8 +1,9 @@
-#include "HiveGameEngine.h"
-#include "GUI.h"
+#include "HiveGameEngine.hpp"
+#include "GUI.hpp"
 
-int main() {
-    hge::Game game;
+int main()
+{
+    hive::Game game;
     GUI gui;
 
     // Main application logic here

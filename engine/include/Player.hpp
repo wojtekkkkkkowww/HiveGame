@@ -1,41 +1,28 @@
 #pragma once
 
-#include <vector>
+#include <memory>
+#include <map>
+#include <stdexcept>
+#include <iostream>
+#include <ostream>
 
-#include "HiveBoard.hpp"
-#include "Tiles/Tile.hpp"
-#include "Tiles/Ant.hpp"
-#include "Tiles/Beetle.hpp"
-#include "Tiles/GrassHopper.hpp"
-#include "Tiles/Spider.hpp"
-#include "Tiles/QueenBee.hpp"
-#include "Tiles/EmptyTile.hpp"
+#include "Tile.hpp"
 
+namespace hive
+{
 
-
-namespace hge {
-
-    enum class PlayerColor {
-        WHITE_PLAYER,
-        BLACK_PLAYER
-    };
-
-    class Player {
+    class Player
+    {
     public:
-        Player(std::shared_ptr<HiveBoard> board);
-    
-        std::vector<std::shared_ptr<Tile>> pieces; 
-        std::shared_ptr<HiveBoard> board;
-        std::shared_ptr<Tile> addNewTile(TileType type);
-        void makeTiles();
-        void placeTile(std::shared_ptr<Tile> tile, std::pair<int, int> position);
-        bool ownsPiece(std::pair<int, int> position);
+        Player() : color(Color::WHITE) {}
+        Player(Color color);
+        Tile takeTile(TileType type);
+        bool queenPlaced = false;
+        bool firstMove = true;
+        friend std::ostream &operator<<(std::ostream &os, const Player &player);
 
-        /*
-        potzebna będzie fnukcja w board
-        króra sprawdzi dla danego gracza czy może postawić pionka
-        */
-
+    private:
+        Color color;
+        std::map<TileType, int> pieceCounters;
     };
-} 
-
+}

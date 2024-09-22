@@ -1,0 +1,84 @@
+
+dlaczego zostawiłem empty tile ?? 
+
+co do zrobienia 
+przemyślenia 
+board poprostu jako argument niech idzie do funckji do pieców
+będzie to wygodniejsze
+
+pytanie czy w ogóle jest do czegokolwiek potrzebne empty tile ??
+troszkę psuje to logikę
+
+funkcja 
+canPlacePiece w board do zrobienia
+no i czy potrzebny jest typ figury ?
+sam sobie odpowiadam 
+JEST POTRZEBNY żeby funkcja placePice 
+była abstrakcyjna w Game
+tak ale czy jest porzebny typ w samej klasie Piece
+
+czy nie byłoby prościej mieć poprostu emptTiles jako zbiór pozycji ??
+
+estymata został mi weekend ten weekend następny no i tydzień ale będzie ciężko się zebrać w tygodniu
+postaram się
+
+
+mam ile rodzjów figur ?? 4 nie licząc queen
+dzień na figurę uchuhu to za duża estymata muszę to zrobić szybciej
+zobaczę jak będę robił to może pójść szybciej
+
+różne dziwne zawiłości w zsadach gry :
+1. Nie można rozerwać roju
+// najdurniejsze rozwiązanie zrobić ruch i sprawdzić czy rój jest cały xD
+
+
+2. Nie można postawić figury obok przeciwnika nie licząc pierwszego ruchu
+
+3. koniec gry z queenn bee
+4. jeżeli nie ma ruchu to pomija kolejkę się. // może poprostu jeżeli nie ma dostępnych ruchów to z automatu jest zmieniona kolejka na przeciwnika
+// no i kontroler juz będzie wiedział co z tym zrobić
+
+w klasie player można dodać counter ruchów no i flagę czy jest królowa postawiona
+5. królowa musi być postawiona po 4 ruchu 
+6. jeżeli królowa nei jest postawiona to nie można zrobić ruchu
+7. ZASADA FIZYCZNA : nie dotyczy grashoppera i beattle
+
+
+
+
+plus gui no ogólnie DUŻO DO ZROBIENIA
+
+piwerwszy weekend: 
+
+ANALIZA FIGUR:
+QUEEN BEE:
+Kompletnie banalna figura 
+ruch do przodu w dowolnym kierunku tam gdzie jest wolne miejsce
+
+
+SPIDER
+Ruch długości 3 bez zawracania oraz w każdym pośrednim polu musi się z kimś stykać.
+do zaimplementowania banalne :
+prosty rekurencyjny algorytm 
+1) idziesz w każdym możliwym kierunku
+2) zwiększasz counter ruchów
+3) dodajesz pole do listy odwiedzonych
+4) wracasz do punktu 1 lub kończysz rekurencję dodając pole do zbioru dostępnych ruchów
+
+GRASSHOPPER:
+Prosta ligika:
+sprawdż w których kierunkach możesz iść
+i idź w każdą stronę do końca planszy(aż napotkasz puste pole) dodaj do zbioru dostępnych ruchów
+
+ANT:
+właściwie to może się ruszyć na dowolen pole z listy moich pustych pól
+nie licząc tych zablokowanych.
+
+BEATTLE:
+Najtrudniejsza figura 
+jeden ruch do przodu gdziekolwiek poprostu może skakać na figury 
+z małym wyjąkiem którym jest to że miejsce w które chce skoczyć musi być 
+albo na tym samym poziomie albo o jeden wyżej.
+
+
+
