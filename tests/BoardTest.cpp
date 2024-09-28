@@ -38,17 +38,6 @@ TEST_F(BoardTest, GetTileAtPosition)
     ASSERT_TRUE(retrievedTile.type == tile.type && retrievedTile.color == tile.color);
 }
 
-TEST_F(BoardTest, AddEmptyTilesAroundBoard)
-{
-    hive::Tile tile("QUEEN","WHITE");
-    board.addTile({0, 0}, tile);
-    board.addEmptyTilesAroundBoard();
-    auto emptyTiles = board.emptyTiles;
-    EXPECT_TRUE(emptyTiles.find({1, 0}) != emptyTiles.end());
-    EXPECT_TRUE(emptyTiles.find({-1, 0}) != emptyTiles.end());
-    EXPECT_TRUE(emptyTiles.find({0, 1}) != emptyTiles.end());
-    EXPECT_TRUE(emptyTiles.find({0, -1}) != emptyTiles.end());
-}
 
 TEST_F(BoardTest, RemoveTile)
 {

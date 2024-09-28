@@ -7,36 +7,27 @@
 #include <stdexcept>
 
 #include "Tile.hpp"
-#include "MovementFunctions.hpp"
+#include "BaseBoard.hpp"
+#include "MovementManager.hpp"
+#include "MoveValidator.hpp"
 
 namespace hive
 {
-    class Board
+    class Board : public MovementManager, public MoveValidator
     {
     public:
-        Board();
-        void resetBoard();
-        Tile getTile(Position position);
-        void removeTile(Position position);
-        void addTile(Position position, Tile& tile);
-        std::set<Position> getNeighbours(Position position);
-        std::set<Position> getAvailableMoves(Tile tile);
-        std::set<Position> getPlayerTiles(std::string color);
-        void addEmptyTilesAroundBoard();
-        bool isMoveBlocked(Position position, Position newPosition);
-        bool isEmpty(Position neighbourPosition);
-        bool isOccupiedByOpponent(Position pos, std::string color);
-        int calculateNeighbours(Position position, std::string color);
-        int getLevel(Position position);
-        bool isQueenSurrounded(std::string color);
-        std::map<Position, std::list<Tile>> boardTiles;
-        std::set<Position> emptyTiles;
-
-
-    private:
-
-        bool isHiveConnectedAfterRemove(Position position);
-        bool isDirectionBlocked(Position position, Position direction);
-        bool isTouchingHiveAfterMove(Position position, Position newPosition);
+        Board()
+        {
+            BaseBoard::resetBoard();
+        }
+        Board &operator=(Board &&other) noexcept
+        {
+            if (this != &other)
+            {
+                MovementManager::operator=(std::move(other));
+                MoveValidator::operator=(std::move(other));
+            }
+            return *this;
+        }
     };
 }
