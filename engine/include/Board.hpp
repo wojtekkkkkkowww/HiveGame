@@ -9,33 +9,34 @@
 #include "Tile.hpp"
 #include "MovementFunctions.hpp"
 
-#define N {0, -1}
-#define S {0, 1}
-#define NE {1, -1}
-#define SE {1, 0}
-#define SW {-1, 1}
-#define NW {-1, 0}
-
 namespace hive
 {
     class Board
     {
     public:
         Board();
-
-        std::map<std::pair<int, int>, std::list<Tile>> boardTiles;
-        std::set<std::pair<int, int>> emptyTiles;
-
-        Tile getTile(std::pair<int, int> position);
-        std::set<std::pair<int, int>> getNeighbours(std::pair<int, int> position);
-        std::set<std::pair<int, int>> getAvailableMoves(Tile tile);
-
-        bool isEmpty(std::pair<int, int> neighbourPosition);
-        bool isOccupiedByOpponent(std::pair<int, int> pos, Color color);
-        int calculateNeighbours(std::pair<int, int> position, Color color);
-        void removeTile(std::pair<int, int> position);
-        void addTile(std::pair<int, int> position, Tile tile);
         void resetBoard();
+        Tile getTile(Position position);
+        void removeTile(Position position);
+        void addTile(Position position, Tile& tile);
+        std::set<Position> getNeighbours(Position position);
+        std::set<Position> getAvailableMoves(Tile tile);
+        std::set<Position> getPlayerTiles(std::string color);
         void addEmptyTilesAroundBoard();
+        bool isMoveBlocked(Position position, Position newPosition);
+        bool isEmpty(Position neighbourPosition);
+        bool isOccupiedByOpponent(Position pos, std::string color);
+        int calculateNeighbours(Position position, std::string color);
+        int getLevel(Position position);
+        bool isQueenSurrounded(std::string color);
+        std::map<Position, std::list<Tile>> boardTiles;
+        std::set<Position> emptyTiles;
+
+
+    private:
+
+        bool isHiveConnectedAfterRemove(Position position);
+        bool isDirectionBlocked(Position position, Position direction);
+        bool isTouchingHiveAfterMove(Position position, Position newPosition);
     };
 }

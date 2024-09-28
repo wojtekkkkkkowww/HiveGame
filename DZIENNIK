@@ -81,4 +81,46 @@ z małym wyjąkiem którym jest to że miejsce w które chce skoczyć musi być
 albo na tym samym poziomie albo o jeden wyżej.
 
 
+PROBLEM:
+łatwe generowanie możliwych ruchów dla danego 
+stanu gry
 
+Urodził mi się w główce jakiś normalny pomysł
+klasa Move
+może być wpisany w to rodzaj ruchu czyli czy jest to 
+postawienie figury czy przesunięcie
+
+ALBO TAK ZWANA AKCJA POPROSTU 
+okej reprezentacja jako string aktualnie ma jakiś sens
+moim zdaniem 
+poprostu lista stringów = lista dostępnych ruchów
+
+no i gracz w swoim ruchu musi poprostu wybrać ruch z listy dostępnych ruchów
+i jest funkcja executeMove która bierze tego stringa i wykonuje ruch
+
+
+
+ciężkie przemyślenie 
+abstrakcja klasy game będzie make action
+no i ta funkcja za każdym razem będzie sprawdzać
+czy ruch jest możliwy tworząc najpierw wszystkie możliwe ruchy
+
+funkcja isActionValid jest tylko pomocnicza dla generateActions
+ nie sprawdza całej logiki ruchu nie może być wywoływana z zewnątrz
+
+
+
+ ŻEBY NIE ZGUBIĆ WĄTKU:
+ Failuje test
+ ALE !!
+Action: Place Ant at position (1, -1)
+Action: Move from position (0, 0) to position (-1, 1)
+Action: Move from position (0, 0) to position (0, -1)
+Action: Move from position (0, 0) to position (0, 1)
+Action: Move from position (0, 0) to position (1, -1)
+
+cztery ruchy ?? chyba 2 powiinny być
+
+
+inna sprawa funkcja move blocked nie działa dla 
+figury Ant 

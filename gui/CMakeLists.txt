@@ -3,4 +3,7 @@ file(GLOB_RECURSE GUI_HEADERS "include/*.hpp")
 
 add_library(GUI ${GUI_SOURCES} ${GUI_HEADERS})
 
-target_include_directories(GUI PUBLIC ${CMAKE_SOURCE_DIR}/gui/include)
+target_include_directories(GUI PUBLIC 
+    ${CMAKE_SOURCE_DIR}/gui/include
+    ${CMAKE_SOURCE_DIR}/engine/include 
+)

@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include "Game.hpp"
+#include "BoardDrawable.hpp" // Include the header for saveBoardAsPng
 
 class TileMovementTest : public ::testing::Test
 {
@@ -9,54 +10,82 @@ protected:
     hive::Game game;
 };
 
+
+void saveBoardAsPng(const hive::Board &board, const std::string &filename, float hexSize = 32.0f)
+{   
+    sf::RenderTexture renderTexture;
+    renderTexture.create(800, 600); // Adjust the size as needed
+    BoardDrawable boardDrawable(board, hexSize);
+    renderTexture.clear(sf::Color::White); // Background color
+    renderTexture.draw(boardDrawable);
+    renderTexture.display();
+    if (renderTexture.getTexture().copyToImage().saveToFile(filename))
+    {
+        std::cout << "Saved board state to " << filename << std::endl;
+    }
+}
+
 TEST_F(TileMovementTest, QueenBeeAvailableMovesAtStart)
 {
-    hive::Tile queenBee(hive::TileType::QUEEN, hive::Color::WHITE);
+    hive::Tile queenBee("QUEEN", "WHITE");
     game.board.addTile({0, 0}, queenBee);
     auto availableMoves = game.board.getAvailableMoves(queenBee);
 
-    std::set<std::pair<int, int>> expectedMoves = {
+    std::set<hive::Position> expectedMoves = {
         {1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}};
+
     ASSERT_EQ(availableMoves.size(), 6);
+
     ASSERT_EQ(availableMoves, expectedMoves);
+
+    // Save the board state as a PNG file
+    saveBoardAsPng(game.board, "QueenBeeAvailableMovesAtStart.png");
 }
 
 TEST_F(TileMovementTest, PlaceNewTile)
 {
+    hive::Action action{"PLACE", hive::Position{0, 0}, "ANT"};
+    game.applyAction(action);
 
-    game.placeTile({0, 0}, hive::TileType::ANT);
+    auto tile = game.board.getTile({0, 0});
+    ASSERT_EQ(tile.type, "ANT");
+    ASSERT_EQ(tile.color, "WHITE");
+    hive::Position position = hive::Position{0, 0};
+    ASSERT_EQ(tile.position, position);
 
-    auto tileList = game.board.boardTiles[{0, 0}];
-    auto tile = tileList.front();
-    ASSERT_EQ(tile.type, hive::TileType::ANT);
-    ASSERT_EQ(tile.color, hive::Color::WHITE);
-    ASSERT_EQ(tile.position, std::make_pair(0, 0));
+    // Save the board state as a PNG file
+    saveBoardAsPng(game.board, "PlaceNewTile.png");
 }
 
 TEST_F(TileMovementTest, MoveExistingTile)
 {
-    ASSERT_EQ(game.getCurrentTurn(), hive::Color::WHITE);
-    game.placeTile({0, 0}, hive::TileType::QUEEN);
-    ASSERT_EQ(game.getCurrentTurn(), hive::Color::BLACK);
+    ASSERT_EQ(game.getCurrentTurn(), "WHITE");
+    game.applyAction({"PLACE", hive::Position{0, 0}, "QUEEN"});
+    ASSERT_EQ(game.getCurrentTurn(), "BLACK");
 
-    ASSERT_THROW(game.moveTile({0, 0}, {0, 1}), std::invalid_argument);
-    game.placeTile({1, 0}, hive::TileType::QUEEN);
-    ASSERT_EQ(game.getCurrentTurn(), hive::Color::WHITE);
-    game.moveTile({0, 0}, {0, 1});
+    ASSERT_THROW(game.applyAction({"MOVE", hive::Position{0, 0}, hive::Position{0, 1}}), std::invalid_argument);
+    game.applyAction({"PLACE", hive::Position{1, 0}, "QUEEN"});
+    ASSERT_EQ(game.getCurrentTurn(), "WHITE");
+    game.applyAction({"MOVE", hive::Position{0, 0}, hive::Position{0, 1}});
 
-    auto tileList = game.board.boardTiles[{1, 0}];
+    auto tile = game.board.getTile({0, 1});
+    ASSERT_EQ(tile.type, "QUEEN");
 
-    auto tile = tileList.front();
-    ASSERT_EQ(tile.type, hive::TileType::QUEEN);
+    // Save the board state as a PNG file
+    saveBoardAsPng(game.board, "MoveExistingTile.png");
 }
+
 
 TEST_F(TileMovementTest, CountersCheck)
 {
-    game.placeTile({0, 0}, hive::TileType::ANT);
-    game.placeTile({1, 0}, hive::TileType::ANT);
-    game.placeTile({2, 0}, hive::TileType::ANT);
-    game.placeTile({3, 0}, hive::TileType::ANT);
-    game.placeTile({4, 0}, hive::TileType::ANT);
-    game.placeTile({5, 0}, hive::TileType::ANT);
-    ASSERT_THROW(game.placeTile({6, 0}, hive::TileType::ANT), std::invalid_argument);
+    game.applyAction({"PLACE", hive::Position{0, 0}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{1, 0}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{-1, 0}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{2, 0}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{-2, 0}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{3, 0}, "ANT"});
+    saveBoardAsPng(game.board, "CountersCheck.png");
+
+    ASSERT_THROW(game.applyAction({"PLACE", hive::Position{-3, 0}, "ANT"}), std::invalid_argument);
+
 }

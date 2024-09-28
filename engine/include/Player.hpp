@@ -14,15 +14,16 @@ namespace hive
     class Player
     {
     public:
-        Player() : color(Color::WHITE) {}
-        Player(Color color);
-        Tile takeTile(TileType type);
+        Player() : color("WHITE") {}
+        Player(std::string color);
+        Tile takeTile(std::string type);
+        int getTileCount(std::string type) { return pieceCounters[type]; } 
         bool queenPlaced = false;
         bool firstMove = true;
-        friend std::ostream &operator<<(std::ostream &os, const Player &player);
+        int turnCounter = 0;
 
     private:
-        Color color;
-        std::map<TileType, int> pieceCounters;
+        std::string color;
+        std::map<std::string, int> pieceCounters;
     };
 }

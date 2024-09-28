@@ -10,14 +10,14 @@ namespace hive {
     }
 
     class Tile {
-        +TileType type
+        +std::string type
         +bool placed
         +std::shared_ptr<Board> board
-        +std::pair<int, int> position
+        +Position position
     }
 
     abstract class Piece extends Tile {
-        +Piece(TileType type, std::shared_ptr<Board> board)
+        +Piece(std::string type, std::shared_ptr<Board> board)
         +getAvailableMoves(): set<Position>
     }
 

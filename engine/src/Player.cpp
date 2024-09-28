@@ -1,16 +1,16 @@
 #include "Player.hpp"
 
-hive::Player::Player(Color color) : color(color)
+hive::Player::Player(std::string color) : color(color)
 {
     pieceCounters = {
-        {TileType::QUEEN, 1},
-        {TileType::SPIDER, 2},
-        {TileType::BEETLE, 2},
-        {TileType::GRASSHOPPER, 3},
-        {TileType::ANT, 3}};
+        {"QUEEN", 1},
+        {"SPIDER", 2},
+        {"BEETLE", 2},
+        {"GRASSHOPPER", 3},
+        {"ANT", 3}};
 }
 
-hive::Tile hive::Player::takeTile(TileType type)
+hive::Tile hive::Player::takeTile(std::string type)
 {
     if (pieceCounters[type] == 0)
     {
@@ -19,14 +19,4 @@ hive::Tile hive::Player::takeTile(TileType type)
     pieceCounters[type]--;
 
     return Tile(type, color);
-}
-
-std::ostream &hive::operator<<(std::ostream &os, const Player &player)
-{
-    os << "Player piece counters:\n";
-    for (const auto &counter : player.pieceCounters)
-    {
-        os << "TileType: " << static_cast<int>(counter.first) << " Count: " << counter.second << "\n";
-    }
-    return os;
 }

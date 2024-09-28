@@ -11,16 +11,13 @@ protected:
 
 TEST_F(GameInitializationTest, BoardInit)
 {
- /*
+     
     ASSERT_TRUE(game.board.boardTiles.empty());
     ASSERT_EQ(game.board.emptyTiles.size(), 1);
 
-    auto position = game.board.emptyTiles.begin();
-    ASSERT_EQ(position,{0,0});
-    ASSERT_EQ(game.blackPieces.size(), 11);
-    ASSERT_EQ(game.whitePieces.size(), 11);
-*/
-}
+    auto position = *game.board.emptyTiles.begin();
+    ASSERT_EQ(position,hive::Position({0,0}));
+   }
 
 /*
 to ma sprwadzać reset po zrobieniu kilku ruchów

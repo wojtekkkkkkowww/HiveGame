@@ -1,6 +1,7 @@
 #include <set>
 #include <gtest/gtest.h>
 #include "Game.hpp"
+#include <iostream>
 
 class BoardTest : public ::testing::Test
 {
@@ -10,14 +11,14 @@ protected:
 
 TEST_F(BoardTest, GetNeighboursAtOrigin)
 {
-    std::set<std::pair<int, int>> expectedNeighbours = {
+    std::set<hive::Position> expectedNeighbours = {
         {1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}};
     ASSERT_EQ(board.getNeighbours({0, 0}), expectedNeighbours);
 }
 
 TEST_F(BoardTest, GetNeighboursAtPosition)
 {
-    std::set<std::pair<int, int>> expectedNeighbours = {
+    std::set<hive::Position> expectedNeighbours = {
         {3, -1}, {3, 0}, {2, 1}, {1, 1}, {1, 0}, {2, -1}};
     ASSERT_EQ(board.getNeighbours({2, 0}), expectedNeighbours);
 }
@@ -30,15 +31,16 @@ TEST_F(BoardTest, GetTileAtEmptyPosition)
 
 TEST_F(BoardTest, GetTileAtPosition)
 {
-    hive::Tile tile(hive::TileType::QUEEN, hive::Color::WHITE);
+    hive::Tile tile("QUEEN","WHITE");
     board.addTile({0, 0}, tile);
     auto retrievedTile = board.getTile({0, 0});
-    ASSERT_TRUE(retrievedTile == tile);
+    
+    ASSERT_TRUE(retrievedTile.type == tile.type && retrievedTile.color == tile.color);
 }
 
 TEST_F(BoardTest, AddEmptyTilesAroundBoard)
 {
-    hive::Tile tile(hive::TileType::QUEEN, hive::Color::WHITE);
+    hive::Tile tile("QUEEN","WHITE");
     board.addTile({0, 0}, tile);
     board.addEmptyTilesAroundBoard();
     auto emptyTiles = board.emptyTiles;
@@ -50,7 +52,7 @@ TEST_F(BoardTest, AddEmptyTilesAroundBoard)
 
 TEST_F(BoardTest, RemoveTile)
 {
-    hive::Tile tile(hive::TileType::QUEEN, hive::Color::WHITE);
+    hive::Tile tile("QUEEN","WHITE");
     board.addTile({0, 0}, tile);
     board.removeTile({0, 0});
     EXPECT_THROW(board.getTile({0, 0}), std::invalid_argument);

@@ -1,4 +1,4 @@
-#include "HiveGameEngine.hpp"
+#include "Game.hpp"
 #include "GUI.hpp"
 
 int main()
