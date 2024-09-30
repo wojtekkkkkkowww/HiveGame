@@ -10,9 +10,8 @@ protected:
     hive::Game game;
 };
 
-
 void saveBoardAsPng(const hive::Board &board, const std::string &filename, float hexSize = 32.0f)
-{   
+{
     sf::RenderTexture renderTexture;
     renderTexture.create(800, 600); // Adjust the size as needed
     BoardDrawable boardDrawable(board, hexSize);
@@ -75,7 +74,6 @@ TEST_F(TileMovementTest, MoveExistingTile)
     saveBoardAsPng(game.board, "MoveExistingTile.png");
 }
 
-
 TEST_F(TileMovementTest, CountersCheck)
 {
     game.applyAction({"PLACE", hive::Position{0, 0}, "ANT"});
@@ -87,5 +85,44 @@ TEST_F(TileMovementTest, CountersCheck)
     saveBoardAsPng(game.board, "CountersCheck.png");
 
     ASSERT_THROW(game.applyAction({"PLACE", hive::Position{-3, 0}, "ANT"}), std::invalid_argument);
+}
 
+TEST_F(TileMovementTest, GameEndScenario)
+{
+    // Set up a board where the next move ends the game
+    game.applyAction({"PLACE", hive::Position{0, 0}, "QUEEN"});
+    game.applyAction({"PLACE", hive::Position{1, 0}, "QUEEN"});
+    game.applyAction({"PLACE", hive::Position{0, 1}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{1, 1}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{0, -1}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{1, -1}, "ANT"});
+    game.applyAction({"PLACE", hive::Position{-1, 0}, "GRASSHOPPER"});
+    game.applyAction({"MOVE", hive::Position{1, 1}, hive::Position{-1, 1}});
+
+    // Check the game status
+    saveBoardAsPng(game.board, "GameEndScenario.png");
+    ASSERT_EQ(game.getGameStatus(), "BLACK_WINS");
+}
+
+TEST_F(TileMovementTest, GrasshopperAvailableMoves)
+{
+    hive::Tile grasshopper("GRASSHOPPER", "WHITE");
+    game.applyAction({"PLACE", hive::Position{0, 0}, "QUEEN"});
+    game.applyAction({"PLACE", hive::Position{0, 0} + hive::N, "QUEEN"});
+    hive::Position firstGrasshopperPosition = hive::Position{0, 0} + hive::S;
+    game.applyAction({"PLACE", firstGrasshopperPosition, "GRASSHOPPER"});
+    hive::Position secondGrasshopperPosition = hive::Position{0, 0} + hive::N + hive::N;
+    game.applyAction({"PLACE",secondGrasshopperPosition, "GRASSHOPPER"});
+    auto moves = game.board.getAvailableMoves(game.board.getTile(firstGrasshopperPosition));
+    std::cerr << "Available moves for the first grasshopper:" << std::endl;
+    for(auto move : moves){
+        std::cerr << move.x << " " << move.y << std::endl;
+    }
+    hive::Position avaliableMove = secondGrasshopperPosition + hive::N; 
+    game.applyAction({"MOVE", firstGrasshopperPosition, avaliableMove});
+    ASSERT_TRUE(moves.size() == 1);
+    ASSERT_TRUE(moves.count(avaliableMove) == 1);
+
+    // Save the board state as a PNG file
+    saveBoardAsPng(game.board, "GrasshopperAvailableMoves.png");
 }

@@ -9,7 +9,7 @@ BoardDrawable::BoardDrawable(const hive::Board &board, float hexSize)
 
 void BoardDrawable::loadTextures()
 {
-    std::vector<std::string> tileNames = {"ANT", "BEETLE", "GRASSHOPER", "QUEEN", "SPIDER"};
+    std::vector<std::string> tileNames = {"ANT", "BEETLE", "GRASSHOPPER", "QUEEN", "SPIDER"};
     for (const auto &name : tileNames)
     {
         sf::Texture texture;

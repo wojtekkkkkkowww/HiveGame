@@ -99,16 +99,19 @@ namespace hive
         for (auto &direction : directions)
         {
             Position current = position;
-            while (!isEmpty(current))
+
+            // nie może skakać na puste pola obok siebie
+            if (isEmpty(current + direction))
             {
-                current.x += direction.x;
-                current.y += direction.y;
+                continue;
             }
 
-            if (isEmpty(current))
+            while (!isEmpty(current))
             {
-                moves.insert(current);
+                current = current + direction;
             }
+
+            moves.insert(current);
         }
 
         return moves;

@@ -20,3 +20,8 @@ hive::Tile hive::Player::takeTile(std::string type)
 
     return Tile(type, color);
 }
+
+void hive::Player::returnTile(std::string type)
+{
+    pieceCounters[type]++;
+}

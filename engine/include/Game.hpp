@@ -5,22 +5,19 @@
 #include <map>
 #include <stdexcept>
 #include <set>
+#include <stack>
+#include <string>
 
 #include "Player.hpp"
 #include "Board.hpp"
 #include "Tile.hpp"
 #include "Action.hpp"
 #include "Position.hpp"
+#include "ActionHandler.hpp"
+#include "TurnManager.hpp"
 
 namespace hive
 {
-    enum class GameStatus
-    {
-        PLAYING,
-        WHITE_WINS,
-        BLACK_WINS,
-        DRAW
-    };
 
     class Game
     {
@@ -30,24 +27,18 @@ namespace hive
 
         void startNewGame();
         void applyAction(Action action);
+        void revertAction();
         std::set<Action> getAvailableActions();
         std::string getCurrentTurn() { return currentTurn; }
+        std::string getGameStatus() { return gameStatus; }
 
         Board board;
         std::string currentTurn;
         std::map<std::string, Player> players;
-        GameStatus status = GameStatus::PLAYING;
+        std::string gameStatus = "PLAYING";
 
     private:
-        Tile createTile(std::string type, std::string color);
-        void switchTurn();
-        void updateGameStatus();
-        void moveTile(Position position, Position newPosition);
-        void placeTile(Position position, std::string type);
-        void generateMoveActions(std::set<hive::Action> &availableActions);
-        void generatePlaceActions(std::set<hive::Action> &availableActions);
-        bool isActionValid(const Action& action);
-        bool isPlaceActionValid(const Action& action);
-        bool isMoveActionValid(const Action& action);
+        ActionHandler actionHandler;
+        TurnManager turnManager;
     };
 }

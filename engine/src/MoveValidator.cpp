@@ -22,10 +22,24 @@ namespace hive
         {
             return calculateNeighbours(newPosition, tile.color) >= 3;
         }
-        else
+
+        if (tile.type != "BEETLE" && tile.type != "GRASSHOPPER")
         {
             return isDirectionBlocked(position, direction);
         }
+
+        /*
+        kiedy beetle sie rusza może mieć blokadę ale nie musi :|
+        */
+        if (tile.type == "BEETLE")
+        {
+            if (getLevel(position) == getLevel(newPosition) + 1)
+            {
+                return isDirectionBlocked(position, direction);
+            }
+        }
+
+        return false;
     }
 
     bool MoveValidator::isOccupiedByOpponent(Position pos, std::string color)
@@ -70,17 +84,16 @@ namespace hive
     bool MoveValidator::isDirectionBlocked(Position position, Position direction)
     {
         std::map<Position, std::vector<Position>> neighboringDirections = {
-            {{0, 1}, {{1, 1}, {-1, 1}}},    // N -> NE, NW
-            {{1, 1}, {{0, 1}, {1, -1}}},    // NE -> N, SE
-            {{1, -1}, {{1, 1}, {0, -1}}},   // SE -> NE, S
-            {{0, -1}, {{1, -1}, {-1, -1}}}, // S -> SE, SW
-            {{-1, -1}, {{0, -1}, {-1, 1}}}, // SW -> S, NW
-            {{-1, 1}, {{0, 1}, {-1, -1}}}   // NW -> N, SW
-        };
+            {N, {N, NE}},
+            {NE, {N, SE}},
+            {SE, {NE, S}},
+            {S, {SE, SW}},
+            {SW, {S, NW}},
+            {NW, {N, SW}}};
 
         if (neighboringDirections.find(direction) == neighboringDirections.end())
         {
-            std::cerr << "Error: Invalid direction provided." << std::endl;
+            std::cerr << "Error: Invalid direction provided. " << direction.x << " " << direction.y << std::endl;
             return true;
         }
         auto neighbors = neighboringDirections[direction];
