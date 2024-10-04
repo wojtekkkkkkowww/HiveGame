@@ -8,11 +8,11 @@ namespace hive
     class DFS
     {
     public:
-        DFS(BaseBoard &board) : board(board) {}
-        std::set<Position> performDFS(Position start);
+        DFS(std::set<Position> &tiles) : tiles(tiles) {}
+        std::set<Position> performDFS();
 
     private:
-        BaseBoard &board;
+        std::set<Position> &tiles;
         std::set<Position> visited;
         void explore(Position position);
     };

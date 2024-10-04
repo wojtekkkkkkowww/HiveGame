@@ -6,21 +6,21 @@
 class BoardTest : public ::testing::Test
 {
 protected:
-    hive::Board board;
+    hive::Board board; // to jest bez sensu klasa BoarTest powinan dziedziczyć po klasie Board 
 };
 
 TEST_F(BoardTest, GetNeighboursAtOrigin)
 {
     std::set<hive::Position> expectedNeighbours = {
         {1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}};
-    ASSERT_EQ(board.getNeighbours({0, 0}), expectedNeighbours);
+    ASSERT_EQ(hive::Board::getNeighbours({0, 0}), expectedNeighbours);
 }
 
 TEST_F(BoardTest, GetNeighboursAtPosition)
 {
     std::set<hive::Position> expectedNeighbours = {
         {3, -1}, {3, 0}, {2, 1}, {1, 1}, {1, 0}, {2, -1}};
-    ASSERT_EQ(board.getNeighbours({2, 0}), expectedNeighbours);
+    ASSERT_EQ(hive::Board::getNeighbours({2, 0}), expectedNeighbours);
 }
 
 TEST_F(BoardTest, GetTileAtEmptyPosition)

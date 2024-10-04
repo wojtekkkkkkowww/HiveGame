@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stack>
+#include <deque>
 
 #include "Game.hpp"
 
@@ -29,9 +29,16 @@ namespace hive
         turnManager.revertTurn();
     }
 
-    std::set<Action> Game::getAvailableActions()
-    {
+    std::set<Action> Game::getAvailableActions() const
+    {   try{
         return actionHandler.getAvailableActions();
+        }
+        catch(const std::exception &e)
+        {
+            std::cerr << "dupa" << e.what() << std::endl;
+        
+            return std::set<Action>();
+        }
     }
 
     void Game::startNewGame()

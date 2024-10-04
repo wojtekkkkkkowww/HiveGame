@@ -22,4 +22,4 @@ add_subdirectory(gui)
 add_subdirectory(main)
 add_subdirectory(tests)
 
-add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+add_compile_options(-Wall -Wextra -Wpedantic -Werror -g)

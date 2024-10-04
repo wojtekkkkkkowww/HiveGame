@@ -11,12 +11,13 @@
 namespace hive {
 
 struct Action {
-    std::string type;
-    std::string tile_type = "QUEEN";
-    Position position;
-    Position newPosition = {0, 0};
+    std::string type = "WAIT";//
+    std::string tile_type  = "QUEEN";//
+    Position position = {0, 0};//
+    Position newPosition = {0, 0};//
 
-    Action(std::initializer_list<std::variant<std::string, Position>> init_list) {
+    Action() {
+        /*
         auto it = init_list.begin();
         type = std::get<std::string>(*it++);
         position = std::get<Position>(*it++);
@@ -28,11 +29,11 @@ struct Action {
             makeWaitAction();
         } else {
             throw std::invalid_argument("Invalid action type");
-        }
+        }*/
     }
 
     void makeWaitAction() {
-        type = "WAIT";
+        this -> type = "WAIT";
     }
 
     void makeMoveAction(Position position, Position newPosition) {
@@ -76,5 +77,23 @@ struct Action {
         return os;
     }
 };
+ 
+struct MoveAction : public Action {
+    MoveAction(Position position, Position newPosition) {
+        makeMoveAction(position, newPosition);
+    }
+};
 
-}
+struct PlaceAction : public Action {
+    PlaceAction(Position position, std::string tile_type) {
+        makePlaceAction(position, tile_type);
+    }
+};
+
+struct WaitAction : public Action {
+    WaitAction() {
+        makeWaitAction();
+    }
+};
+
+} 

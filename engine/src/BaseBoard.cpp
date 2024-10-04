@@ -9,15 +9,24 @@ namespace hive
         emptyTiles.insert({0, 0});
     }
 
-    Tile BaseBoard::getTile(Position position)
+    Tile BaseBoard::getTile(Position position) const
     {
         if (isEmpty(position))
         {
             throw std::invalid_argument("No tile at position");
         }
-        auto tileList = boardTiles[position];
-        auto tile = tileList.front();
-        return tile;
+
+        try
+        {
+            auto tiles = boardTiles.at(position);
+            auto tile = tiles.back();
+            return tile;
+        }
+        catch (std::exception &e)
+        {
+            std::cout << "Error: " << e.what() << std::endl;
+            throw;
+        }
     }
 
     void BaseBoard::removeTile(Position position)
@@ -38,21 +47,74 @@ namespace hive
 
         if (isEmpty(position))
         {
-            boardTiles[position] = std::list<Tile>();
+            boardTiles[position] = std::deque<Tile>();
         }
 
         boardTiles[position].push_back(tile);
         addEmptyTilesAroundBoard();
     }
 
-    bool BaseBoard::isEmpty(Position position)
+    bool BaseBoard::isEmpty(Position position) const
     {
         return boardTiles.find(position) == boardTiles.end();
     }
 
-    int BaseBoard::getLevel(Position position)
+    int BaseBoard::getLevel(Position position) const
     {
-        return boardTiles[position].size();
+        if (isEmpty(position))
+        {
+            return 0;
+        }
+
+        return boardTiles.at(position).size();
+    }
+
+    std::set<Position> BaseBoard::getPlayerTiles(std::string color) const
+    {
+        std::set<Position> playerTiles;
+        for (const auto &[key, tiles] : boardTiles)
+        {
+            const auto &tile = tiles.back();
+            if (tile.color == color)
+            {
+                playerTiles.insert(tile.position);
+            }
+        }
+        return playerTiles;
+    }
+
+    void BaseBoard::addEmptyTilesAroundBoard()
+    {
+        emptyTiles.clear();
+        for (const auto &[key, tiles] : boardTiles)
+        {
+            const auto &tile = tiles.back();
+            for (const auto &neighbourPosition : getNeighbours(tile.position))
+            {
+                if (isEmpty(neighbourPosition))
+                {
+                    emptyTiles.insert(neighbourPosition);
+                }
+            }
+        }
+    }
+
+    int BaseBoard::calculateNeighbours(Position position, std::string color) const
+    {
+        int count = 0;
+        auto neighbours = getNeighbours(position);
+        for (const auto &neighbour : neighbours)
+        {
+            if (!isEmpty(neighbour))
+            {
+                auto tile = getTile(neighbour);
+                if (tile.color == color)
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     std::set<Position> BaseBoard::getNeighbours(Position position)
@@ -66,53 +128,5 @@ namespace hive
         }
 
         return neighbours;
-    }
-
-    std::set<Position> BaseBoard::getPlayerTiles(std::string color)
-    {
-        std::set<Position> playerTiles;
-        for (auto [key, tileList] : boardTiles)
-        {
-            auto tile = tileList.front();
-            if (tile.color == color)
-            {
-                playerTiles.insert(tile.position);
-            }
-        }
-        return playerTiles;
-    }
-
-    void BaseBoard::addEmptyTilesAroundBoard()
-    {
-        emptyTiles.clear();
-        for (auto [key, tileList] : boardTiles)
-        {
-            auto tile = tileList.front();
-            for (auto neighbourPosition : getNeighbours(tile.position))
-            {
-                if (isEmpty(neighbourPosition))
-                {
-                    emptyTiles.insert(neighbourPosition);
-                }
-            }
-        }
-    }
-
-    int BaseBoard::calculateNeighbours(Position position, std::string color)
-    {
-        int count = 0;
-        auto neighbours = getNeighbours(position);
-        for (auto neighbour : neighbours)
-        {
-            if (!isEmpty(neighbour))
-            {
-                auto tile = getTile(neighbour);
-                if (tile.color == color)
-                {
-                    count++;
-                }
-            }
-        }
-        return count;
     }
 }

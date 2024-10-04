@@ -17,13 +17,13 @@ namespace hive
             return *this;
         }
 
-        bool isMoveBlocked(Position position, Position newPosition);
-        bool isOccupiedByOpponent(Position pos, std::string color);
-        bool isQueenSurrounded(std::string color);
+        bool isMoveBlocked(Position position, Position newPosition) const;
+        bool isOccupiedByOpponent(Position pos, std::string color) const;
+        bool isQueenSurrounded(std::string color) const;
 
     private:
-        bool isHiveConnectedAfterRemove(Position position);
-        bool isDirectionBlocked(Position position, Position direction);
-        bool isTouchingHiveAfterMove(Position position, Position newPosition);
+        bool isHiveConnectedAfterRemove(Position position) const;
+        bool isDirectionBlocked(Position position, Position direction) const;
+        bool isTouchingHiveAfterMove(Position position, Position newPosition) const;
     };
 }

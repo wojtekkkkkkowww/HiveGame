@@ -3,9 +3,7 @@
 #include <map>
 #include <set>
 #include <memory>
-#include <list>
 #include <stdexcept>
-
 #include "Tile.hpp"
 #include "BaseBoard.hpp"
 #include "MovementManager.hpp"

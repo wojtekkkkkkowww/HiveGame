@@ -5,7 +5,7 @@
 #include <map>
 #include <stdexcept>
 #include <set>
-#include <stack>
+#include <deque>
 #include <string>
 
 #include "Player.hpp"
@@ -28,9 +28,9 @@ namespace hive
         void startNewGame();
         void applyAction(Action action);
         void revertAction();
-        std::set<Action> getAvailableActions();
-        std::string getCurrentTurn() { return currentTurn; }
-        std::string getGameStatus() { return gameStatus; }
+        std::set<Action> getAvailableActions() const;
+        std::string getCurrentTurn() const { return currentTurn; }
+        std::string getGameStatus() const { return gameStatus; }
 
         Board board;
         std::string currentTurn;

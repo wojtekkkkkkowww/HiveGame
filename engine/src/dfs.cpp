@@ -1,4 +1,5 @@
 #include "dfs.hpp"
+#include "BaseBoard.hpp"
 
 namespace hive
 {
@@ -6,15 +7,17 @@ namespace hive
     {
         visited.insert(position);
 
-        for (const auto &neighbor : board.getNeighbours(position))
+        for (const auto &neighbor : BaseBoard::getNeighbours(position))
         {
-            if (!board.isEmpty(neighbor) && visited.find(neighbor) == visited.end())
-                explore(neighbor);
+            if (tiles.find(neighbor) != tiles.end() && visited.find(neighbor) == visited.end())
+            {   explore(neighbor);
+            }
         }
     }
 
-    std::set<Position> DFS::performDFS(Position start)
+    std::set<Position> DFS::performDFS()
     {
+        Position start = *tiles.begin();
         visited.clear();
         explore(start);
         return visited;

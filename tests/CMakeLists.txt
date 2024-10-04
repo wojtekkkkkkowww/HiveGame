@@ -23,6 +23,8 @@ target_include_directories(
   ${CMAKE_SOURCE_DIR}/gui/include
 
 )
+target_compile_definitions(test_GameLogic PUBLIC SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+
 
 include(GoogleTest)
 gtest_discover_tests(test_GameLogic)

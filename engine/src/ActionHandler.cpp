@@ -14,7 +14,7 @@ namespace hive
             throw std::invalid_argument("Invalid action");
         }
 
-        actions.push(action);
+        actions.push_back(action);
 
         if (action.type == "PLACE")
         {
@@ -37,8 +37,8 @@ namespace hive
             return;
         }
 
-        Action action = actions.top();
-        actions.pop();
+        Action action = actions.back();
+        actions.pop_back();
 
         if (action.type == "MOVE")
         {
@@ -51,52 +51,83 @@ namespace hive
         }
     }
 
-    std::set<Action> ActionHandler::getAvailableActions()
+    std::set<Action> ActionHandler::getAvailableActions() const
     {
         std::set<Action> availableActions = {};
+       
         if (status == "PLAYING")
         {
-            generatePlaceActions(availableActions);
-            generateMoveActions(availableActions);
+            try{
+                generatePlaceActions(availableActions);
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "DUPA" << e.what() << std::endl;
+            }
+            
+            try
+            {
+                generateMoveActions(availableActions);
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "KUPA" << e.what() << std::endl;
+            }
+
+            try{
             if (availableActions.empty())
             {
-                Action action({"WAIT"});
+                WaitAction action;
                 availableActions.insert(action);
+            }}catch(std::exception &e)
+            {
+                std::cerr << "SIUP TO JA" << e.what() << std::endl;
             }
-        }
-        return availableActions;
-    }
 
-    bool ActionHandler::isActionValid(const Action &action)
-    {
-        std::set<Action> availableActions = getAvailableActions();
+        }
+
+
         std::cerr << "Available actions: " << std::endl;
         for (auto actio : availableActions)
         {
             std::cerr << actio << std::endl;
         }
+        return availableActions;
+    }
+
+    bool ActionHandler::isActionValid(const Action &action) const
+    {
+        std::set<Action> availableActions = getAvailableActions();
         std::cerr << "----------------" << std::endl;
         std::cerr << action << std::endl;
+
         return availableActions.find(action) != availableActions.end();
     }
 
-    void ActionHandler::generateMoveActions(std::set<Action> &availableActions)
+    void ActionHandler::generateMoveActions(std::set<Action> &availableActions) const
     {
         for (const auto &position : board.getPlayerTiles(currentTurn))
         {
-            auto tile = board.getTile(position);
-            for (const auto &newPosition : board.getAvailableMoves(tile))
+            try
             {
-                Action action({"MOVE", position, newPosition});
-                if (isMoveActionValid({"MOVE", position, newPosition}))
+                auto tile = board.getTile(position);
+                for (const auto &newPosition : board.getAvailableMoves(tile))
                 {
-                    availableActions.insert(action);
+                    MoveAction action(position, newPosition);
+                    if (isMoveActionValid(action))
+                    {
+                        availableActions.insert(action);
+                    }
                 }
+            }
+            catch (std::exception &e)
+            {
+                std::cerr << "dupa" << e.what() << std::endl;
             }
         }
     }
 
-    void ActionHandler::generatePlaceActions(std::set<Action> &availableActions)
+    void ActionHandler::generatePlaceActions(std::set<Action> &availableActions) const
     {
         std::vector<std::string> types = {"ANT", "BEETLE", "GRASSHOPPER", "SPIDER", "QUEEN"};
 
@@ -106,7 +137,7 @@ namespace hive
             {
                 for (const auto &position : board.emptyTiles)
                 {
-                    Action action({"PLACE", position, type});
+                    PlaceAction action(position, type);
                     if (isPlaceActionValid(action))
                     {
                         availableActions.insert(action);
@@ -116,7 +147,7 @@ namespace hive
         }
     }
 
-    bool ActionHandler::isPlaceActionValid(const Action &action)
+    bool ActionHandler::isPlaceActionValid(const Action &action) const
     {
         if (!players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 4)
         {
@@ -133,15 +164,27 @@ namespace hive
         return board.isOccupiedByOpponent(action.position, opponent) || players[currentTurn].firstMove;
     }
 
-    bool ActionHandler::isMoveActionValid(const Action &action)
+    bool ActionHandler::isMoveActionValid(const Action &action) const
     {
-        if (!players[currentTurn].queenPlaced)
+        std::cerr << "Checking move action" << std::endl;
+        std::cerr << action.type << " " << action.position.x << " " << action.position.y << " " << action.newPosition.x << " " << action.newPosition.y << std::endl;
+        try
         {
+            if (!players[currentTurn].queenPlaced)
+            {
+                std::cerr << "Queen not placed" << std::endl;
+                return false;
+            }
+        }
+        catch (std::exception &e)
+        {
+            std::cerr << "że co " << e.what() << std::endl;
             return false;
         }
 
         if (board.isMoveBlocked(action.position, action.newPosition))
         {
+            std::cerr << "Move blocked" << std::endl;
             return false;
         }
         return true;

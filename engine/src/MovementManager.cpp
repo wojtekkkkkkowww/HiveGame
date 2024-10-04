@@ -3,7 +3,7 @@
 namespace hive
 {
 
-    std::set<Position> MovementManager::getQueenBeeMoves(Position position)
+    std::set<Position> MovementManager::getQueenBeeMoves(Position position) const
     {
         std::set<Position> neighbours = getNeighbours(position);
         std::set<Position> moves;
@@ -24,7 +24,7 @@ namespace hive
     z małym wyjąkiem którym jest to że miejsce w które chce skoczyć musi być
     albo na tym samym poziomie albo o jeden wyżej.
     */
-    std::set<Position> MovementManager::getBeetleMoves(Position position)
+    std::set<Position> MovementManager::getBeetleMoves(Position position) const
     {
         std::set<Position> moves;
         std::vector<Position> directions = {N, NE, SE, S, SW, NW};
@@ -33,8 +33,11 @@ namespace hive
         for (auto &direction : directions)
         {
             Position newPos = {position.x + direction.x, position.y + direction.y};
-            if ((isEmpty(newPos) || abs(beetle_level - getLevel(newPos)) <= 1))
-            {
+            std::cerr << "dif " << abs(beetle_level - getLevel(newPos)) << std::endl;
+            std::cerr << "newPos " << newPos.x << " " << newPos.y << std::endl;
+            if ( abs(beetle_level - getLevel(newPos)) <= 1)
+            {   
+                std::cerr << "hej newPos " << newPos.x << " " << newPos.y << std::endl;
                 moves.insert(newPos);
             }
         }
@@ -53,7 +56,7 @@ namespace hive
     4) wracasz do punktu 1 lub kończysz rekurencję dodając pole do zbioru dostępnych ruchów
     */
 
-    std::set<Position> MovementManager::getSpiderMoves(Position position)
+    std::set<Position> MovementManager::getSpiderMoves(Position position) const
     {
         std::set<Position> visited;
 
@@ -91,7 +94,7 @@ namespace hive
     sprawdż w których kierunkach możesz iść
     i idź w każdą stronę do końca planszy(aż napotkasz puste pole) dodaj do zbioru dostępnych ruchów
     */
-    std::set<Position> MovementManager::getGrasshopperMoves(Position position)
+    std::set<Position> MovementManager::getGrasshopperMoves(Position position) const
     {
         std::set<Position> moves;
         std::vector<Position> directions = {N, NE, SE, S, SW, NW};
@@ -117,7 +120,7 @@ namespace hive
         return moves;
     }
 
-    std::set<Position> MovementManager::getAntMoves(Position position)
+    std::set<Position> MovementManager::getAntMoves(Position position) const
     {
         position.x += 0;
         position.y += 0;
@@ -125,17 +128,42 @@ namespace hive
         return emptyTiles;
     }
 
-    std::set<Position> MovementManager::getAvailableMoves(Tile tile)
+    std::set<Position> MovementManager::getAvailableMoves(Tile tile) const
     {
-        using MoveFunc = std::set<Position> (MovementManager::*)(Position);
-        std::map<std::string, MoveFunc> functions = {
-            {"QUEEN", &MovementManager::getQueenBeeMoves},
-            {"BEETLE", &MovementManager::getBeetleMoves},
-            {"SPIDER", &MovementManager::getSpiderMoves},
-            {"GRASSHOPPER", &MovementManager::getGrasshopperMoves},
-            {"ANT", &MovementManager::getAntMoves}};
-        MoveFunc func = functions[tile.type];
-        return (this->*func)(tile.position);
+        /*nie chce mi sie zamieniac na enum*/
+        try{
+        if (tile.type == "QUEEN")
+        {
+            std::cerr << "enter Queen" << std::endl;
+            return getQueenBeeMoves(tile.position);
+        }
+        else if (tile.type == "BEETLE")
+        {
+            std::cerr << "enter Beetle" << std::endl;
+            return getBeetleMoves(tile.position);
+        }
+        else if (tile.type == "SPIDER")
+        {
+            std:: cerr << "enter Spider" << std::endl;
+            return getSpiderMoves(tile.position);
+        }
+        else if (tile.type == "GRASSHOPPER")
+        {
+            std::cerr << "enter Grasshopper" << std::endl;
+            return getGrasshopperMoves(tile.position);
+        }
+        else if (tile.type == "ANT")
+        {
+            std::cerr << "enter Ant" << std::endl;
+            return getAntMoves(tile.position);
+        }
+        else
+        {
+            return std::set<Position>(); // Return an empty set for unknown types
+        }}catch(std::exception &e){
+            std::cerr << "wtf" << e.what() << std::endl;
+            return std::set<Position>();
+        }
     }
 
 }

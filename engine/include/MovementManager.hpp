@@ -20,12 +20,12 @@ namespace hive
             return *this;
         }
 
-        std::set<Position> getQueenBeeMoves(Position position);
-        std::set<Position> getBeetleMoves(Position position);
-        std::set<Position> getSpiderMoves(Position position);
-        std::set<Position> getGrasshopperMoves(Position position);
-        std::set<Position> getAntMoves(Position position);
-        std::set<Position> getAvailableMoves(Tile tile);
+        std::set<Position> getQueenBeeMoves(Position position) const;
+        std::set<Position> getBeetleMoves(Position position) const;
+        std::set<Position> getSpiderMoves(Position position) const;
+        std::set<Position> getGrasshopperMoves(Position position) const;
+        std::set<Position> getAntMoves(Position position) const;
+        std::set<Position> getAvailableMoves(Tile tile) const;
     };
 
 }

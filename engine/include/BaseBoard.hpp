@@ -2,7 +2,7 @@
 
 #include <map>
 #include <set>
-#include <list>
+#include <deque>
 #include "Tile.hpp"
 #include "Position.hpp"
 
@@ -23,16 +23,17 @@ namespace hive
         }
 
         void resetBoard();
-        Tile getTile(Position position);
         void removeTile(Position position);
         void addTile(Position position, Tile &tile);
-        bool isEmpty(Position position);
-        int getLevel(Position position);
-        std::set<Position> getNeighbours(Position position);
-        std::set<Position> getPlayerTiles(std::string color);
-        int calculateNeighbours(Position position, std::string color);
+        Tile getTile(Position position) const;
+        bool isEmpty(Position position) const;
+        int getLevel(Position position) const;
+        std::set<Position> getPlayerTiles(std::string color) const;
+        int calculateNeighbours(Position position, std::string color) const;
 
-        std::map<Position, std::list<Tile>> boardTiles;
+        static std::set<Position> getNeighbours(Position position);
+
+        std::map<Position, std::deque<Tile>> boardTiles;
         std::set<Position> emptyTiles;
 
     private:

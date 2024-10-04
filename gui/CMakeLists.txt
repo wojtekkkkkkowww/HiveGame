@@ -7,3 +7,5 @@ target_include_directories(GUI PUBLIC
     ${CMAKE_SOURCE_DIR}/gui/include
     ${CMAKE_SOURCE_DIR}/engine/include 
 )
+
+target_compile_definitions(GUI PUBLIC SOURCE_DIR="${CMAKE_SOURCE_DIR}")
