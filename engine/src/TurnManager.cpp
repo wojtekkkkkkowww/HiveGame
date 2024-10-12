@@ -30,24 +30,23 @@ namespace hive
 
     void TurnManager::updateGameStatus()
     {
-        std::string opponent = (currentTurn == "WHITE") ? "BLACK" : "WHITE";
-        if (board.isQueenSurrounded(currentTurn) && board.isQueenSurrounded(opponent))
+        bool whiteQueenSurrounded = board.isQueenSurrounded("WHITE");
+        bool blackQueenSurrounded = board.isQueenSurrounded("BLACK");
+
+        if (whiteQueenSurrounded && blackQueenSurrounded)
         {
             gameStatus = "DRAW";
             std::cerr << "\033[31mDRAW\033[0m" << std::endl;
         }
-        else if (board.isQueenSurrounded(currentTurn))
+        else if (whiteQueenSurrounded)
         {
-            if (currentTurn == "WHITE")
-            {
-                gameStatus = "BLACK_WINS";
-                std::cerr << "\033[31mBLACK WINS\033[0m" << std::endl;
-            }
-            else
-            {
-                gameStatus = "WHITE_WINS";
-                std::cerr << "\033[31mWHITE WINS\033[0m" << std::endl;
-            }
+            gameStatus = "BLACK_WINS";
+            std::cerr << "\033[31mBLACK WINS\033[0m" << std::endl;
+        }
+        else if (blackQueenSurrounded)
+        {
+            gameStatus = "WHITE_WINS";
+            std::cerr << "\033[31mWHITE WINS\033[0m" << std::endl;
         }
         else
         {

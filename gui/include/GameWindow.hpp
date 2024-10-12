@@ -7,6 +7,7 @@
 #include "BoardDrawable.hpp"
 #include "PieceSelector.hpp"
 #include "Game.hpp"
+#include "Button.hpp"
 
 using namespace hive;
 
@@ -25,7 +26,9 @@ private:
     void handleWindowClose();
     void update();
     void render();
+    void updateTurnText();
     void handleMouseClick();
+    void handleWaitButtonClick();
     void handleMouseWheelScroll(float delta);
 
     void handlePieceSelectorClick(const sf::Vector2f &mousePos);
@@ -43,6 +46,9 @@ private:
     BoardDrawable boardDrawable;
     std::chrono::high_resolution_clock::time_point clickStartTime;
     std::string player = "";
+    sf::Text turnText;
+    Button waitButton;
+
 
     bool dragging = false;
     bool change = true;

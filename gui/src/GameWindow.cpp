@@ -9,8 +9,15 @@ GameWindow::GameWindow()
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
     font = resourceManager.getFont("arial.ttf");
-
     boardView = window.getDefaultView();
+    
+    waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait", font);
+    
+    turnText.setFont(font);
+    turnText.setCharacterSize(24);
+    turnText.setFillColor(sf::Color::Black);
+    turnText.setPosition(10, 10);
+    
 }
 
 void GameWindow::run()
@@ -125,19 +132,15 @@ void GameWindow::update()
     window.setView(boardView);
     boardDrawable.update();
     player = game->currentTurn;
-    std::cerr << "Board updated" << std::endl;
+    updateTurnText();
+
+    std::cerr << "Game window updated" << std::endl;
 }
 
 void GameWindow::render()
 {
     window.clear(sf::Color::White);
 
-    sf::Text turnText;
-    turnText.setFont(font);
-    turnText.setCharacterSize(24);
-    turnText.setFillColor(sf::Color::Black);
-    turnText.setPosition(10, 10);
-    turnText.setString("Current turn: " + player);
 
     window.setView(boardView);
     window.draw(boardDrawable);
@@ -147,7 +150,24 @@ void GameWindow::render()
     window.draw(turnText);
     window.draw(pieceSelector);
 
+    if (game->getAvailableActions().size() == 1 && game->getAvailableActions().begin()->type == "WAIT")
+    {
+        window.draw(waitButton);
+    }else{
+        std::cerr << game->getAvailableActions().size() << " " << game->getAvailableActions().begin()->type << std::endl;
+    }
+
     window.display();
+}
+
+void GameWindow::updateTurnText()
+{
+    if(game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" || game->gameStatus == "DRAW")
+    {
+        turnText.setString("Game over! " + game->gameStatus);
+        return;
+    }
+    turnText.setString("Current turn: " + player);
 }
 
 void GameWindow::handleMouseClick()
@@ -158,10 +178,21 @@ void GameWindow::handleMouseClick()
     if (pieceSelector.contains(mousePos))
     {
         handlePieceSelectorClick(mousePos);
-    }
-    else
+    }else if(waitButton.contains(mousePos))
     {
+        handleWaitButtonClick();
+    }
+    else{
         handleBoardClick(mousePos);
+    }
+}
+
+void GameWindow::handleWaitButtonClick()
+{
+    if (game->getAvailableActions().size() == 1 && game->getAvailableActions().begin()->type == "WAIT")
+    {
+        WaitAction action;
+        game->applyAction(action);
     }
 }
 
@@ -171,11 +202,14 @@ void GameWindow::handlePieceSelectorClick(const sf::Vector2f &mousePos)
 }
 
 void GameWindow::handleBoardClick(sf::Vector2f mousePos)
-{
+{   
+    /*
+    Trzeba zmienić na boardView przed sprawdzeniem pozycji
+    */
     window.setView(boardView);
     mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
     Position boardPos = convertMouseToBoardPos(mousePos);
-    std::cerr << "Mouse clicked board view at " << mousePos.x << " " << mousePos.y << std::endl;
 
     if (!pieceSelector.selectedPiece.empty())
     {

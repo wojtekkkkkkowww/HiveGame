@@ -1,6 +1,6 @@
 Co nie działa jak powinno:
 1) coś jest nie tak z ANT +
-2) coś jest nie tak z BEETLE 3 przypadki popsute
+2) coś jest nie tak z BEETLE 3 przypadki popsute + 
 3) coś jest nie tak ze wstawianiem nowych figur +
 4) coś jest nie tak z końcem gry może jednak nie ? 
 czego brakuje:
