@@ -42,17 +42,15 @@ namespace hive
         return calculateNeighbours(pos, opponent) > 0;
     }
 
-    
     bool MoveValidator::isQueenSurrounded(std::string color) const
     {
         std::string opponent = color == "WHITE" ? "BLACK" : "WHITE";
         Position position = (color == "WHITE") ? whiteQueen : blackQueen;
-        if(position == invalidPosition)
+        if (position == invalidPosition)
         {
             return false;
         }
         return calculateNeighbours(position, color) + calculateNeighbours(position, opponent) == 6;
-        
     }
 
     /*
@@ -61,10 +59,15 @@ namespace hive
     */
     bool MoveValidator::isHiveConnectedAfterRemove(Position position) const
     {
+        if (getLevel(position) > 1)
+        {
+            return true;
+        }
+
         std::set<Position> tilesPositions;
         for (auto [pos, _] : boardTiles)
         {
-            if (pos != position || getLevel(pos) >= 1) // tutaj można poprawić (gdy level > 1 to chyba nie trzeba dfs)
+            if (pos != position)
                 tilesPositions.insert(pos);
         }
 

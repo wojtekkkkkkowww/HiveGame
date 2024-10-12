@@ -87,7 +87,6 @@ private:
             }
             else
             {
-                std::cout << piece.first << selectedPiece << std::endl;
                 target.draw(piece.second, states);
             }
         }

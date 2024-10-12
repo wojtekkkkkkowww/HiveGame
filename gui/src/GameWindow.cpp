@@ -153,11 +153,10 @@ void GameWindow::render()
     if (game->getAvailableActions().size() == 1 && game->getAvailableActions().begin()->type == "WAIT")
     {
         window.draw(waitButton);
-    }else{
-        std::cerr << game->getAvailableActions().size() << " " << game->getAvailableActions().begin()->type << std::endl;
     }
 
     window.display();
+    std ::cerr << "Game window rendered" << std::endl;
 }
 
 void GameWindow::updateTurnText()
@@ -274,7 +273,6 @@ Position GameWindow::convertMouseToBoardPos(sf::Vector2f mousePos)
 {
     for (const auto &hex : boardDrawable.hexDrawables)
     {
-        std::cerr << "Checking hex at " << hex.tilePosition.x << " " << hex.tilePosition.y << std::endl;
         if (hex.contains(mousePos))
         {
             return hex.tilePosition;
