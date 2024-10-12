@@ -2,19 +2,30 @@
 
 ## Opis projektu
 
-**HiveGame** to gra strategiczna oparta na popularnej grze planszowej **Hive**. Projekt został napisany w języku C++ i wykorzystuje bibliotekę **SFML** do renderowania grafiki oraz obsługi interakcji użytkownika. Narazie została zaimplementowana logika gry (trzeba dodać więcej testów) i możliwość gry dla dwóch graczy.
+Implementacja gry planszowej **Hive**. Projekt został napisany w języku C++ na linux i wykorzystuje bibliotekę **SFML**. Narazie została zaimplementowana logika gry (trzeba dodać więcej testów) i gui umożliwiające rozgrywkę dla dwuch graczy.
+
+## PNG SOURCES
+https://www.instructables.com/Hive-game-with-box/
+
 
 ## Wymagania
 
-Aby uruchomić projekt na systemie Linux, należy zainstalować następujące pakiety:
-- `cmake`
-- `libsfml-dev`
-- `g++`
-
-Instalacja za pomocą menedżera pakietów, np. `apt` lub `dnf`:
+Należy zainstalować pakiety podane przez SFML:
+https://github.com/SFML/cmake-sfml-project/blob/master/README.md
+Instalacja za pomocą menedżera pakietów, np. `apt` :
 
 ```bash
-sudo dnf install libsfml-dev cmake g++
+sudo apt update
+sudo apt install \
+    libxrandr-dev \
+    libxcursor-dev \
+    libudev-dev \
+    libfreetype-dev \
+    libopenal-dev \
+    libflac-dev \
+    libvorbis-dev \
+    libgl1-mesa-dev \
+    libegl1-mesa-dev
 ```
 
 ## Budowanie projektu
@@ -33,11 +44,17 @@ sudo dnf install libsfml-dev cmake g++
 
 ## Testy jednostkowe
 
-Po zbudowaniu projektu można uruchomić testy w katalogu `build`. Testy generują pliki `.png` w katalogu build przedstawiające przebieg gry w danym teście.
+Po zbudowaniu projektu można uruchomić testy w katalogu `build`. Testy generują pliki `.png` w katalogu `build`, które przedstawiają przebieg gry w danym teście.
 
-Aby uruchomić testy:
+Aby uruchomić wszystkie testy:
 ```bash
 ./tests/test_GameLogic
+```
+
+Możliwe jest również uruchamianie pojedynczych testów, podając nazwę testu jako filtr. Na przykład:
+
+```bash
+./tests/test_GameLogic --gtest_filter=TileMovementTest.WhiteWins
 ```
 
 ## Uruchomienie gry dla dwóch graczy
@@ -48,4 +65,5 @@ Aby uruchomić grę:
 ```
 
 --- 
+
 
