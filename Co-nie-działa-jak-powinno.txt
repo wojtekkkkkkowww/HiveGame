@@ -1,9 +1,0 @@
-Co nie działa jak powinno:
-
-2) to musi być napisne bardziej ogólnie !!!!
-bo narazie to jest tylko dla 2 graczy 
-a nie chcę tego samego pisać gdybym miał grać z botem,,
-
-co trzeba zrobić:
-2) revert action też się przyda chyba jest zrobiony ale bez testów 
-
