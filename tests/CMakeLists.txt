@@ -13,8 +13,6 @@ target_link_libraries(test_GameLogic PRIVATE
     gtest
     gtest_main
     sfml-graphics
-    sfml-window
-    sfml-system
 )
 
 target_include_directories(

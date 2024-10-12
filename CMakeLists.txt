@@ -11,8 +11,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-set(SFML_DIR "/usr/lib64/cmake/SFML") 
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+include(FetchContent)
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 2.6.x
+    )
+FetchContent_MakeAvailable(SFML)
+
 
 enable_testing()
 
@@ -22,4 +27,10 @@ add_subdirectory(gui)
 add_subdirectory(main)
 add_subdirectory(tests)
 
-add_compile_options(-Wall -Wextra -Wpedantic -Werror -g)
+add_compile_options(
+  -Wall 
+  -Wextra 
+  -Wpedantic 
+  -Werror 
+  -std=c++17
+)

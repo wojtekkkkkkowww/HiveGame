@@ -1,9 +1,6 @@
 add_executable(HiveGameApp main.cpp)
 
-target_link_libraries(HiveGameApp GameEngine GUI
-    sfml-graphics sfml-window sfml-system
-
-)
+target_link_libraries(HiveGameApp GameEngine GUI sfml-graphics)
 
 target_include_directories(HiveGameApp PRIVATE
     ${CMAKE_SOURCE_DIR}/engine/include
