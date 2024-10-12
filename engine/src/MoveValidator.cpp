@@ -5,70 +5,32 @@ namespace hive
 {
     bool MoveValidator::isMoveBlocked(Position position, Position newPosition) const
     {
-        try
+
+        if (!isHiveConnectedAfterRemove(position))
         {
-            if (!isHiveConnectedAfterRemove(position))
-            {
-                std::cerr << "Hive is not connected after remove" << std::endl;
-                return true;
-            }
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "1" << e.what() << '\n';
+            return true;
         }
 
-        // do sprawdzenia
-        try
+        if (!isTouchingHiveAfterMove(position, newPosition))
         {
-            if (!isTouchingHiveAfterMove(position, newPosition))
-            {
-                std::cerr << "Not touching hive after move" << std::endl;
-                return true;
-            }
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "2" << e.what() << '\n';
+            return true;
         }
 
         Tile tile = getTile(position);
         Position direction = {newPosition.x - position.x, newPosition.y - position.y};
 
-        if (tile.type == "ANT")
+        if (tile.type == "QUEEN")
         {
-            return calculateNeighbours(newPosition, tile.color) >= 3;
+            return isDirectionBlocked(position, direction);
         }
 
-        try
+        if (tile.type == "BEETLE")
         {
-            if (tile.type != "BEETLE" && tile.type != "GRASSHOPPER")
+
+            if (getLevel(position) == getLevel(newPosition) + 1)
             {
                 return isDirectionBlocked(position, direction);
             }
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "3" << e.what() << '\n';
-        }
-
-        /*
-        kiedy beetle sie rusza może mieć blokadę ale nie musi :|
-        czyli to jest case kiedy trzeba sprawdzić czy jest blokada
-        */
-        try
-        {
-            if (tile.type == "BEETLE")
-            {
-                if (getLevel(position) == getLevel(newPosition) + 1)
-                {
-                    return isDirectionBlocked(position, direction);
-                }
-            }
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "4" << e.what() << '\n';
         }
 
         return false;
@@ -80,31 +42,29 @@ namespace hive
         return calculateNeighbours(pos, opponent) > 0;
     }
 
+    
     bool MoveValidator::isQueenSurrounded(std::string color) const
     {
         std::string opponent = color == "WHITE" ? "BLACK" : "WHITE";
-        for (auto [key, tiles] : boardTiles)
+        Position position = (color == "WHITE") ? whiteQueen : blackQueen;
+        if(position == invalidPosition)
         {
-            auto tile = tiles.back();
-            if (tile.color == color && tile.type == "QUEEN")
-            {
-                return calculateNeighbours(tile.position, color) + calculateNeighbours(tile.position, opponent) == 6;
-            }
+            return false;
         }
-        return false;
+        return calculateNeighbours(position, color) + calculateNeighbours(position, opponent) == 6;
+        
     }
 
     /*
-    nie wiarygone że to jest tak kosztowne żeby znaleść dziurę
-    możesz mieć okrąg i go rozerwac żęby sprawdzić czy krańce są połaczone
-    trzeba przejść cały
+    sprawdzenie wymaga przejścia po wszystkich polach urzywając dfs
+    corner case: Koło
     */
     bool MoveValidator::isHiveConnectedAfterRemove(Position position) const
     {
         std::set<Position> tilesPositions;
         for (auto [pos, _] : boardTiles)
         {
-            if (pos != position)
+            if (pos != position || getLevel(pos) >= 1) // tutaj można poprawić (gdy level > 1 to chyba nie trzeba dfs)
                 tilesPositions.insert(pos);
         }
 
@@ -112,29 +72,6 @@ namespace hive
         std::set<Position> visited = dfs.performDFS();
 
         return visited == tilesPositions;
-    }
-
-    bool MoveValidator::isDirectionBlocked(Position position, Position direction) const
-    {
-        std::map<Position, std::vector<Position>> neighboringDirections = {
-            {N, {N, NE}},
-            {NE, {N, SE}},
-            {SE, {NE, S}},
-            {S, {SE, SW}},
-            {SW, {S, NW}},
-            {NW, {N, SW}}};
-
-        if (neighboringDirections.find(direction) == neighboringDirections.end())
-        {
-            std::cerr << "Error: Invalid direction provided. " << direction.x << " " << direction.y << std::endl;
-            return true;
-        }
-        auto neighbors = neighboringDirections[direction];
-
-        Position neighborPosition1 = {position.x + neighbors[0].x, position.y + neighbors[0].y};
-        Position neighborPosition2 = {position.x + neighbors[1].x, position.y + neighbors[1].y};
-
-        return !isEmpty(neighborPosition1) && !isEmpty(neighborPosition2);
     }
 
     bool MoveValidator::isTouchingHiveAfterMove(Position position, Position newPosition) const

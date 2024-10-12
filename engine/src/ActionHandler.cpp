@@ -6,15 +6,15 @@ namespace hive
     ActionHandler::ActionHandler(Board &board, std::map<std::string, Player> &players, std::string &currentTurn, std::string &status)
         : board(board), players(players), currentTurn(currentTurn), status(status) {}
 
-    void ActionHandler::applyAction(Action action)
+    bool ActionHandler::applyAction(Action action)
     {
         if (!isActionValid(action))
         {
             std::cerr << "Invalid action" << std::endl;
-            throw std::invalid_argument("Invalid action");
+            return false;
         }
 
-        actions.push_back(action);
+        actions.push(action);
 
         if (action.type == "PLACE")
         {
@@ -28,6 +28,8 @@ namespace hive
         {
             std::cerr << "SKIPPING TURN" << std::endl;
         }
+
+        return true;
     }
 
     void ActionHandler::revertAction()
@@ -37,8 +39,8 @@ namespace hive
             return;
         }
 
-        Action action = actions.back();
-        actions.pop_back();
+        Action action = actions.top();
+        actions.pop();
 
         if (action.type == "MOVE")
         {
@@ -51,83 +53,53 @@ namespace hive
         }
     }
 
-    std::set<Action> ActionHandler::getAvailableActions() const
+    void ActionHandler::genAvailableActions()
     {
-        std::set<Action> availableActions = {};
-       
+        availableActions.clear();
         if (status == "PLAYING")
         {
-            try{
-                generatePlaceActions(availableActions);
-            }
-            catch (std::exception &e)
-            {
-                std::cerr << "DUPA" << e.what() << std::endl;
-            }
-            
-            try
-            {
-                generateMoveActions(availableActions);
-            }
-            catch (std::exception &e)
-            {
-                std::cerr << "KUPA" << e.what() << std::endl;
-            }
+            generatePlaceActions();
+            generateMoveActions();
 
-            try{
             if (availableActions.empty())
             {
                 WaitAction action;
                 availableActions.insert(action);
-            }}catch(std::exception &e)
-            {
-                std::cerr << "SIUP TO JA" << e.what() << std::endl;
             }
-
         }
-
 
         std::cerr << "Available actions: " << std::endl;
         for (auto actio : availableActions)
         {
             std::cerr << actio << std::endl;
         }
-        return availableActions;
     }
 
     bool ActionHandler::isActionValid(const Action &action) const
     {
-        std::set<Action> availableActions = getAvailableActions();
         std::cerr << "----------------" << std::endl;
         std::cerr << action << std::endl;
 
         return availableActions.find(action) != availableActions.end();
     }
 
-    void ActionHandler::generateMoveActions(std::set<Action> &availableActions) const
+    void ActionHandler::generateMoveActions()
     {
         for (const auto &position : board.getPlayerTiles(currentTurn))
         {
-            try
+            auto tile = board.getTile(position);
+            for (const auto &newPosition : board.getAvailableMoves(tile))
             {
-                auto tile = board.getTile(position);
-                for (const auto &newPosition : board.getAvailableMoves(tile))
+                MoveAction action(position, newPosition);
+                if (isMoveActionValid(action))
                 {
-                    MoveAction action(position, newPosition);
-                    if (isMoveActionValid(action))
-                    {
-                        availableActions.insert(action);
-                    }
+                    availableActions.insert(action);
                 }
-            }
-            catch (std::exception &e)
-            {
-                std::cerr << "dupa" << e.what() << std::endl;
             }
         }
     }
 
-    void ActionHandler::generatePlaceActions(std::set<Action> &availableActions) const
+    void ActionHandler::generatePlaceActions()
     {
         std::vector<std::string> types = {"ANT", "BEETLE", "GRASSHOPPER", "SPIDER", "QUEEN"};
 
@@ -152,7 +124,9 @@ namespace hive
         if (!players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 4)
         {
             if (action.tile_type != "QUEEN")
+            {
                 return false;
+            }
         }
 
         if (players[currentTurn].getTileCount(action.tile_type) == 0)
@@ -160,33 +134,25 @@ namespace hive
             return false;
         }
 
-        std::string opponent = (currentTurn == "WHITE") ? "BLACK" : "WHITE";
-        return board.isOccupiedByOpponent(action.position, opponent) || players[currentTurn].firstMove;
+        if (!board.isOccupiedByOpponent(action.position, currentTurn) || players[currentTurn].firstMove)
+        {
+            return true;
+        }
+        return false;
     }
 
     bool ActionHandler::isMoveActionValid(const Action &action) const
     {
-        std::cerr << "Checking move action" << std::endl;
-        std::cerr << action.type << " " << action.position.x << " " << action.position.y << " " << action.newPosition.x << " " << action.newPosition.y << std::endl;
-        try
+        if (!players[currentTurn].queenPlaced)
         {
-            if (!players[currentTurn].queenPlaced)
-            {
-                std::cerr << "Queen not placed" << std::endl;
-                return false;
-            }
-        }
-        catch (std::exception &e)
-        {
-            std::cerr << "że co " << e.what() << std::endl;
             return false;
         }
 
         if (board.isMoveBlocked(action.position, action.newPosition))
         {
-            std::cerr << "Move blocked" << std::endl;
             return false;
         }
+        
         return true;
     }
 
@@ -195,6 +161,7 @@ namespace hive
         auto tile = board.getTile(position);
         board.removeTile(position);
         board.addTile(newPosition, tile);
+        updateQueenPosition(tile, newPosition);
     }
 
     void ActionHandler::placeTile(Position position, std::string type)
@@ -204,8 +171,23 @@ namespace hive
         if (type == "QUEEN")
         {
             players[currentTurn].queenPlaced = true;
+            updateQueenPosition(tile, position);
             std::string color = (currentTurn == "WHITE") ? "White" : "Black";
             std::cerr << "\033[34m" << color << " queen placed\033[0m" << std::endl;
         }
     }
+
+    void ActionHandler::updateQueenPosition(hive::Tile &tile, const hive::Position &newPosition)
+    {
+        if (tile.color == "WHITE" && tile.type == "QUEEN")
+        {
+            board.whiteQueen = newPosition;
+        }
+
+        if (tile.color == "BLACK" && tile.type == "QUEEN")
+        {
+            board.blackQueen = newPosition;
+        }
+    }
+
 }

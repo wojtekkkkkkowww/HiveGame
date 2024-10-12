@@ -1,60 +1,102 @@
 #include <set>
 #include <gtest/gtest.h>
 #include <iostream>
+#include <filesystem>
+#include <thread>
 #include "Game.hpp"
-#include "BoardDrawable.hpp" // Include the header for //saveBoardAsPng
+#include "BoardDrawable.hpp"
 
 using namespace hive;
 
-class TileMovementTest : public ::testing::Test
+class TileMovementTest : public ::testing::Test, public Game
 {
-protected:
-    Game game; // to powinno dziedziczyć po game a nie mieć jaki obiekt kurwa !!!
-};
-void checkMoves(Position position, Game &game, const std::set<Position> &expectedMoves)
-{
-    try
-    {
-        auto actions = game.getAvailableActions();
-        std::set<Position> actualMoves{};
+public:
+    sf::RenderTexture renderTexture;
+    BoardDrawable boardDrawable = BoardDrawable(board, 32.0f);
 
-        for (const auto &action : actions)
+    TileMovementTest() : Game()
+    {
+        renderTexture.create(800, 600);
+    }
+
+    void checkMoves(Position position, const std::set<Position> &expectedMoves)
+    {
+        try
         {
-            if (action.type == "MOVE" && action.position == position)
+            auto actions = getAvailableActions();
+            std::set<Position> actualMoves{};
+
+            for (const auto &action : actions)
             {
-                actualMoves.insert(action.newPosition);
+                if (action.type == "MOVE" && action.position == position)
+                {
+                    actualMoves.insert(action.newPosition);
+                }
             }
+
+            ASSERT_EQ(actualMoves, expectedMoves);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+
+    void saveBoardAsPng(const std::string &filePath, float hexSize = 32.0f)
+    {
+        std::filesystem::path path(filePath);
+        std::filesystem::path directory = path.parent_path();
+
+        if (!directory.empty() && !std::filesystem::exists(directory))
+        {
+            std::filesystem::create_directories(directory);
         }
 
-        ASSERT_EQ(actualMoves, expectedMoves);
+        boardDrawable.update();
+        renderTexture.clear(sf::Color::White);
+        renderTexture.draw(boardDrawable);
+        renderTexture.display();
+
+        if (renderTexture.getTexture().copyToImage().saveToFile(filePath))
+        {
+            std::cout << "Saved board state to " << filePath << std::endl;
+        }
     }
-    catch (const std::exception &e)
+
+    bool checkCounters(const std::string &tileType, int expectedCount)
     {
-        std::cerr << e.what() << std::endl;
+        bool result = applyAction(PlaceAction({0, 0}, tileType));
+        for (int i = 1; i <= expectedCount; i++)
+        {
+            result = applyAction(PlaceAction({i, 0}, tileType));
+            if (!result){ break;}
+            result = applyAction(PlaceAction({-i, 0}, tileType));
+        }
+        return result;
     }
-}
-void saveBoardAsPng(const Board &board, const std::string &filename, float hexSize = 32.0f)
-{
-    sf::RenderTexture renderTexture;
-    renderTexture.create(800, 600);
 
-    BoardDrawable boardDrawable(board, hexSize);
-
-    renderTexture.clear(sf::Color::White);
-    renderTexture.draw(boardDrawable);
-    renderTexture.display();
-
-    if (renderTexture.getTexture().copyToImage().saveToFile(filename))
+    bool applyAction(const Action &action)
     {
-        std::cout << "Saved board state to " << filename << std::endl;
+        bool result = Game::applyAction(action);
+        int turnCounter1 = players["WHITE"].turnCounter;
+        int turnCounter2 = players["BLACK"].turnCounter;
+        int turnCounter = turnCounter1 + turnCounter2;
+
+        const ::testing::TestInfo *test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        std::string testName = test_info->name();
+
+        std::string filePath = testName + "/" + std::to_string(turnCounter) + ".png";
+        saveBoardAsPng(filePath);
+        
+        return result;
     }
-}
+};
 
 TEST_F(TileMovementTest, QueenBeeAvailableMovesAtStart)
 {
     Tile queenBee("QUEEN", "WHITE");
-    game.board.addTile({0, 0}, queenBee);
-    auto availableMoves = game.board.getAvailableMoves(queenBee);
+    board.addTile({0, 0}, queenBee);
+    auto availableMoves = board.getAvailableMoves(queenBee);
 
     std::set<Position> expectedMoves = {
         {1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}};
@@ -63,167 +105,160 @@ TEST_F(TileMovementTest, QueenBeeAvailableMovesAtStart)
 
     ASSERT_EQ(availableMoves, expectedMoves);
 
-    // Save the board state as a PNG file
-    saveBoardAsPng(game.board, "QueenBeeAvailableMovesAtStart.png");
+    saveBoardAsPng("QueenBeeAvailableMovesAtStart/1.png");
 }
 
 TEST_F(TileMovementTest, PlaceNewTile)
 {
-    // Action action{"PLACE", {0, 0}, "ANT"};
     PlaceAction action{{0, 0}, "ANT"};
-    game.applyAction(action);
+    applyAction(action);
 
-    auto tile = game.board.getTile({0, 0});
+    auto tile = board.getTile({0, 0});
     ASSERT_EQ(tile.type, "ANT");
     ASSERT_EQ(tile.color, "WHITE");
     Position position = {0, 0};
     ASSERT_EQ(tile.position, position);
-
-    // Save the board state as a PNG file
-    saveBoardAsPng(game.board, "PlaceNewTile.png");
 }
 
 TEST_F(TileMovementTest, MoveExistingTile)
 {
-    ASSERT_EQ(game.getCurrentTurn(), "WHITE");
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    ASSERT_EQ(game.getCurrentTurn(), "BLACK");
+    ASSERT_EQ(getCurrentTurn(), "WHITE");
+    applyAction(PlaceAction({0, 0}, "QUEEN"));
+    ASSERT_EQ(getCurrentTurn(), "BLACK");
 
-    ASSERT_THROW(game.applyAction(MoveAction{{0, 0}, {0, 1}}), std::invalid_argument);
-    game.applyAction(PlaceAction({1, 0}, "QUEEN"));
-    ASSERT_EQ(game.getCurrentTurn(), "WHITE");
-    game.applyAction(MoveAction({0, 0}, {0, 1}));
+    ASSERT_FALSE(applyAction(MoveAction{{0, 0}, {0, 1}}));
+    applyAction(PlaceAction({1, 0}, "QUEEN"));
+    ASSERT_EQ(getCurrentTurn(), "WHITE");
+    applyAction(MoveAction({0, 0}, {0, 1}));
 
-    auto tile = game.board.getTile({0, 1});
+    auto tile = board.getTile({0, 1});
     ASSERT_EQ(tile.type, "QUEEN");
-
-    // Save the board state as a PNG file
-    saveBoardAsPng(game.board, "MoveExistingTile.png");
-}
-
-void checkCounters(Game &game, const std::string &tileType, int expectedCount)
-{
-    game.applyAction(PlaceAction({0, 0}, tileType));
-    for (int i = 1; i <= expectedCount; i++)
-    {
-        game.applyAction(PlaceAction({i, 0}, tileType));
-        game.applyAction(PlaceAction({-i, 0}, tileType));
-    }
 }
 
 TEST_F(TileMovementTest, CountersCheck)
 {
-    ASSERT_THROW(checkCounters(game, "ANT", 3), std::invalid_argument);
-    ASSERT_THROW(checkCounters(game, "GRASSHOPPER", 3), std::invalid_argument);
-    ASSERT_THROW(checkCounters(game, "SPIDER", 2), std::invalid_argument);
-    ASSERT_THROW(checkCounters(game, "BEETLE", 2), std::invalid_argument);
-    ASSERT_THROW(checkCounters(game, "QUEEN", 1), std::invalid_argument);
+    ASSERT_FALSE(checkCounters("ANT", 3));
+    ASSERT_FALSE(checkCounters("GRASSHOPPER", 3));
+    ASSERT_FALSE(checkCounters("SPIDER", 2));
+    ASSERT_FALSE(checkCounters("BEETLE", 2));
+    ASSERT_FALSE(checkCounters("QUEEN", 1));
 }
 
 TEST_F(TileMovementTest, BlackWins)
 {
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({1, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({0, 1}, "ANT"));
-    game.applyAction(PlaceAction({1, 1}, "ANT"));
-    game.applyAction(PlaceAction({0, -1}, "ANT"));
-    game.applyAction(PlaceAction({1, -1}, "ANT"));
-    game.applyAction(PlaceAction({-1, 0}, "GRASSHOPPER"));
-    game.applyAction(MoveAction({1, 1}, {-1, 1}));
-
-    saveBoardAsPng(game.board, "BlackWins.png");
-    ASSERT_EQ(game.getGameStatus(), "BLACK_WINS");
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({1, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, 0}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({1, 1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({2, 0}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, 1}, "GRASSHOPPER")));
+    ASSERT_TRUE(applyAction(MoveAction({1, 1}, {0, 1})));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, -1}, "GRASSHOPPER")));
+    ASSERT_TRUE(applyAction(MoveAction({2, 0}, {1, -1})));
+    ASSERT_EQ(getGameStatus(), "BLACK_WINS");
 }
 
 TEST_F(TileMovementTest, WhiteWins)
 {
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({1, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({0, 1}, "ANT"));
-    game.applyAction(PlaceAction({1, 1}, "ANT"));
-    game.applyAction(PlaceAction({0, -1}, "ANT"));
-    game.applyAction(PlaceAction({1, -1}, "ANT"));
-    game.applyAction(PlaceAction({-1, 0}, "GRASSHOPPER"));
-    game.applyAction(PlaceAction({2, -1}, "BEETLE"));
-    game.applyAction(MoveAction({-1, 0}, {2, 0}));
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({1, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({1, 1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, 0}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({2, 0}, "ANT")));
+    ASSERT_TRUE(applyAction(MoveAction({0, -1}, {0, 1})));
+    ASSERT_TRUE(applyAction(PlaceAction({2, -1}, "BEETLE")));
+    ASSERT_TRUE(applyAction(MoveAction({-1, 0}, {1, -1})));
 
-    saveBoardAsPng(game.board, "WhiteWins.png");
-    ASSERT_EQ(game.getGameStatus(), "WHITE_WINS");
+    ASSERT_EQ(getGameStatus(), "WHITE_WINS");
 }
 
 TEST_F(TileMovementTest, Draw)
 {
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({1, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({0, 1}, "ANT"));
-    game.applyAction(PlaceAction({1, 1}, "ANT"));
-    game.applyAction(PlaceAction({-1, 1}, "ANT"));
-    game.applyAction(PlaceAction({2, 0}, "GRASSHOPPER"));
-    game.applyAction(PlaceAction({-1, 0}, "GRASSHOPPER"));
-    game.applyAction(PlaceAction({2, -1}, "GRASSHOPPER"));
-    game.applyAction(PlaceAction({0, -1}, "GRASSHOPPER"));
-    game.applyAction(PlaceAction({1, -1}, "GRASSHOPPER"));
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({1, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, 1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({1, 1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, 0}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({2, 0}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({2, -1}, "ANT")));
+    ASSERT_TRUE(applyAction(PlaceAction({-1, -1}, "GRASSHOPPER")));
+    ASSERT_TRUE(applyAction(PlaceAction({2, 1}, "GRASSHOPPER")));
+    ASSERT_TRUE(applyAction(MoveAction({-1, -1}, {1, -1})));
+    ASSERT_TRUE(applyAction(MoveAction({2, 1}, {0, 1})));
 
-    saveBoardAsPng(game.board, "Draw.png");
-    ASSERT_EQ(game.getGameStatus(), "DRAW");
+    ASSERT_EQ(getGameStatus(), "DRAW");
 }
 
 TEST_F(TileMovementTest, GrasshopperMove)
 {
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({0, -1}, "QUEEN"));
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "QUEEN")));
     Position firstGrasshopperPosition = {0, 1};
-    game.applyAction(PlaceAction(firstGrasshopperPosition, "GRASSHOPPER"));
+    ASSERT_TRUE(applyAction(PlaceAction(firstGrasshopperPosition, "GRASSHOPPER")));
     Position secondGrasshopperPosition = {0, -2};
-    game.applyAction(PlaceAction(secondGrasshopperPosition, "GRASSHOPPER"));
+    ASSERT_TRUE(applyAction(PlaceAction(secondGrasshopperPosition, "GRASSHOPPER")));
 
     std::set<Position> expectedMoves = {{0, -3}};
-    checkMoves(firstGrasshopperPosition, game, expectedMoves);
+    checkMoves(firstGrasshopperPosition, expectedMoves);
 
-    game.applyAction(MoveAction(firstGrasshopperPosition, {0, -3}));
-
-    // Save the board state as a PNG file
-    saveBoardAsPng(game.board, "GrasshopperAvailableMoves.png");
+    ASSERT_TRUE(applyAction(MoveAction(firstGrasshopperPosition, {0, -3})));
 }
 
 TEST_F(TileMovementTest, BeetleJump)
 {
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({0, -1}, "QUEEN"));
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "QUEEN")));
     Position beetlePosition = {0, 1};
-    game.applyAction(PlaceAction(beetlePosition, "BEETLE"));
+    ASSERT_TRUE(applyAction(PlaceAction(beetlePosition, "BEETLE")));
 
     Position beetlePosition2 = {0, -2};
-    game.applyAction(PlaceAction(beetlePosition2, "BEETLE"));
+    ASSERT_TRUE(applyAction(PlaceAction(beetlePosition2, "BEETLE")));
 
     std::set<Position> expectedMoves = {{0, 0}, {-1, 1}, {1, 0}};
-    checkMoves(beetlePosition, game, expectedMoves);
-    game.applyAction(MoveAction(beetlePosition, {0, 0}));
+    checkMoves(beetlePosition, expectedMoves);
+    ASSERT_TRUE(applyAction(MoveAction(beetlePosition, {0, 0})));
 
     expectedMoves = {{-1, -1}, {1, -2}, {0, -1}};
-    checkMoves(beetlePosition2, game, expectedMoves);
+    checkMoves(beetlePosition2, expectedMoves);
 
-    game.applyAction(MoveAction(beetlePosition2, {0, -1}));
+    ASSERT_TRUE(applyAction(MoveAction(beetlePosition2, {0, -1})));
 
-    saveBoardAsPng(game.board, "BeetleJump.png");
-
-    game.applyAction(MoveAction({0, 0}, {0, -1}));
+    ASSERT_TRUE(applyAction(MoveAction({0, 0}, {0, -1})));
     expectedMoves = {};
-    checkMoves({0, -1}, game, expectedMoves);
+    checkMoves({0, -1}, expectedMoves);
+    ASSERT_TRUE(applyAction(WaitAction()));
+    ASSERT_TRUE(applyAction(MoveAction({0, -1}, {0, 0})));   
 }
+
 
 TEST_F(TileMovementTest, AntMove)
 {
-    game.applyAction(PlaceAction({0, 0}, "QUEEN"));
-    game.applyAction(PlaceAction({0, -1}, "QUEEN"));
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "QUEEN")));
     Position antPosition = {0, 1};
-    game.applyAction(PlaceAction(antPosition, "ANT"));
-    game.applyAction(MoveAction({0, -1}, {-1, 0}));
-    saveBoardAsPng(game.board, "AntMove1.png");
+    ASSERT_TRUE(applyAction(PlaceAction(antPosition, "ANT")));
+    ASSERT_TRUE(applyAction(MoveAction({0, -1}, {-1, 0})));
 
     std::set<Position> expectedMoves = {{-1, 1}, {1, 0}, {1, -1}, {-2, 1}, {-2, 0}, {0, -1}, {-1, -1}};
-    checkMoves(antPosition, game, expectedMoves);
-    game.applyAction(MoveAction(antPosition, {-2, 0}));
-
-    saveBoardAsPng(game.board, "AntMove2.png");
+    checkMoves(antPosition, expectedMoves);
+    ASSERT_TRUE(applyAction(MoveAction(antPosition, {-2, 0})));
 }
+
+TEST_F(TileMovementTest, SpiderMove)
+{
+    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, "QUEEN")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, 1}, "SPIDER")));
+    ASSERT_TRUE(applyAction(PlaceAction({0, -2}, "SPIDER")));
+
+    std::set<Position> expectedMoves = {{-1, -1}, {1, -2}};
+    checkMoves({0, 1}, expectedMoves);
+}
+
+/*
+do zrobienia:
+jakieś testy z "zaawansowaną" plansza i sprawdzenie dostępnych akcji
+*/

@@ -1,4 +1,6 @@
 #pragma once
+#include <limits>
+
 
 namespace hive
 {
@@ -26,8 +28,10 @@ namespace hive
         {
             return {x + other.x, y + other.y};
         }
+
     };
     
+    constexpr Position invalidPosition{std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
     constexpr Position N{0, -1};
     constexpr Position S{0, 1};
     constexpr Position NE{1, -1};

@@ -1,86 +1,108 @@
 #include "BoardDrawable.hpp"
+#include "ResourceManager.hpp"
 #include <iostream>
 
 BoardDrawable::BoardDrawable(const hive::Board &board, float hexSize)
     : board(board), hexSize(hexSize)
 {
     loadResources();
-    std::cerr << "BoardDrawable created" << std::endl;
+    update();
 }
+
+BoardDrawable::~BoardDrawable() {}
 
 void BoardDrawable::loadResources()
 {
+    ResourceManager &resourceManager = ResourceManager::getInstance();
     std::vector<std::string> tileNames = {"ANT", "BEETLE", "GRASSHOPPER", "QUEEN", "SPIDER"};
     for (const auto &name : tileNames)
     {
-        sf::Texture texture;
-  
-        if (!texture.loadFromFile(std::string(SOURCE_DIR) + "/res/" + name + ".png"))
+        textures[name] = resourceManager.getTexture(name);
+    }
+    font = resourceManager.getFont("arial.ttf");
+}
+
+void BoardDrawable::update()
+{
+    hexDrawables.clear();
+
+    if (!board.boardTiles.empty()) // segfaults
+    {
+        updateBoardTiles();
+    }
+
+    updateEmptyTiles();
+}
+
+void BoardDrawable::updateBoardTiles()
+{
+    for (const auto &[position, tiles] : board.boardTiles)
+    {
+        float offset = 0.0f;
+        for (auto it = tiles.begin(); it != tiles.end(); ++it)
         {
-            std::cerr << "Error loading texture: " << name << std::endl;
-            continue;
+            const auto &tile = *it;
+            HexDrawable hex(0.95f * hexSize);
+            hex.tilePosition = position;
+            hex.setOffset(offset);
+            hex.setTile(tile, textures);
+
+            if (position == selectedPosition)
+            {
+                // Check if the next tile has the same position
+                auto nextIt = std::next(it);
+                if (nextIt == tiles.end() || nextIt->position != position)
+                {
+                    hex.highlight(sf::Color::Cyan);
+                }
+            }
+
+            auto [posX, posY] = calculateHexPosition(position.x, position.y);
+            hex.setPosition(posX, posY + offset);
+
+            hexDrawables.push_back(hex);
+            offset += 5.0f;
         }
-        std::cerr << "Loaded texture: " << name << std::endl;
-        textures[name] = texture;
     }
+}
 
-    if (!font.loadFromFile(std::string(SOURCE_DIR) + "/res/arial.ttf"))
+void BoardDrawable::updateEmptyTiles()
+{
+    for (const auto &emptyPosition : board.emptyTiles)
     {
-        std::cerr << "Error loading font: arial.ttf" << std::endl;
-    }
-    else
-    {
-        std::cerr << "Loaded font: arial.ttf" << std::endl;
-    }
+        HexDrawable hex(0.95f * hexSize);
+        hex.tilePosition = emptyPosition;
 
-    std::cerr << "Loaded all resources" << std::endl;
+        auto [posX, posY] = calculateHexPosition(emptyPosition.x, emptyPosition.y);
+        hex.setPosition(posX, posY);
+        hex.highlight(sf::Color(192, 192, 192));
+        hexDrawables.push_back(hex);
+    }
 }
 
 void BoardDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    sf::Vector2u windowSize = target.getSize();
-    float centerX = windowSize.x / 2.0f;
-    float centerY = windowSize.y / 2.0f;
-
-    float sqrt_3 = sqrt(3);
-    auto calculatePosition = [this, sqrt_3, centerX, centerY](int x, int y)
+    for (const auto &hex : hexDrawables)
     {
-        float posX = hexSize * (1.5f * x) + centerX;
-        float posY = hexSize * (sqrt_3 * (y + 0.5f * x)) + centerY;
-        return std::make_pair(posX, posY);
-    };
-
-    std::cerr << "Drawing tiles" << std::endl;
-    for (const auto &[position, tiles] : board.boardTiles)
-    {
-        float offset = 0.0f;
-        auto [posX, posY] = calculatePosition(position.x, position.y);
-
-        for (const auto &tile : tiles)
-        {
-            HexDrawable hex(0.95f * hexSize);
-            hex.setPosition(posX, posY + offset);
-            hex.setTile(tile, textures);
-            target.draw(hex, states);
-            offset += 5.0f;
-        }
-
-        sf::Text text = getPositionText(position.x, position.y);
-        text.setPosition(posX - 10, posY - 10);
-        target.draw(text, states);
-    }
-    std::cerr << "Drawing empty tiles" << std::endl;
-
-    for (const auto &emptyPosition : board.emptyTiles)
-    {
-        HexDrawable hex(0.95f * hexSize);
-        auto [posX, posY] = calculatePosition(emptyPosition.x, emptyPosition.y);
-        hex.setPosition(posX, posY);
         target.draw(hex, states);
-        sf::Text text = getPositionText(emptyPosition.x, emptyPosition.y);
-        text.setPosition(posX - 10, posY - 10);
+
+        sf::Text text = getPositionText(hex.tilePosition.x, hex.tilePosition.y);
+        sf::Vector2f pos = hex.getPosition();
+        text.setPosition(pos.x - 10, pos.y - 10);
         target.draw(text, states);
     }
+}
+
+std::pair<float, float> BoardDrawable::calculateHexPosition(int x, int y)
+{
+    float sqrt_3 = std::sqrt(3.0f);
+    float centerX = 800.f / 2.0f;
+    float centerY = 600.f / 2.0f;
+
+    float posX = hexSize * (1.5f * x) + centerX;
+    float posY = hexSize * (sqrt_3 * (y + 0.5f * x)) + centerY;
+
+    return std::make_pair(posX, posY);
 }
 
 sf::Text BoardDrawable::getPositionText(int x, int y) const

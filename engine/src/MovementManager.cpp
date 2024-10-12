@@ -1,3 +1,5 @@
+#include <queue>
+#include <stack>
 #include "MovementManager.hpp"
 
 namespace hive
@@ -20,9 +22,7 @@ namespace hive
 
     /*
     BEATTLE:
-    jeden ruch do przodu gdziekolwiek poprostu może skakać na figury
-    z małym wyjąkiem którym jest to że miejsce w które chce skoczyć musi być
-    albo na tym samym poziomie albo o jeden wyżej.
+    Może się poruszać na sąsiednie pola na tym samym poziomie lub różnym o 1.
     */
     std::set<Position> MovementManager::getBeetleMoves(Position position) const
     {
@@ -33,11 +33,8 @@ namespace hive
         for (auto &direction : directions)
         {
             Position newPos = {position.x + direction.x, position.y + direction.y};
-            std::cerr << "dif " << abs(beetle_level - getLevel(newPos)) << std::endl;
-            std::cerr << "newPos " << newPos.x << " " << newPos.y << std::endl;
-            if ( abs(beetle_level - getLevel(newPos)) <= 1)
-            {   
-                std::cerr << "hej newPos " << newPos.x << " " << newPos.y << std::endl;
+            if (abs(beetle_level - getLevel(newPos)) <= 2) // trzeba zweryfikować !
+            {
                 moves.insert(newPos);
             }
         }
@@ -48,51 +45,57 @@ namespace hive
     /*
     SPIDER
     Ruch długości 3 bez zawracania oraz w każdym pośrednim polu musi się z kimś stykać.
-    do zaimplementowania banalne :
-    prosty rekurencyjny algorytm
-    1) idziesz w każdym możliwym kierunku
-    2) zwiększasz counter ruchów
-    3) dodajesz pole do listy odwiedzonych
-    4) wracasz do punktu 1 lub kończysz rekurencję dodając pole do zbioru dostępnych ruchów
+    implementacja wymaga bfs który powiększa się najpierw w szerz a potem w głąb, żeby móc znaleść wszyskie ścieżki długości 3
     */
 
     std::set<Position> MovementManager::getSpiderMoves(Position position) const
     {
         std::set<Position> visited;
+        std::queue<std::pair<Position, int>> q;
+        std::set<Position> spiderNeighbours = getNeighbours(position);
+        std::set<Position> result;
 
-        std::function<void(Position, int)> dfs = [&](Position pos, int depth)
+        q.push({position, 0});
+        visited.insert(position);
+
+        while (!q.empty())
         {
-            if (calculateNeighbours(pos, "BLACK") + calculateNeighbours(pos, "WHITE") == 0)
-            {
-                return;
-            }
+            auto [currentPos, depth] = q.front();
+            q.pop();
 
             if (depth == 3)
             {
-                visited.insert(pos);
-                return;
+                result.insert(currentPos);
+                continue;
             }
 
-            visited.insert(pos);
-
-            for (auto &neighbour : getNeighbours(pos))
+            for (auto &neighbor : getNeighbours(currentPos))
             {
-                if (visited.find(neighbour) == visited.end() && isEmpty(neighbour))
+                if (visited.find(neighbor) == visited.end() && isEmpty(neighbor))
                 {
-                    dfs(neighbour, depth + 1);
+                    int c = (spiderNeighbours.find(neighbor) != spiderNeighbours.end()) ? 1 : 0;
+                    if (calculateNeighbours(neighbor, "BLACK") + calculateNeighbours(neighbor, "WHITE") - c > 0)
+                    {
+                        Position direction = {neighbor.x - currentPos.x, neighbor.y - currentPos.y};
+                        if (isDirectionBlocked(currentPos, direction))
+                        {
+                            continue;
+                        }
+
+                        visited.insert(neighbor);
+                        q.push({neighbor, depth + 1});
+                    }
                 }
             }
-        };
+        }
 
-        dfs(position, 0);
-        return visited;
+        return result;
     }
 
     /*
     GRASSHOPPER:
-    Prosta ligika:
-    sprawdż w których kierunkach możesz iść
-    i idź w każdą stronę do końca planszy(aż napotkasz puste pole) dodaj do zbioru dostępnych ruchów
+    Przeskakuje przez figury na puste pole za nimi. W dowolnym kierunku.
+    Musi przeskoczyć przez co najmniej jedną figurę.
     */
     std::set<Position> MovementManager::getGrasshopperMoves(Position position) const
     {
@@ -120,48 +123,77 @@ namespace hive
         return moves;
     }
 
+    /*
+    Może ruszyć się na dowolne pole do którego może fizycznie dojść.
+
+    dfs po polach które są w zbiorze emptyTiles
+    w taki sposób że do sąsiada można pójść tylko jeżeli dany kierunek jest dobry
+    lista odwiedzonych pól to możliwe ruchy dla ant
+   */
     std::set<Position> MovementManager::getAntMoves(Position position) const
     {
-        position.x += 0;
-        position.y += 0;
+        std::set<Position> visited;
+        std::stack<Position> stack;
 
-        return emptyTiles;
+        for (auto &neighbours : getNeighbours(position))
+        {
+            if (emptyTiles.find(neighbours) != emptyTiles.end())
+            {
+                stack.push(neighbours);
+            }
+        }
+        while (!stack.empty())
+        {
+            Position current = stack.top();
+            stack.pop();
+            if (visited.find(current) != visited.end())
+            {
+                continue;
+            }
+            visited.insert(current);
+
+            std::vector<Position> directions = {N, NE, SE, S, SW, NW};
+
+            for (const Position &direction : directions)
+            {
+                Position neighbor = {current.x + direction.x, current.y + direction.y};
+                if (emptyTiles.find(neighbor) != emptyTiles.end() && visited.find(neighbor) == visited.end() && !isDirectionBlocked(current, direction))
+                {
+                    stack.push(neighbor);
+                }
+            }
+        }
+
+        return visited;
     }
 
     std::set<Position> MovementManager::getAvailableMoves(Tile tile) const
     {
-        /*nie chce mi sie zamieniac na enum*/
-        try{
+        /*
+        string nie jest obsługiwany w switch, do zamiany na enum kiedyś
+        */
         if (tile.type == "QUEEN")
         {
-            std::cerr << "enter Queen" << std::endl;
             return getQueenBeeMoves(tile.position);
         }
         else if (tile.type == "BEETLE")
         {
-            std::cerr << "enter Beetle" << std::endl;
             return getBeetleMoves(tile.position);
         }
         else if (tile.type == "SPIDER")
         {
-            std:: cerr << "enter Spider" << std::endl;
             return getSpiderMoves(tile.position);
         }
         else if (tile.type == "GRASSHOPPER")
         {
-            std::cerr << "enter Grasshopper" << std::endl;
             return getGrasshopperMoves(tile.position);
         }
         else if (tile.type == "ANT")
         {
-            std::cerr << "enter Ant" << std::endl;
             return getAntMoves(tile.position);
         }
         else
         {
-            return std::set<Position>(); // Return an empty set for unknown types
-        }}catch(std::exception &e){
-            std::cerr << "wtf" << e.what() << std::endl;
             return std::set<Position>();
         }
     }

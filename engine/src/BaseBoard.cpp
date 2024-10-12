@@ -16,17 +16,8 @@ namespace hive
             throw std::invalid_argument("No tile at position");
         }
 
-        try
-        {
-            auto tiles = boardTiles.at(position);
-            auto tile = tiles.back();
-            return tile;
-        }
-        catch (std::exception &e)
-        {
-            std::cout << "Error: " << e.what() << std::endl;
-            throw;
-        }
+        const auto &tiles = boardTiles.at(position);
+        return tiles.back();
     }
 
     void BaseBoard::removeTile(Position position)
@@ -107,7 +98,7 @@ namespace hive
         {
             if (!isEmpty(neighbour))
             {
-                auto tile = getTile(neighbour);
+                const auto &tile = getTile(neighbour);
                 if (tile.color == color)
                 {
                     count++;
@@ -115,6 +106,34 @@ namespace hive
             }
         }
         return count;
+    }
+
+    bool BaseBoard::isDirectionBlocked(Position position, Position direction) const
+    {
+        std::map<Position, std::vector<Position>> neighboringDirections = {
+            {N, {N, NE}},
+            {NE, {N, SE}},
+            {SE, {NE, S}},
+            {S, {SE, SW}},
+            {SW, {S, NW}},
+            {NW, {N, SW}}};
+
+        if (neighboringDirections.find(direction) == neighboringDirections.end())
+        {
+            std::cerr << "Error: Invalid direction provided. " << direction.x << " " << direction.y << std::endl;
+            return true;
+        }
+        auto neighbors = neighboringDirections[direction];
+
+        Position neighborPosition1 = {position.x + neighbors[0].x, position.y + neighbors[0].y};
+        Position neighborPosition2 = {position.x + neighbors[1].x, position.y + neighbors[1].y};
+
+        if (getLevel(position) > 1)
+        {
+            return !getLevel(neighborPosition1) == getLevel(position) && !getLevel(neighborPosition2) == getLevel(position);
+        }
+
+        return !isEmpty(neighborPosition1) && !isEmpty(neighborPosition2); // nawet pokusiłbym się o usunięcie tego
     }
 
     std::set<Position> BaseBoard::getNeighbours(Position position)
@@ -129,4 +148,5 @@ namespace hive
 
         return neighbours;
     }
+
 }

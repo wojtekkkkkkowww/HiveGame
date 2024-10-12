@@ -7,20 +7,26 @@ namespace hive
 {
     Game::Game()
         : currentTurn("WHITE"),
-          actionHandler(board, players, currentTurn,gameStatus),
-          turnManager(board, players, currentTurn,gameStatus)
+          actionHandler(board, players, currentTurn, gameStatus),
+          turnManager(board, players, currentTurn, gameStatus)
     {
         players["WHITE"] = Player("WHITE");
         players["BLACK"] = Player("BLACK");
         startNewGame();
+        actionHandler.genAvailableActions();
     }
 
     Game::~Game() {}
 
-    void Game::applyAction(Action action)
+    bool Game::applyAction(Action action)
     {
-        actionHandler.applyAction(action);
-        turnManager.nextTurn();
+        if (actionHandler.applyAction(action))
+        {
+            turnManager.nextTurn();
+            actionHandler.genAvailableActions();
+            return true;
+        }
+        return false;
     }
 
     void Game::revertAction()
@@ -30,15 +36,8 @@ namespace hive
     }
 
     std::set<Action> Game::getAvailableActions() const
-    {   try{
+    {
         return actionHandler.getAvailableActions();
-        }
-        catch(const std::exception &e)
-        {
-            std::cerr << "dupa" << e.what() << std::endl;
-        
-            return std::set<Action>();
-        }
     }
 
     void Game::startNewGame()

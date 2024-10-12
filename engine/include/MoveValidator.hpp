@@ -23,7 +23,6 @@ namespace hive
 
     private:
         bool isHiveConnectedAfterRemove(Position position) const;
-        bool isDirectionBlocked(Position position, Position direction) const;
         bool isTouchingHiveAfterMove(Position position, Position newPosition) const;
     };
 }

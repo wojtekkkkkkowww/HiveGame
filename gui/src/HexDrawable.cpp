@@ -1,6 +1,6 @@
 #include "HexDrawable.hpp"
 
-HexDrawable::HexDrawable(float size)
+HexDrawable::HexDrawable(float size) : size(size)
 {
     hex.setRadius(size);
     hex.setPointCount(6);
@@ -37,4 +37,14 @@ void HexDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     target.draw(hex, states);
     target.draw(sprite, states);
+}
+
+bool HexDrawable::contains(const sf::Vector2f &point) const
+{
+    sf::Vector2f hexPos = hex.getPosition();
+    sf::Vector2f localPoint = point - hexPos;
+
+    float distanceSquared = localPoint.x * localPoint.x + localPoint.y * localPoint.y;
+    float radiusSquared = size * size * 0.6f;
+    return distanceSquared <= radiusSquared;
 }

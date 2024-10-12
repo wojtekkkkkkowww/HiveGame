@@ -34,16 +34,19 @@ namespace hive
         if (board.isQueenSurrounded(currentTurn) && board.isQueenSurrounded(opponent))
         {
             gameStatus = "DRAW";
+            std::cerr << "\033[31mDRAW\033[0m" << std::endl;
         }
         else if (board.isQueenSurrounded(currentTurn))
         {
             if (currentTurn == "WHITE")
             {
                 gameStatus = "BLACK_WINS";
+                std::cerr << "\033[31mBLACK WINS\033[0m" << std::endl;
             }
             else
             {
                 gameStatus = "WHITE_WINS";
+                std::cerr << "\033[31mWHITE WINS\033[0m" << std::endl;
             }
         }
         else

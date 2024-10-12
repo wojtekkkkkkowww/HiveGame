@@ -1,0 +1,16 @@
+Co nie działa jak powinno:
+1) coś jest nie tak z ANT +
+2) coś jest nie tak z BEETLE 3 przypadki popsute
+3) coś jest nie tak ze wstawianiem nowych figur +
+4) coś jest nie tak z końcem gry może jednak nie ? 
+czego brakuje:
+1) przycisk do pomijania tury
+
+2) to musi być napisne bardziej ogólnie !!!!
+bo narazie to jest tylko dla 2 graczy 
+a nie chcę tego samego pisać gdybym miał grać z botem,,
+
+co trzeba zrobić:
+1) zrobić tak żeby dostępne ruchy były obliczane raz na początku tury +
+2) revert action też się przyda chyba jest zrobiony ale bez testów 
+

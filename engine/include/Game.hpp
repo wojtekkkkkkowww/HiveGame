@@ -24,9 +24,14 @@ namespace hive
     public:
         Game();
         ~Game();
+        
+        /*
+        Rozważ zamianę na 0/1 i enumy zamiast stringów
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        */
 
         void startNewGame();
-        void applyAction(Action action);
+        bool applyAction(Action action);
         void revertAction();
         std::set<Action> getAvailableActions() const;
         std::string getCurrentTurn() const { return currentTurn; }
