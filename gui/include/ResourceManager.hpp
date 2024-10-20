@@ -14,7 +14,7 @@ public:
         return instance;
     }
 
-    const sf::Texture &getTexture(const std::string &name)
+    const sf::Texture &getTexture(char name)
     {
         if (textures.find(name) == textures.end())
         {
@@ -52,6 +52,6 @@ public:
 
 private:
     ResourceManager() = default;
-    std::unordered_map<std::string, sf::Texture> textures;
+    std::unordered_map<char, sf::Texture> textures;
     std::unordered_map<std::string, sf::Font> fonts;
 };

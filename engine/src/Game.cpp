@@ -29,6 +29,18 @@ namespace hive
         return false;
     }
 
+    bool Game::applyAction(const std::string &actionString)
+    {
+        Action action = actionParser.stringToAction(actionString);
+        if (actionHandler.applyAction(action))
+        {
+            turnManager.nextTurn();
+            actionHandler.genAvailableActions();
+            return true;
+        }
+        return false;
+    }
+
     void Game::revertAction()
     {
         actionHandler.revertAction();

@@ -15,6 +15,7 @@
 #include "Position.hpp"
 #include "ActionHandler.hpp"
 #include "TurnManager.hpp"
+#include "ActionParser.hpp"
 
 namespace hive
 {
@@ -30,8 +31,10 @@ namespace hive
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         */
 
+
         void startNewGame();
         bool applyAction(Action action);
+        bool applyAction(const std::string& actionString);
         void revertAction();
         std::set<Action> getAvailableActions() const;
         std::string getCurrentTurn() const { return currentTurn; }
@@ -45,5 +48,6 @@ namespace hive
     private:
         ActionHandler actionHandler;
         TurnManager turnManager;
+        ActionParser actionParser;
     };
 }

@@ -19,12 +19,14 @@ namespace hive
         Tile tile = getTile(position);
         Position direction = {newPosition.x - position.x, newPosition.y - position.y};
 
-        if (tile.type == "QUEEN")
+        /*
+        // te dwa siupy mogły by iść do klasy MovementManager razem z isDirectionBlocked
+        if (tile.type == 'Q')
         {
             return isDirectionBlocked(position, direction);
         }
 
-        if (tile.type == "BEETLE")
+        if (tile.type == 'B')
         {
 
             if (getLevel(position) == getLevel(newPosition) + 1)
@@ -32,6 +34,7 @@ namespace hive
                 return isDirectionBlocked(position, direction);
             }
         }
+        */
 
         return false;
     }
@@ -51,6 +54,55 @@ namespace hive
             return false;
         }
         return calculateNeighbours(position, color) + calculateNeighbours(position, opponent) == 6;
+    }
+
+    bool MoveValidator::isDirectionBlocked(Position position, Position direction, int level) const
+    { // powinna wiedziec czy te ziomki co sprawdza sa na tym samym poziomie
+        // trrzeba dodac zakas fruwania
+
+        std::map<Position, std::vector<Position>> neighboringDirections = {
+            {N, {NW, NE}},
+            {NE, {N, SE}},
+            {SE, {NE, S}},
+            {S, {SE, SW}},
+            {SW, {S, NW}},
+            {NW, {N, SW}}};
+
+        if (neighboringDirections.find(direction) == neighboringDirections.end())
+        {
+            std::cerr << "Error: Invalid direction provided. " << direction.x << " " << direction.y << std::endl;
+            return true;
+        }
+        auto neighbors = neighboringDirections[direction];
+
+        Position neighborPosition1 = {position.x + neighbors[0].x, position.y + neighbors[0].y};
+        Position neighborPosition2 = {position.x + neighbors[1].x, position.y + neighbors[1].y};
+
+        // FREDOM TO MOVE, nie widze tego
+        if (getLevel(neighborPosition1) >= level && getLevel(neighborPosition2) >= level)
+        {
+            std::cerr<<"Direction "<< direction.x << " " <<direction.y <<" is blocked because:\n";
+            std::cerr<<neighborPosition1.x <<" " <<neighborPosition1.y << ">=" << position.x << " " << position.y <<"\n";
+            std::cerr<<neighborPosition2.x <<" " <<neighborPosition2.y << ">=" << position.x << " " << position.y <<"\n";
+             
+            std::cerr << "\033[1;31mITS MY FAULT\033[0m \n";
+            return true;
+        }
+
+        if(boardTiles.size() == 1)
+        {   
+            return false;
+        }
+
+        // CONSTANT CONTACT
+        Position newPosition = position + direction;
+
+        if (isEmpty(neighborPosition1) && isEmpty(neighborPosition2) && level == 1 && getLevel(newPosition) == 0)
+        {
+            std::cerr << "\033[1;31mITS MY FAULT\033[0m " << newPosition.x << " " << newPosition.y << std::endl;
+            return true;
+        }
+        return false;
     }
 
     /*

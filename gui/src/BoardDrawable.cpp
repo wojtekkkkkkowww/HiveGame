@@ -14,7 +14,7 @@ BoardDrawable::~BoardDrawable() {}
 void BoardDrawable::loadResources()
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    std::vector<std::string> tileNames = {"ANT", "BEETLE", "GRASSHOPPER", "QUEEN", "SPIDER"};
+    std::vector<char> tileNames = {'A', 'B', 'G', 'Q', 'S'};
     for (const auto &name : tileNames)
     {
         textures[name] = resourceManager.getTexture(name);
@@ -47,7 +47,7 @@ void BoardDrawable::updateBoardTiles()
             hex.setOffset(offset);
             hex.setTile(tile, textures);
 
-            if (position == selectedPosition)
+            if (position == selectedPosition && tile.color == player)
             {
                 // Check if the next tile has the same position
                 auto nextIt = std::next(it);

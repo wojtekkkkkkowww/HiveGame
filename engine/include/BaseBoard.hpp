@@ -13,15 +13,7 @@ namespace hive
     {
     public:
         virtual ~BaseBoard() = default;
-        BaseBoard &operator=(BaseBoard &&other) noexcept
-        {
-            if (this != &other)
-            {
-                boardTiles = std::move(other.boardTiles);
-                emptyTiles = std::move(other.emptyTiles);
-            }
-            return *this;
-        }
+        
 
         void resetBoard();
         void removeTile(Position position);
@@ -29,9 +21,7 @@ namespace hive
         bool isEmpty(Position position) const;
         int getLevel(Position position) const;
         int calculateNeighbours(Position position, std::string color) const;
-        bool isDirectionBlocked(Position position, Position direction) const;
     
-
         Tile getTile(Position position) const;
         std::set<Position> getPlayerTiles(std::string color) const;
 

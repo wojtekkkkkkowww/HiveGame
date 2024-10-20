@@ -23,7 +23,7 @@ public:
     void loadPieces()
     {
         ResourceManager &resourceManager = ResourceManager::getInstance();
-        std::vector<std::string> pieceTypes = {"ANT", "BEETLE", "GRASSHOPPER", "QUEEN", "SPIDER"};
+        std::vector<char> pieceTypes = {'A', 'B', 'G', 'Q', 'S'};
         float xOffset = 10.0f;
         float yOffset = 10.0f;
         float pieceSpacing = 60.0f;
@@ -31,12 +31,12 @@ public:
         for (const auto &type : pieceTypes)
         {
             const sf::Texture &texture = resourceManager.getTexture(type);
-            addPiece(type, texture, xOffset, (type == "QUEEN") ? yOffset + 20.0f : yOffset);
+            addPiece(type, texture, xOffset, (type == 'Q') ? yOffset + 20.0f : yOffset);
             xOffset += texture.getSize().x + pieceSpacing;
         }
     }
 
-    void addPiece(const std::string &pieceType, const sf::Texture &texture, float xOffset, float yOffset)
+    void addPiece(const char &pieceType, const sf::Texture &texture, float xOffset, float yOffset)
     {
         sf::Sprite sprite;
         sprite.setTexture(texture);
@@ -66,11 +66,12 @@ public:
     {
         return stackRect.getGlobalBounds().contains(mousePos);
     }
-    std::string selectedPiece;
+    
+    char selectedPiece;
 
 private:
     sf::RectangleShape stackRect;
-    std::vector<std::pair<std::string, sf::Sprite>> pieces;
+    std::vector<std::pair<char, sf::Sprite>> pieces;
     float windowHeight;
 
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override

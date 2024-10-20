@@ -26,7 +26,7 @@ namespace hive
         bool isMoveActionValid(const Action &action) const;
         void moveTile(Position position, Position newPosition);
         void updateQueenPosition(hive::Tile &tile, const hive::Position &newPosition);
-        void placeTile(Position position, std::string type);
+        void placeTile(Position position, char type);
 
         Board &board;
         std::map<std::string, Player> &players;

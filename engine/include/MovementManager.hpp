@@ -4,21 +4,16 @@
 #include <utility>
 #include <functional>
 #include "Position.hpp"
-#include "BaseBoard.hpp"
+#include "MoveValidator.hpp"
 #include "dfs.hpp"
 
 namespace hive
 {
 
-    class MovementManager : public virtual BaseBoard
+    class MovementManager : public MoveValidator
     {
     public:
-        MovementManager& operator=(MovementManager&& other) noexcept {
-            if (this != &other) {
-                BaseBoard::operator=(std::move(other));
-            }
-            return *this;
-        }
+        
 
         std::set<Position> getQueenBeeMoves(Position position) const;
         std::set<Position> getBeetleMoves(Position position) const;

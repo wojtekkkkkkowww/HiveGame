@@ -3,14 +3,14 @@
 hive::Player::Player(std::string color) : color(color)
 {
     pieceCounters = {
-        {"QUEEN", 1},
-        {"SPIDER", 2},
-        {"BEETLE", 2},
-        {"GRASSHOPPER", 3},
-        {"ANT", 3}};
+        {'Q', 1},
+        {'S', 2},
+        {'B', 2},
+        {'G', 3},
+        {'A', 3}};
 }
 
-hive::Tile hive::Player::takeTile(std::string type)
+hive::Tile hive::Player::takeTile(char type)
 {
     if (pieceCounters[type] == 0)
     {
@@ -21,7 +21,7 @@ hive::Tile hive::Player::takeTile(std::string type)
     return Tile(type, color);
 }
 
-void hive::Player::returnTile(std::string type)
+void hive::Player::returnTile(char type)
 {
     pieceCounters[type]++;
 }

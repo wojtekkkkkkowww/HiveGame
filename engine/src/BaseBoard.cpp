@@ -108,34 +108,6 @@ namespace hive
         return count;
     }
 
-    bool BaseBoard::isDirectionBlocked(Position position, Position direction) const
-    {
-        std::map<Position, std::vector<Position>> neighboringDirections = {
-            {N, {N, NE}},
-            {NE, {N, SE}},
-            {SE, {NE, S}},
-            {S, {SE, SW}},
-            {SW, {S, NW}},
-            {NW, {N, SW}}};
-
-        if (neighboringDirections.find(direction) == neighboringDirections.end())
-        {
-            std::cerr << "Error: Invalid direction provided. " << direction.x << " " << direction.y << std::endl;
-            return true;
-        }
-        auto neighbors = neighboringDirections[direction];
-
-        Position neighborPosition1 = {position.x + neighbors[0].x, position.y + neighbors[0].y};
-        Position neighborPosition2 = {position.x + neighbors[1].x, position.y + neighbors[1].y};
-
-        if (getLevel(position) > 1)
-        {
-            return !getLevel(neighborPosition1) == getLevel(position) && !getLevel(neighborPosition2) == getLevel(position);
-        }
-
-        return !isEmpty(neighborPosition1) && !isEmpty(neighborPosition2); // nawet pokusiłbym się o usunięcie tego
-    }
-
     std::set<Position> BaseBoard::getNeighbours(Position position)
     {
         std::set<Position> directions = {N, S, NE, SW, NW, SE};

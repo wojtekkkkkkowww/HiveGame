@@ -5,24 +5,19 @@
 
 namespace hive
 {
-    class MoveValidator : public virtual BaseBoard
+    class MoveValidator : public BaseBoard
     {
     public:
-        MoveValidator &operator=(MoveValidator &&other) noexcept
-        {
-            if (this != &other)
-            {
-                BaseBoard::operator=(std::move(other));
-            }
-            return *this;
-        }
 
         bool isMoveBlocked(Position position, Position newPosition) const;
         bool isOccupiedByOpponent(Position pos, std::string color) const;
         bool isQueenSurrounded(std::string color) const;
+        bool isDirectionBlocked(Position position, Position direction, int level) const;
+
 
     private:
         bool isHiveConnectedAfterRemove(Position position) const;
         bool isTouchingHiveAfterMove(Position position, Position newPosition) const;
+
     };
 }

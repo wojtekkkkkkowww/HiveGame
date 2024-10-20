@@ -4,17 +4,17 @@
 
 namespace hive
 {
-
     std::set<Position> MovementManager::getQueenBeeMoves(Position position) const
     {
-        std::set<Position> neighbours = getNeighbours(position);
+        std::set<Position> directions = {N, NE, SE, S, SW, NW};
         std::set<Position> moves;
 
-        for (auto &neighbour : neighbours)
+        for (auto &direction : directions)
         {
-            if (isEmpty(neighbour))
+            Position newPos = {position.x + direction.x, position.y + direction.y};
+            if (isEmpty(newPos) && !isDirectionBlocked(position, direction,1))
             {
-                moves.insert(neighbour);
+                moves.insert(newPos);
             }
         }
         return moves;
@@ -35,7 +35,8 @@ namespace hive
             Position newPos = {position.x + direction.x, position.y + direction.y};
             if (abs(beetle_level - getLevel(newPos)) <= 2) // trzeba zweryfikować !
             {
-                moves.insert(newPos);
+                if (!isDirectionBlocked(position, direction,beetle_level)) //
+                    moves.insert(newPos);
             }
         }
 
@@ -73,11 +74,13 @@ namespace hive
             {
                 if (visited.find(neighbor) == visited.end() && isEmpty(neighbor))
                 {
-                    int c = (spiderNeighbours.find(neighbor) != spiderNeighbours.end()) ? 1 : 0;
-                    if (calculateNeighbours(neighbor, "BLACK") + calculateNeighbours(neighbor, "WHITE") - c > 0)
+                    
+                    // Jeżeli pająk jest sąsiadem to go nie liczymy 
+                    int isSpiderNeighbour = (spiderNeighbours.find(neighbor) != spiderNeighbours.end()) ? 1 : 0;
+                    if (calculateNeighbours(neighbor, "BLACK") + calculateNeighbours(neighbor, "WHITE") - isSpiderNeighbour > 0)
                     {
                         Position direction = {neighbor.x - currentPos.x, neighbor.y - currentPos.y};
-                        if (isDirectionBlocked(currentPos, direction))
+                        if (isDirectionBlocked(currentPos, direction,1))
                         {
                             continue;
                         }
@@ -146,6 +149,9 @@ namespace hive
         {
             Position current = stack.top();
             stack.pop();
+
+            std::cerr << "visiting " << current.x << " " << current.y << std::endl;
+
             if (visited.find(current) != visited.end())
             {
                 continue;
@@ -157,7 +163,9 @@ namespace hive
             for (const Position &direction : directions)
             {
                 Position neighbor = {current.x + direction.x, current.y + direction.y};
-                if (emptyTiles.find(neighbor) != emptyTiles.end() && visited.find(neighbor) == visited.end() && !isDirectionBlocked(current, direction))
+                /// duży problem bo to powinno symulować realny ruch :|
+                // rozwiązanie przekazuj aktualny level jako argument
+                if (emptyTiles.find(neighbor) != emptyTiles.end() && visited.find(neighbor) == visited.end() && !isDirectionBlocked(current, direction,1))
                 {
                     stack.push(neighbor);
                 }
@@ -169,31 +177,19 @@ namespace hive
 
     std::set<Position> MovementManager::getAvailableMoves(Tile tile) const
     {
-        /*
-        string nie jest obsługiwany w switch, do zamiany na enum kiedyś
-        */
-        if (tile.type == "QUEEN")
+        switch (tile.type)
         {
+        case 'Q':
             return getQueenBeeMoves(tile.position);
-        }
-        else if (tile.type == "BEETLE")
-        {
+        case 'B':
             return getBeetleMoves(tile.position);
-        }
-        else if (tile.type == "SPIDER")
-        {
+        case 'S':
             return getSpiderMoves(tile.position);
-        }
-        else if (tile.type == "GRASSHOPPER")
-        {
+        case 'G':
             return getGrasshopperMoves(tile.position);
-        }
-        else if (tile.type == "ANT")
-        {
+        case 'A':
             return getAntMoves(tile.position);
-        }
-        else
-        {
+        default:
             return std::set<Position>();
         }
     }

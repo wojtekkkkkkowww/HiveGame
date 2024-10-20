@@ -16,6 +16,7 @@ public:
     void update();
     void updateEmptyTiles();
     void updateBoardTiles();
+    void setPlayer(const std::string &player) { this->player = player; }
     std::list<HexDrawable> hexDrawables;
     hive::Position selectedPosition = hive::invalidPosition;
 
@@ -24,9 +25,10 @@ private:
     const hive::Board &board;
     float hexSize;
     sf::Font font;
-    std::map<std::string, sf::Texture> textures;
+    std::map<char, sf::Texture> textures;
     sf::Text getPositionText(int x, int y) const;
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
     static constexpr float sqrt_3 = sqrt(3);
     std::pair<float, float>calculateHexPosition(int x, int y);
+    std::string player = "WHITE";
 };

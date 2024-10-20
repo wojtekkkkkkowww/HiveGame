@@ -101,7 +101,7 @@ namespace hive
 
     void ActionHandler::generatePlaceActions()
     {
-        std::vector<std::string> types = {"ANT", "BEETLE", "GRASSHOPPER", "SPIDER", "QUEEN"};
+        std::vector<char> types = {'A', 'B', 'G', 'S', 'Q'};
 
         for (const auto &type : types)
         {
@@ -121,9 +121,9 @@ namespace hive
 
     bool ActionHandler::isPlaceActionValid(const Action &action) const
     {
-        if (!players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 4)
+        if (!players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 3)
         {
-            if (action.tile_type != "QUEEN")
+            if (action.tile_type != 'Q')
             {
                 return false;
             }
@@ -134,11 +134,12 @@ namespace hive
             return false;
         }
 
-        if (!board.isOccupiedByOpponent(action.position, currentTurn) || players[currentTurn].firstMove)
+        if (board.isOccupiedByOpponent(action.position, currentTurn) && !players[currentTurn].firstMove)
         {
-            return true;
+            return false;
         }
-        return false;
+
+        return true;
     }
 
     bool ActionHandler::isMoveActionValid(const Action &action) const
@@ -164,11 +165,11 @@ namespace hive
         updateQueenPosition(tile, newPosition);
     }
 
-    void ActionHandler::placeTile(Position position, std::string type)
+    void ActionHandler::placeTile(Position position, char type)
     {
         auto tile = players[currentTurn].takeTile(type);
         board.addTile(position, tile);
-        if (type == "QUEEN")
+        if (type == 'Q')
         {
             players[currentTurn].queenPlaced = true;
             updateQueenPosition(tile, position);
@@ -179,12 +180,12 @@ namespace hive
 
     void ActionHandler::updateQueenPosition(hive::Tile &tile, const hive::Position &newPosition)
     {
-        if (tile.color == "WHITE" && tile.type == "QUEEN")
+        if (tile.color == "WHITE" && tile.type == 'Q')
         {
             board.whiteQueen = newPosition;
         }
 
-        if (tile.color == "BLACK" && tile.type == "QUEEN")
+        if (tile.color == "BLACK" && tile.type == 'Q')
         {
             board.blackQueen = newPosition;
         }

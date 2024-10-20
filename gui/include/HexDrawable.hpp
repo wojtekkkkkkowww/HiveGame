@@ -9,7 +9,7 @@ class HexDrawable : public sf::Drawable
         HexDrawable(float size);
         void setPosition(float x, float y);
         sf::Vector2f getPosition() const { return hex.getPosition(); }
-        void setTile(const hive::Tile &tile, const std::map<std::string, sf::Texture> &textures);
+        void setTile(const hive::Tile &tile, const std::map<char, sf::Texture> &textures);
         bool contains(const sf::Vector2f &point) const;
         hive::Position tilePosition;
         void setOffset(float offset) { this->offset = offset; }

@@ -24,7 +24,8 @@ enable_testing()
 
 add_subdirectory(engine)
 add_subdirectory(gui)
-add_subdirectory(main)
+add_subdirectory(client)
+add_subdirectory(server)
 add_subdirectory(tests)
 
 add_compile_options(

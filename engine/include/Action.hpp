@@ -12,7 +12,7 @@ namespace hive {
 
 struct Action {
     std::string type = "WAIT";// !!
-    std::string tile_type  = "QUEEN";//!!
+    char tile_type  = 'Q';//!!
     Position position = {0, 0};//!!
     Position newPosition = {0, 0};//!!
 
@@ -28,7 +28,7 @@ struct Action {
         this->newPosition = newPosition;
     }
 
-    void makePlaceAction(Position position, std::string tile_type) {
+    void makePlaceAction(Position position, char tile_type) {
         this->type = "PLACE";
         this->tile_type = tile_type;
         this->position = position;
@@ -71,7 +71,7 @@ struct MoveAction : public Action {
 };
 
 struct PlaceAction : public Action {
-    PlaceAction(Position position, std::string tile_type) {
+    PlaceAction(Position position, char tile_type) {
         makePlaceAction(position, tile_type);
     }
 };

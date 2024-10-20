@@ -11,7 +11,7 @@ namespace hive
     {
     public:
         Tile() {}
-        Tile(std::string type, std::string color) : color(color), type(type) {}
+        Tile(char type, std::string color) : color(color), type(type) {}
 
         bool operator==(const Tile &other) const
         {
@@ -22,7 +22,7 @@ namespace hive
 
         Position position;
         std::string color;
-        std::string type;
+        char type;
     };
 
 }

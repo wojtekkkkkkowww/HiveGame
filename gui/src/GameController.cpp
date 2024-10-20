@@ -1,49 +1,35 @@
-#include "GameWindow.hpp"
+#include "GameController.hpp"
 #include "Game.hpp"
 
-GameWindow::GameWindow()
-    : window(sf::VideoMode(800, 600), "Hive Game", sf::Style::Default, sf::ContextSettings(0, 0, 8)),
+GameController::GameController(sf::RenderWindow &window)
+    : window(window),
       pieceSelector(800, 600),
       game(std::make_unique<Game>()),
       boardDrawable(game->board, 32.0f)
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    font = resourceManager.getFont("arial.ttf");
     boardView = window.getDefaultView();
-    
-    waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait", font);
-    
-    turnText.setFont(font);
+
+    waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait", resourceManager.getFont("arial.ttf"));
+
+    turnText.setFont(resourceManager.getFont("arial.ttf"));
     turnText.setCharacterSize(24);
     turnText.setFillColor(sf::Color::Black);
     turnText.setPosition(10, 10);
-    
 }
 
-void GameWindow::run()
+void GameController::handleGameControll()
 {
-    sf::Clock clock;
-    const sf::Time frameTime = sf::seconds(1.f / 20.f);
-
-    while (window.isOpen())
+    processEvents();
+    if (change)
     {
-        sf::Time elapsed = clock.restart();
-        processEvents();
-        if (change)
-        {
-            update();
-            render();
-            change = false;
-        }
-
-        if (elapsed < frameTime)
-        {
-            sf::sleep(frameTime - elapsed);
-        }
+        update();
+        render();
+        change = false;
     }
 }
 
-void GameWindow::processEvents()
+void GameController::processEvents()
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -76,7 +62,7 @@ void GameWindow::processEvents()
     }
 }
 
-void GameWindow::handleMouseMoved()
+void GameController::handleMouseMoved()
 {
     if (dragging)
     {
@@ -89,7 +75,7 @@ void GameWindow::handleMouseMoved()
     }
 }
 
-void GameWindow::handleMouseButtonReleased(sf::Mouse::Button button)
+void GameController::handleMouseButtonReleased(sf::Mouse::Button button)
 {
     if (button == sf::Mouse::Left)
     {
@@ -97,7 +83,7 @@ void GameWindow::handleMouseButtonReleased(sf::Mouse::Button button)
         auto clickEndTime = std::chrono::high_resolution_clock::now();
         auto clickDurtion = std::chrono::duration_cast<std::chrono::milliseconds>(clickEndTime - clickStartTime).count();
 
-        if (clickDurtion < 200.0f)
+        if (clickDurtion < 200.0f && isMyTurn())
         {
             handleMouseClick();
         }
@@ -105,7 +91,7 @@ void GameWindow::handleMouseButtonReleased(sf::Mouse::Button button)
     change = true;
 }
 
-void GameWindow::handleMouseButtonPressed(sf::Mouse::Button button)
+void GameController::handleMouseButtonPressed(sf::Mouse::Button button)
 {
     if (button == sf::Mouse::Left)
     {
@@ -122,25 +108,23 @@ void GameWindow::handleMouseButtonPressed(sf::Mouse::Button button)
     change = true;
 }
 
-void GameWindow::handleWindowClose()
+void GameController::handleWindowClose()
 {
     window.close();
 }
 
-void GameWindow::update()
+void GameController::update()
 {
     window.setView(boardView);
     boardDrawable.update();
-    player = game->currentTurn;
     updateTurnText();
 
     std::cerr << "Game window updated" << std::endl;
 }
 
-void GameWindow::render()
+void GameController::render()
 {
     window.clear(sf::Color::White);
-
 
     window.setView(boardView);
     window.draw(boardDrawable);
@@ -159,17 +143,34 @@ void GameWindow::render()
     std ::cerr << "Game window rendered" << std::endl;
 }
 
-void GameWindow::updateTurnText()
+void GameController::updateTurnText()
 {
-    if(game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" || game->gameStatus == "DRAW")
+    if (game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" || game->gameStatus == "DRAW")
     {
         turnText.setString("Game over! " + game->gameStatus);
         return;
     }
-    turnText.setString("Current turn: " + player);
+    turnText.setString("Current turn: " + game->currentTurn);
 }
 
-void GameWindow::handleMouseClick()
+void GameController::apllyOpponentAction(const std::string &action)
+{
+    game->applyAction(action);
+    change = true;
+}
+
+void GameController::setPlayer(const std::string &player)
+{
+    this->player = player;
+    boardDrawable.setPlayer(player);
+}
+
+bool GameController::isMyTurn()
+{
+    return game->currentTurn == player;
+}
+
+void GameController::handleMouseClick()
 {
     window.setView(window.getDefaultView());
     sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -177,31 +178,34 @@ void GameWindow::handleMouseClick()
     if (pieceSelector.contains(mousePos))
     {
         handlePieceSelectorClick(mousePos);
-    }else if(waitButton.contains(mousePos))
+    }
+    else if (waitButton.contains(mousePos))
     {
         handleWaitButtonClick();
     }
-    else{
+    else
+    {
         handleBoardClick(mousePos);
     }
 }
 
-void GameWindow::handleWaitButtonClick()
+void GameController::handleWaitButtonClick()
 {
     if (game->getAvailableActions().size() == 1 && game->getAvailableActions().begin()->type == "WAIT")
     {
         WaitAction action;
         game->applyAction(action);
+        message = actionParser.actionToString(action);
     }
 }
 
-void GameWindow::handlePieceSelectorClick(const sf::Vector2f &mousePos)
+void GameController::handlePieceSelectorClick(const sf::Vector2f &mousePos)
 {
     pieceSelector.selectPiece(mousePos);
 }
 
-void GameWindow::handleBoardClick(sf::Vector2f mousePos)
-{   
+void GameController::handleBoardClick(sf::Vector2f mousePos)
+{
     /*
     Trzeba zmienić na boardView przed sprawdzeniem pozycji
     */
@@ -210,7 +214,7 @@ void GameWindow::handleBoardClick(sf::Vector2f mousePos)
 
     Position boardPos = convertMouseToBoardPos(mousePos);
 
-    if (!pieceSelector.selectedPiece.empty())
+    if (!pieceSelector.selectedPiece == '\0')
     {
         handlePiecePlacement(boardPos);
     }
@@ -220,17 +224,20 @@ void GameWindow::handleBoardClick(sf::Vector2f mousePos)
     }
 }
 
-void GameWindow::handlePiecePlacement(const Position &boardPos)
+void GameController::handlePiecePlacement(const Position &boardPos)
 {
     if (boardPos != invalidPosition)
     {
         PlaceAction action(boardPos, pieceSelector.selectedPiece);
-        game->applyAction(action);
+        if (game->applyAction(action))
+        {
+            message = actionParser.actionToString(action);
+        }
     }
-    pieceSelector.selectedPiece = "";
+    pieceSelector.selectedPiece = '\0';
 }
 
-void GameWindow::handlePieceMovement(const Position &boardPos)
+void GameController::handlePieceMovement(const Position &boardPos)
 {
     if (boardDrawable.selectedPosition == invalidPosition)
     {
@@ -244,12 +251,15 @@ void GameWindow::handlePieceMovement(const Position &boardPos)
         if (boardPos != invalidPosition)
         {
             MoveAction action(boardDrawable.selectedPosition, boardPos);
-            game->applyAction(action);
+            if (game->applyAction(action))
+            {
+                message = actionParser.actionToString(action);
+            }
             boardDrawable.selectedPosition = invalidPosition;
         }
     }
 }
-void GameWindow::handleMouseWheelScroll(float delta)
+void GameController::handleMouseWheelScroll(float delta)
 {
     const float MIN_ZOOM_LEVEL = 0.5f;
     const float MAX_ZOOM_LEVEL = 2.0f;
@@ -269,7 +279,7 @@ void GameWindow::handleMouseWheelScroll(float delta)
     change = true;
 }
 
-Position GameWindow::convertMouseToBoardPos(sf::Vector2f mousePos)
+Position GameController::convertMouseToBoardPos(sf::Vector2f mousePos)
 {
     for (const auto &hex : boardDrawable.hexDrawables)
     {

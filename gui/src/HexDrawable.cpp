@@ -17,7 +17,7 @@ void HexDrawable::setPosition(float x, float y)
     sprite.setPosition(x, y);
 }
 
-void HexDrawable::setTile(const hive::Tile &tile, const std::map<std::string, sf::Texture> &textures)
+void HexDrawable::setTile(const hive::Tile &tile, const std::map<char, sf::Texture> &textures)
 {
     if(tile.color == "WHITE")
     {

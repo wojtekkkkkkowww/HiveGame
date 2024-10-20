@@ -7,11 +7,10 @@
 #include "Tile.hpp"
 #include "BaseBoard.hpp"
 #include "MovementManager.hpp"
-#include "MoveValidator.hpp"
 
 namespace hive
 {
-    class Board : public MovementManager, public MoveValidator
+    class Board : public MovementManager
     {
     public:
         Board()
