@@ -87,7 +87,7 @@ namespace hive
     {
         for (const auto &position : board.getPlayerTiles(currentTurn))
         {
-            auto tile = board.getTile(position);
+            const auto &tile = board.getTile(position);
             for (const auto &newPosition : board.getAvailableMoves(tile))
             {
                 MoveAction action(position, newPosition);
@@ -107,7 +107,7 @@ namespace hive
         {
             if (players[currentTurn].getTileCount(type) > 0)
             {
-                for (const auto &position : board.emptyTiles)
+                for (const auto &position : board.getEmptyTiles())
                 {
                     PlaceAction action(position, type);
                     if (isPlaceActionValid(action))
@@ -153,15 +153,14 @@ namespace hive
         {
             return false;
         }
-        
+
         return true;
     }
 
     void ActionHandler::moveTile(Position position, Position newPosition)
     {
-        auto tile = board.getTile(position);
-        board.removeTile(position);
-        board.addTile(newPosition, tile);
+        Tile tile = board.getTile(position);
+        board.moveTile(position, newPosition);
         updateQueenPosition(tile, newPosition);
     }
 
@@ -178,7 +177,7 @@ namespace hive
         }
     }
 
-    void ActionHandler::updateQueenPosition(hive::Tile &tile, const hive::Position &newPosition)
+    void ActionHandler::updateQueenPosition(const hive::Tile &tile, const hive::Position &newPosition)
     {
         if (tile.color == "WHITE" && tile.type == 'Q')
         {

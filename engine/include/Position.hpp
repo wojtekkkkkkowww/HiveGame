@@ -32,11 +32,11 @@ namespace hive
     };
     
     constexpr Position invalidPosition{std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
-    constexpr Position N{0, -1};
-    constexpr Position S{0, 1};
+    constexpr Position NW{0, -1};
+    constexpr Position SE{0, 1};
     constexpr Position NE{1, -1};
-    constexpr Position SE{1, 0};
+    constexpr Position E{1, 0};
     constexpr Position SW{-1, 1};
-    constexpr Position NW{-1, 0};
+    constexpr Position W{-1, 0};
 
 }

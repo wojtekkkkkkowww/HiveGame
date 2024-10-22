@@ -17,14 +17,5 @@ namespace hive
         {
             BaseBoard::resetBoard();
         }
-        Board &operator=(Board &&other) noexcept
-        {
-            if (this != &other)
-            {
-                MovementManager::operator=(std::move(other));
-                MoveValidator::operator=(std::move(other));
-            }
-            return *this;
-        }
     };
 }

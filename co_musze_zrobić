@@ -1,0 +1,41 @@
+co musze zrobić ??
+1) chciałoby się to dzisiaj zrobić ważne to jest
+
+naprawienie notacji :|
+
+- usunięcie WAIT/ narazie zostawiam jak jest
+
+-odwrócenie pionków :( + :D
+ 
+ yhym to wymaga zmiany w moich kierunkach no bo byłyby inne niestety :
+ W,NE,E,W,SW,E
+trzeba zmienić definincje kierunków  w constexpach
+oraz wszędzie tam gdzie jest lista kierunków
+to powoduje jakąś skromną modyfikację funkcji isDirection Correct
++done
+
+
+ja do tego sie zabrac
+oba się wydają trudne przez ten dziwny znak / na początku lub końcu
+
+tłumaczenie w stronę z mojej notacji na notację którą chcę wydaje się być prosta
+wystrczy przetłumaczyć kierunek na odpowiednią pałeczkę :)
+tylko że odrazu widzę że potrzebne są oznacenia numerów pionków to nie problem dodać variable do pionków
+
+w drugą stronę :( czyli z notacji do mnie
+no cóż trzymanie mapy pionków z odpowidnimi pozycjami byłoby jakimś rozwiązaniem
+całkiem w porządku w sensie no pamięć nie ucierpi ca bardzo ?
+no ale trzeba by było za każdym razem update pozycji robić :|
+kropeczki na figurach oznaczjące numer figury by się przydały
+
+
+2 i 3 ma poodbny pryjorytet
+2) zrobienie bota i wynalezienie heurystk :|
+
+3) pisanie pisanei pracy inżynierskiej ale lipka
+//narazie to jest tylko zarys
+więc może też nie być tak źle
+
+4) dodanie komentarzy do kodu :|
+to będę męczyć copilota miejmy nadzieję że to sprawnie pójdzie
+

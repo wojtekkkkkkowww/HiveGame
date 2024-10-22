@@ -26,7 +26,7 @@ void BoardDrawable::update()
 {
     hexDrawables.clear();
 
-    if (!board.boardTiles.empty()) // segfaults
+    if (!board.getTileCount() == 0)
     {
         updateBoardTiles();
     }
@@ -36,39 +36,44 @@ void BoardDrawable::update()
 
 void BoardDrawable::updateBoardTiles()
 {
-    for (const auto &[position, tiles] : board.boardTiles)
+    const auto &tiles = board.getTiles();
+    hive::Position lastPosition = hive::invalidPosition;
+    float offset = 0.0f;
+    for (auto it = tiles.begin(); it != tiles.end(); ++it)
     {
-        float offset = 0.0f;
-        for (auto it = tiles.begin(); it != tiles.end(); ++it)
+        const auto &tile = *it;
+
+        if (lastPosition != tile.position)
         {
-            const auto &tile = *it;
-            HexDrawable hex(0.95f * hexSize);
-            hex.tilePosition = position;
-            hex.setOffset(offset);
-            hex.setTile(tile, textures);
-
-            if (position == selectedPosition && tile.color == player)
-            {
-                // Check if the next tile has the same position
-                auto nextIt = std::next(it);
-                if (nextIt == tiles.end() || nextIt->position != position)
-                {
-                    hex.highlight(sf::Color::Cyan);
-                }
-            }
-
-            auto [posX, posY] = calculateHexPosition(position.x, position.y);
-            hex.setPosition(posX, posY + offset);
-
-            hexDrawables.push_back(hex);
-            offset += 5.0f;
+            offset = 0.0f;
         }
+
+        lastPosition = tile.position;
+        HexDrawable hex(0.95f * hexSize);
+        hex.tilePosition = lastPosition;
+        hex.setOffset(offset);
+        hex.setTile(tile, textures);
+
+        if (lastPosition == selectedPosition && tile.color == player)
+        {
+            auto nextIt = std::next(it);
+            if (nextIt == tiles.end() || nextIt->position != lastPosition)
+            {
+                hex.highlight(sf::Color::Cyan);
+            }
+        }
+
+        auto [posX, posY] = calculateHexPosition(lastPosition.x, lastPosition.y);
+        hex.setPosition(posX, posY + offset);
+
+        hexDrawables.push_back(hex);
+        offset += 5.0f;
     }
 }
 
 void BoardDrawable::updateEmptyTiles()
 {
-    for (const auto &emptyPosition : board.emptyTiles)
+    for (const auto &emptyPosition : board.getEmptyTiles())
     {
         HexDrawable hex(0.95f * hexSize);
         hex.tilePosition = emptyPosition;
@@ -98,9 +103,12 @@ std::pair<float, float> BoardDrawable::calculateHexPosition(int x, int y)
     float sqrt_3 = std::sqrt(3.0f);
     float centerX = 800.f / 2.0f;
     float centerY = 600.f / 2.0f;
+    float height = sqrt_3 * hexSize / 2;
+    float spacingX = 1.0f;
+    float spacingY = 1.0f;
 
-    float posX = hexSize * (1.5f * x) + centerX;
-    float posY = hexSize * (sqrt_3 * (y + 0.5f * x)) + centerY;
+    float posX = centerX + height * (2 * x + y) + spacingX * x;
+    float posY = centerY + hexSize * 1.5f * y + spacingY * y;
 
     return std::make_pair(posX, posY);
 }

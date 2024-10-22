@@ -6,7 +6,7 @@ HexDrawable::HexDrawable(float size) : size(size)
     hex.setPointCount(6);
     hex.setOrigin(size, size);
     hex.setFillColor(sf::Color::White);
-    hex.setRotation(30.f);
+    //hex.setRotation(30.f);
     hex.setOutlineThickness(1.f);
     hex.setOutlineColor(sf::Color::Red);
 }

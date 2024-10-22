@@ -9,15 +9,28 @@ namespace hive
         emptyTiles.insert({0, 0});
     }
 
+    void BaseBoard::moveTile(Position position, Position newPosition)
+    {   
+        auto tile = boardTiles.at(position).back();
+        removeTile(position);
+        addTile(newPosition, tile);
+        std::cerr << "Moving tile " << tile->type << " from " << position.x << " " << position.y << " to " << newPosition.x << " " << newPosition.y << std::endl;
+    }
+
     Tile BaseBoard::getTile(Position position) const
     {
         if (isEmpty(position))
         {
-            throw std::invalid_argument("No tile at position");
+            throw std::invalid_argument("No tile at position " + std::to_string(position.x) + " " + std::to_string(position.y));
         }
 
         const auto &tiles = boardTiles.at(position);
-        return tiles.back();
+        return *tiles.back();
+    }
+
+    std::set<Position> BaseBoard::getEmptyTiles() const
+    {
+        return emptyTiles;
     }
 
     void BaseBoard::removeTile(Position position)
@@ -32,13 +45,19 @@ namespace hive
         }
     }
 
-    void BaseBoard::addTile(Position position, Tile &tile)
+    void BaseBoard::addTile(Position position, Tile tile)
+    {   
+        auto tilePtr = std::make_shared<Tile>(tile);
+        addTile(position, tilePtr);
+    }
+
+    void BaseBoard::addTile(Position position, std::shared_ptr<Tile> tile)
     {
-        tile.setPosition(position);
+        tile->setPosition(position); 
 
         if (isEmpty(position))
         {
-            boardTiles[position] = std::deque<Tile>();
+            boardTiles[position] = std::deque<std::shared_ptr<Tile>>();
         }
 
         boardTiles[position].push_back(tile);
@@ -60,15 +79,29 @@ namespace hive
         return boardTiles.at(position).size();
     }
 
+    std::list<Tile> BaseBoard::getTiles() const
+    {
+        std::list<Tile> tiles;
+        for (const auto &[key, value] : boardTiles)
+        {
+            for(const auto &tile : value)
+            {
+                Tile newTile = *tile;
+                tiles.push_back(newTile);
+            }
+        }
+        return tiles;
+    }
+
     std::set<Position> BaseBoard::getPlayerTiles(std::string color) const
     {
         std::set<Position> playerTiles;
         for (const auto &[key, tiles] : boardTiles)
         {
             const auto &tile = tiles.back();
-            if (tile.color == color)
+            if (tile->color == color)
             {
-                playerTiles.insert(tile.position);
+                playerTiles.insert(tile->position);
             }
         }
         return playerTiles;
@@ -80,7 +113,7 @@ namespace hive
         for (const auto &[key, tiles] : boardTiles)
         {
             const auto &tile = tiles.back();
-            for (const auto &neighbourPosition : getNeighbours(tile.position))
+            for (const auto &neighbourPosition : getNeighbours(tile->position))
             {
                 if (isEmpty(neighbourPosition))
                 {
@@ -108,9 +141,14 @@ namespace hive
         return count;
     }
 
+    int BaseBoard::getTileCount() const
+    {
+        return boardTiles.size();
+    }
+
     std::set<Position> BaseBoard::getNeighbours(Position position)
     {
-        std::set<Position> directions = {N, S, NE, SW, NW, SE};
+        std::set<Position> directions = {NW, SE, NE, SW, W, E};
         std::set<Position> neighbours;
 
         for (auto &dir : directions)

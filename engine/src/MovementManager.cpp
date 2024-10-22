@@ -6,7 +6,7 @@ namespace hive
 {
     std::set<Position> MovementManager::getQueenBeeMoves(Position position) const
     {
-        std::set<Position> directions = {N, NE, SE, S, SW, NW};
+        std::set<Position> directions = {NW, NE, E, SE, SW, W};
         std::set<Position> moves;
 
         for (auto &direction : directions)
@@ -27,7 +27,7 @@ namespace hive
     std::set<Position> MovementManager::getBeetleMoves(Position position) const
     {
         std::set<Position> moves;
-        std::vector<Position> directions = {N, NE, SE, S, SW, NW};
+        std::vector<Position> directions = {NW, NE, E, SE, SW, W};
         auto beetle_level = getLevel(position);
 
         for (auto &direction : directions)
@@ -103,7 +103,7 @@ namespace hive
     std::set<Position> MovementManager::getGrasshopperMoves(Position position) const
     {
         std::set<Position> moves;
-        std::vector<Position> directions = {N, NE, SE, S, SW, NW};
+        std::vector<Position> directions = {NW, NE, E, SE, SW, W};
 
         for (auto &direction : directions)
         {
@@ -158,7 +158,7 @@ namespace hive
             }
             visited.insert(current);
 
-            std::vector<Position> directions = {N, NE, SE, S, SW, NW};
+            std::vector<Position> directions = {NW, NE, E, SE, SW, W};
 
             for (const Position &direction : directions)
             {
@@ -177,6 +177,7 @@ namespace hive
 
     std::set<Position> MovementManager::getAvailableMoves(Tile tile) const
     {
+        std::cerr << "Position " << tile.position.x << " " << tile.position.y << std::endl;
         switch (tile.type)
         {
         case 'Q':

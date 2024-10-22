@@ -16,26 +16,6 @@ namespace hive
             return true;
         }
 
-        Tile tile = getTile(position);
-        Position direction = {newPosition.x - position.x, newPosition.y - position.y};
-
-        /*
-        // te dwa siupy mogły by iść do klasy MovementManager razem z isDirectionBlocked
-        if (tile.type == 'Q')
-        {
-            return isDirectionBlocked(position, direction);
-        }
-
-        if (tile.type == 'B')
-        {
-
-            if (getLevel(position) == getLevel(newPosition) + 1)
-            {
-                return isDirectionBlocked(position, direction);
-            }
-        }
-        */
-
         return false;
     }
 
@@ -61,12 +41,12 @@ namespace hive
         // trrzeba dodac zakas fruwania
 
         std::map<Position, std::vector<Position>> neighboringDirections = {
-            {N, {NW, NE}},
-            {NE, {N, SE}},
-            {SE, {NE, S}},
-            {S, {SE, SW}},
-            {SW, {S, NW}},
-            {NW, {N, SW}}};
+            {NW, {W, NE}},
+            {NE, {NW, E}},
+            {E, {NE, SE}},
+            {SE, {E, SW}},
+            {SW, {SE, W}},
+            {W, {NW, SW}}};
 
         if (neighboringDirections.find(direction) == neighboringDirections.end())
         {

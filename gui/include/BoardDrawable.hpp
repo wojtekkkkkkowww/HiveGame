@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "Game.hpp"
+#include "Position.hpp"
 #include "HexDrawable.hpp"
 
 class BoardDrawable : public sf::Drawable

@@ -99,13 +99,13 @@ TEST_F(TileMovementTest, QueenBeeAvailableMovesAtStart)
 {
     Tile queenBee('Q', "WHITE");
     board.addTile({0, 0}, queenBee);
+    queenBee = board.getTile({0, 0});
     auto availableMoves = board.getAvailableMoves(queenBee);
 
     std::set<Position> expectedMoves = {
         {1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}};
 
     ASSERT_EQ(availableMoves.size(), 6);
-
     ASSERT_EQ(availableMoves, expectedMoves);
 
     saveBoardAsPng("QueenBeeAvailableMovesAtStart/1.png");
@@ -116,7 +116,7 @@ TEST_F(TileMovementTest, PlaceNewTile)
     PlaceAction action{{0, 0}, 'A'};
     applyAction(action);
 
-    auto tile = board.getTile({0, 0});
+    const auto& tile = board.getTile({0, 0});
     ASSERT_EQ(tile.type, 'A');
     ASSERT_EQ(tile.color, "WHITE");
     Position position = {0, 0};
@@ -134,7 +134,7 @@ TEST_F(TileMovementTest, MoveExistingTile)
     ASSERT_EQ(getCurrentTurn(), "WHITE");
     ASSERT_TRUE(applyAction(MoveAction({0, 0}, {0, 1})));
 
-    auto tile = board.getTile({0, 1});
+    const auto& tile = board.getTile({0, 1});
     ASSERT_EQ(tile.type, 'Q');
 }
 

@@ -12,12 +12,12 @@ protected:
 TEST_F(GameInitializationTest, BoardInit)
 {
      
-    ASSERT_TRUE(game.board.boardTiles.empty());
-    ASSERT_EQ(game.board.emptyTiles.size(), 1);
-
-    auto position = *game.board.emptyTiles.begin();
-    ASSERT_EQ(position,hive::Position({0,0}));
-   }
+    ASSERT_EQ(game.board.getTileCount(), 0);
+    
+    auto emptyTiles = game.board.getEmptyTiles();
+    ASSERT_TRUE(emptyTiles.find({0,0}) != emptyTiles.end()); 
+    ASSERT_TRUE(emptyTiles.size() == 1);
+}
 
 /*
 to ma sprwadzać reset po zrobieniu kilku ruchów
