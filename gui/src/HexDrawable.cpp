@@ -6,7 +6,6 @@ HexDrawable::HexDrawable(float size) : size(size)
     hex.setPointCount(6);
     hex.setOrigin(size, size);
     hex.setFillColor(sf::Color::White);
-    //hex.setRotation(30.f);
     hex.setOutlineThickness(1.f);
     hex.setOutlineColor(sf::Color::Red);
 }
@@ -19,7 +18,7 @@ void HexDrawable::setPosition(float x, float y)
 
 void HexDrawable::setTile(const hive::Tile &tile, const std::map<char, sf::Texture> &textures)
 {
-    if(tile.color == "WHITE")
+    if(tile.color == 'W')
     {
         hex.setFillColor(sf::Color::White);
     }

@@ -5,6 +5,9 @@
 #include <iostream>
 #include "ResourceManager.hpp"
 
+/*
+* @brief The PieceSelector class is responsible for displaying pool of pieces that player can choose from.
+*/
 class PieceSelector : public sf::Drawable
 {
 public:
@@ -36,18 +39,16 @@ public:
         }
     }
 
-    void addPiece(const char &pieceType, const sf::Texture &texture, float xOffset, float yOffset)
+    void addPiece(char pieceType, const sf::Texture &texture, float xOffset, float yOffset)
     {
         sf::Sprite sprite;
         sprite.setTexture(texture);
         if (!sprite.getTexture())
         {
-            std::cerr << "Texture not set for sprite" << std::endl;
             return;
         }
         sprite.setPosition(stackRect.getPosition().x + xOffset, stackRect.getPosition().y + yOffset);
         pieces.push_back({pieceType, sprite});
-        std::cerr << "Added piece: " << pieceType << " at position: " << sprite.getPosition().x << ", " << sprite.getPosition().y << std::endl;
     }
 
     void selectPiece(sf::Vector2f mousePos)
@@ -57,7 +58,6 @@ public:
             if (piece.second.getGlobalBounds().contains(mousePos))
             {
                 selectedPiece = piece.first;
-                std::cerr << "CLICKED: " << piece.first << std::endl;
             }
         }
     }
@@ -84,7 +84,6 @@ private:
                 sf::Sprite highlightedSprite = piece.second;
                 highlightedSprite.setColor(sf::Color(255, 100, 100)); // Change color to red
                 target.draw(highlightedSprite, states);
-                std::cerr << "Highliting selected piece" << std::endl;
             }
             else
             {

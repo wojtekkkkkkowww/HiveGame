@@ -6,24 +6,58 @@
 namespace hive
 {
     Game::Game()
-        : currentTurn("WHITE"),
+        : currentTurn('W'),
           actionHandler(board, players, currentTurn, gameStatus),
-          turnManager(board, players, currentTurn, gameStatus)
+          turnManager(board, players, currentTurn, gameStatus),
+          actionParser(board, currentTurn)
     {
-        players["WHITE"] = Player("WHITE");
-        players["BLACK"] = Player("BLACK");
+        players['W'] = Player('W');
+        players['B'] = Player('B');
         startNewGame();
         actionHandler.genAvailableActions();
     }
 
     Game::~Game() {}
 
+    void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn)
+    {
+        board.setBoardTiles(tiles);
+        this->currentTurn = currentTurn;
+        for (auto &[position, tiles] : tiles)
+        {
+            for(auto t : tiles)
+            {
+                if(t.color == 'W' && t.type == 'Q')
+                {
+                    board.whiteQueen = position;
+                    players['W'].queenPlaced = true;
+                }
+                if(t.color == 'B' && t.type == 'Q')
+                {
+                    board.blackQueen = position;
+                    players['B'].queenPlaced = true;
+                }
+            }
+        }
+
+        gameStatus = "PLAYING";
+        actionHandler.genAvailableActions();
+    }
+
     bool Game::applyAction(Action action)
     {
+
+        /*
+        wymaga tego żeby było wykonane po akcji żeby znać daną notację brzmi prościej do rozwiązania
+        ale wymaga wykonania przed akcją żeby board się zgadzał
+        */
+        lastAction = actionParser.actionToString(action);
+
         if (actionHandler.applyAction(action))
         {
             turnManager.nextTurn();
             actionHandler.genAvailableActions();
+
             return true;
         }
         return false;
@@ -31,7 +65,9 @@ namespace hive
 
     bool Game::applyAction(const std::string &actionString)
     {
+        lastAction = actionString;
         Action action = actionParser.stringToAction(actionString);
+
         if (actionHandler.applyAction(action))
         {
             turnManager.nextTurn();
@@ -52,9 +88,14 @@ namespace hive
         return actionHandler.getAvailableActions();
     }
 
+    std::string Game::getLastAction() const
+    {
+        return lastAction;
+    }
+
     void Game::startNewGame()
     {
-        currentTurn = "WHITE";
+        currentTurn = 'W';
         gameStatus = "PLAYING";
         board.resetBoard();
     }

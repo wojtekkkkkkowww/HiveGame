@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
         std::cerr << "Error: Could not accept player 1" << std::endl;
         return -1;
     }
-    std::cout << "Player 1 connected! Please send your color (WHITE or BLACK):" << std::endl;
+    std::cout << "Player 1 connected! Please send your color (W or B):" << std::endl;
 
     std::string player1Color;
     char buffer[128];

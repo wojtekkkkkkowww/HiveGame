@@ -10,13 +10,16 @@
 
 using namespace hive;
 
+/*
+class GameController is responsible for handling the user input and updating the GUI.
+*/
 class GameController 
 {   
 public:
     GameController(sf::RenderWindow &window);
     void handleGameControll();
     void apllyOpponentAction(const std::string& action);
-    void setPlayer(const std::string& player);
+    void setPlayer(char player);
     std::string message = "";
 
 
@@ -52,10 +55,7 @@ private:
     PieceSelector pieceSelector;
     std::unique_ptr<Game> game;
     BoardDrawable boardDrawable;
-    std::string player = "WHITE";
+    char player = 'W';
     sf::Text turnText;
     Button waitButton;
-    ActionParser actionParser;
-
-
 };

@@ -9,12 +9,25 @@ namespace hive
         emptyTiles.insert({0, 0});
     }
 
-    void BaseBoard::moveTile(Position position, Position newPosition)
+    void BaseBoard::setBoardTiles(std::map<Position, std::deque<Tile>> &tiles)
     {   
+        for (const auto &[position, tile] : tiles)
+        {
+            for (const auto &t : tile)
+            {
+                addTile(position, t);
+            }
+        }
+
+        addEmptyTilesAroundBoard();
+    }
+
+    void BaseBoard::moveTile(Position position, Position newPosition)
+    {
         auto tile = boardTiles.at(position).back();
         removeTile(position);
         addTile(newPosition, tile);
-        std::cerr << "Moving tile " << tile->type << " from " << position.x << " " << position.y << " to " << newPosition.x << " " << newPosition.y << std::endl;
+//        std::cerr << "Moving tile " << tile->type << " from " << position.x << " " << position.y << " to " << newPosition.x << " " << newPosition.y << std::endl;
     }
 
     Tile BaseBoard::getTile(Position position) const
@@ -26,6 +39,16 @@ namespace hive
 
         const auto &tiles = boardTiles.at(position);
         return *tiles.back();
+    }
+
+    Tile BaseBoard::getTileByNotation(std::string notation) const
+    {
+        if (tiles.find(notation) == tiles.end())
+        {
+            return Tile(notation);
+        }
+
+        return *tiles.at(notation);
     }
 
     std::set<Position> BaseBoard::getEmptyTiles() const
@@ -46,14 +69,14 @@ namespace hive
     }
 
     void BaseBoard::addTile(Position position, Tile tile)
-    {   
+    {
         auto tilePtr = std::make_shared<Tile>(tile);
         addTile(position, tilePtr);
     }
 
     void BaseBoard::addTile(Position position, std::shared_ptr<Tile> tile)
     {
-        tile->setPosition(position); 
+        tile->setPosition(position);
 
         if (isEmpty(position))
         {
@@ -61,6 +84,8 @@ namespace hive
         }
 
         boardTiles[position].push_back(tile);
+        tiles[tile->notation] = tile;
+
         addEmptyTilesAroundBoard();
     }
 
@@ -84,7 +109,7 @@ namespace hive
         std::list<Tile> tiles;
         for (const auto &[key, value] : boardTiles)
         {
-            for(const auto &tile : value)
+            for (const auto &tile : value)
             {
                 Tile newTile = *tile;
                 tiles.push_back(newTile);
@@ -93,7 +118,7 @@ namespace hive
         return tiles;
     }
 
-    std::set<Position> BaseBoard::getPlayerTiles(std::string color) const
+    std::set<Position> BaseBoard::getPlayerTiles(char color) const
     {
         std::set<Position> playerTiles;
         for (const auto &[key, tiles] : boardTiles)
@@ -123,7 +148,7 @@ namespace hive
         }
     }
 
-    int BaseBoard::calculateNeighbours(Position position, std::string color) const
+    int BaseBoard::calculateNeighbours(Position position, char color) const
     {
         int count = 0;
         auto neighbours = getNeighbours(position);

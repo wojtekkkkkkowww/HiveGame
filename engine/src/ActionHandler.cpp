@@ -3,14 +3,15 @@
 
 namespace hive
 {
-    ActionHandler::ActionHandler(Board &board, std::map<std::string, Player> &players, std::string &currentTurn, std::string &status)
+    //str
+    ActionHandler::ActionHandler(Board &board, std::map<char, Player> &players, char &currentTurn, std::string &status)
         : board(board), players(players), currentTurn(currentTurn), status(status) {}
 
     bool ActionHandler::applyAction(Action action)
     {
+        std::cerr << "TRYING Applying action: " << action << std::endl;
         if (!isActionValid(action))
         {
-            std::cerr << "Invalid action" << std::endl;
             return false;
         }
 
@@ -18,15 +19,11 @@ namespace hive
 
         if (action.type == "PLACE")
         {
-            placeTile(action.position, action.tile_type);
+            placeTile(action.newPosition, action.tile_type);
         }
         else if (action.type == "MOVE")
         {
             moveTile(action.position, action.newPosition);
-        }
-        else if (action.type == "WAIT")
-        {
-            std::cerr << "SKIPPING TURN" << std::endl;
         }
 
         return true;
@@ -67,20 +64,20 @@ namespace hive
                 availableActions.insert(action);
             }
         }
-
-        std::cerr << "Available actions: " << std::endl;
-        for (auto actio : availableActions)
-        {
-            std::cerr << actio << std::endl;
-        }
     }
 
     bool ActionHandler::isActionValid(const Action &action) const
     {
-        std::cerr << "----------------" << std::endl;
-        std::cerr << action << std::endl;
-
         return availableActions.find(action) != availableActions.end();
+    }
+
+    Action ActionHandler::getLastAction() const
+    {
+        if (actions.empty())
+        {
+            throw std::invalid_argument("No actions to return");
+        }
+        return actions.top();
     }
 
     void ActionHandler::generateMoveActions()
@@ -88,8 +85,11 @@ namespace hive
         for (const auto &position : board.getPlayerTiles(currentTurn))
         {
             const auto &tile = board.getTile(position);
+
             for (const auto &newPosition : board.getAvailableMoves(tile))
             {
+                std::cerr << "Checking move Position: " << position.x << " " << position.y << " New Position: " << newPosition.x << " " << newPosition.y << std::endl;
+            
                 MoveAction action(position, newPosition);
                 if (isMoveActionValid(action))
                 {
@@ -99,6 +99,7 @@ namespace hive
         }
     }
 
+    //str
     void ActionHandler::generatePlaceActions()
     {
         std::vector<char> types = {'A', 'B', 'G', 'S', 'Q'};
@@ -109,7 +110,7 @@ namespace hive
             {
                 for (const auto &position : board.getEmptyTiles())
                 {
-                    PlaceAction action(position, type);
+                    PlaceAction action(position, type); // akcja nie wie jak się wykonać
                     if (isPlaceActionValid(action))
                     {
                         availableActions.insert(action);
@@ -134,7 +135,7 @@ namespace hive
             return false;
         }
 
-        if (board.isOccupiedByOpponent(action.position, currentTurn) && !players[currentTurn].firstMove)
+        if (board.isOccupiedByOpponent(action.newPosition, currentTurn) && !players[currentTurn].firstMove)
         {
             return false;
         }
@@ -146,11 +147,13 @@ namespace hive
     {
         if (!players[currentTurn].queenPlaced)
         {
+            std::cerr << "Queen not placed" << std::endl;
             return false;
         }
 
         if (board.isMoveBlocked(action.position, action.newPosition))
         {
+            std::cerr << "Move blocked" << std::endl;
             return false;
         }
 
@@ -164,27 +167,30 @@ namespace hive
         updateQueenPosition(tile, newPosition);
     }
 
+    //str 
     void ActionHandler::placeTile(Position position, char type)
     {
         auto tile = players[currentTurn].takeTile(type);
+        tile.placed = true;
         board.addTile(position, tile);
         if (type == 'Q')
         {
             players[currentTurn].queenPlaced = true;
             updateQueenPosition(tile, position);
-            std::string color = (currentTurn == "WHITE") ? "White" : "Black";
-            std::cerr << "\033[34m" << color << " queen placed\033[0m" << std::endl;
+            std::string color = (currentTurn == 'W') ? "White" : "Black";
+            //            std::cerr << "\033[34m" << color << " queen placed\033[0m" << std::endl;
         }
     }
 
+    //str
     void ActionHandler::updateQueenPosition(const hive::Tile &tile, const hive::Position &newPosition)
     {
-        if (tile.color == "WHITE" && tile.type == 'Q')
+        if (tile.color == 'W' && tile.type == 'Q')
         {
             board.whiteQueen = newPosition;
         }
 
-        if (tile.color == "BLACK" && tile.type == 'Q')
+        if (tile.color == 'B' && tile.type == 'Q')
         {
             board.blackQueen = newPosition;
         }

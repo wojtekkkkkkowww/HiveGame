@@ -27,6 +27,7 @@ add_subdirectory(gui)
 add_subdirectory(client)
 add_subdirectory(server)
 add_subdirectory(tests)
+add_subdirectory(ai) 
 
 add_compile_options(
   -Wall 

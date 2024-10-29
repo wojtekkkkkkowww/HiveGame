@@ -1,87 +1,82 @@
 #include "Game.hpp"
 #include "Client.hpp"
+#include "AiAlgorithm.hpp"
+#include "RandomAi.hpp"
 #include <iostream>
 
 using namespace hive;
+
+/**
+ * @brief A class for managing an AI client
+ *
+ * The AIClient class extends the Client class to provide TCP client functionality.
+ * It uses a specific algorithm to make AI moves.
+ */
 class AIClient : public Client
 {
 public:
-    AIClient(const std::string &serverIP, unsigned short port)
-        : Client(serverIP, port) {}
+    AIClient(const std::string &serverIP, unsigned short port, char player, Game& game, AIAlgorithm& aiAlgorithm)
+        : Client(serverIP, port, player), game(game), aiAlgorithm(aiAlgorithm) {}
 
-    void run(const std::string &player)
+private:
+    Game& game;
+    AIAlgorithm& aiAlgorithm;
+
+    void prepare() override
     {
-        if (!startConnection(player))
-        {
-            std::cerr << "Failed to connect to server" << std::endl;
-            return;
-        }
-
         game.startNewGame();
+    }
 
-        std::string message;
-        bool gameStarted = false;
-        while (true)
+    void handleMyAction() override
+    {
+        if (game.getCurrentTurn() == player)
         {
-            if(!gameStarted)
+            auto availableActions = game.getAvailableActions();
+            if (!availableActions.empty())
             {
-                if (receiveMessage(message))
-                {   std::cerr << "Received message: " << message << std::endl;
-                    if(message == "START")
-                    {
-                        gameStarted = true;
-                    }
-                }
-                continue;
-            }//
+                Action action = aiAlgorithm.getNextMove();
+                game.applyAction(action);
+                std::string actionString = game.getLastAction();
 
-            if (game.getCurrentTurn() == player )
-            {   auto availableActions = game.getAvailableActions();
-                if (!availableActions.empty())
+                if (!sendMessage(actionString))
                 {
-                    Action firstAction = *availableActions.begin();
-                    std::string actionString = actionParser.actionToString(firstAction);
-                    if (!sendMessage(actionString))
-                    {
-                        std::cerr << "Failed to send message to the server" << std::endl;
-                    }
-                    game.applyAction(firstAction);
+                    std::cerr << "Failed to send message to the server" << std::endl;
                 }
             }
+        }
+    }
 
+    void handleOpponentAction() override
+    {
+        if (game.getCurrentTurn() != player)
+        {
             if (receiveMessage(message))
             {
                 game.applyAction(message);
             }
         }
     }
-
-private:
-    hive::Game game;
-    ActionParser actionParser;
 };
 
 int main(int argc, char *argv[])
 {
-    std::string player;
+    char player;
     int port;
+    
+    std::string serverIP = "127.0.0.1";
     if (argc > 2)
     {
-        port = std::stoi(argv[1]);
-        player = argv[2];
-
-        if (player != "WHITE" && player != "BLACK")
-        {
-            std::cerr << "Invalid player color" << std::endl;
-            return 1;
-        }
+        parseArguments(player, port, argc, argv);
     }
     else
     {
         return 1;
     }
+    std::unique_ptr<Game> game = std::make_unique<Game>();
+    std::unique_ptr<AIAlgorithm> aiAlgorithm = std::make_unique<RandomAIAlgorithm>(*game);
 
-    AIClient client("127.0.0.1", port);
-    client.run(player);
+
+    AIClient client(serverIP, port, player, *game, *aiAlgorithm);
+    client.run();
     return 0;
 }

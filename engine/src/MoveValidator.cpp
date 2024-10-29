@@ -19,16 +19,16 @@ namespace hive
         return false;
     }
 
-    bool MoveValidator::isOccupiedByOpponent(Position pos, std::string color) const
+    bool MoveValidator::isOccupiedByOpponent(Position pos, char color) const
     {
-        std::string opponent = color == "WHITE" ? "BLACK" : "WHITE";
+        char opponent = color == 'W' ? 'B' : 'W';
         return calculateNeighbours(pos, opponent) > 0;
     }
 
-    bool MoveValidator::isQueenSurrounded(std::string color) const
+    bool MoveValidator::isQueenSurrounded(char color) const
     {
-        std::string opponent = color == "WHITE" ? "BLACK" : "WHITE";
-        Position position = (color == "WHITE") ? whiteQueen : blackQueen;
+        char opponent = color == 'W' ? 'B' : 'W';
+        Position position = (color == 'W') ? whiteQueen : blackQueen;
         if (position == invalidPosition)
         {
             return false;
@@ -37,9 +37,7 @@ namespace hive
     }
 
     bool MoveValidator::isDirectionBlocked(Position position, Position direction, int level) const
-    { // powinna wiedziec czy te ziomki co sprawdza sa na tym samym poziomie
-        // trrzeba dodac zakas fruwania
-
+    { 
         std::map<Position, std::vector<Position>> neighboringDirections = {
             {NW, {W, NE}},
             {NE, {NW, E}},
@@ -50,39 +48,43 @@ namespace hive
 
         if (neighboringDirections.find(direction) == neighboringDirections.end())
         {
-            std::cerr << "Error: Invalid direction provided. " << direction.x << " " << direction.y << std::endl;
             return true;
         }
+
         auto neighbors = neighboringDirections[direction];
 
-        Position neighborPosition1 = {position.x + neighbors[0].x, position.y + neighbors[0].y};
-        Position neighborPosition2 = {position.x + neighbors[1].x, position.y + neighbors[1].y};
+        Position neighborPosition1 = position + neighbors[0];
+        Position neighborPosition2 = position + neighbors[1];
 
-        // FREDOM TO MOVE, nie widze tego
-        if (getLevel(neighborPosition1) >= level && getLevel(neighborPosition2) >= level)
+        if (fredomToMove(neighborPosition1, level, neighborPosition2))
         {
-            std::cerr<<"Direction "<< direction.x << " " <<direction.y <<" is blocked because:\n";
-            std::cerr<<neighborPosition1.x <<" " <<neighborPosition1.y << ">=" << position.x << " " << position.y <<"\n";
-            std::cerr<<neighborPosition2.x <<" " <<neighborPosition2.y << ">=" << position.x << " " << position.y <<"\n";
-             
-            std::cerr << "\033[1;31mITS MY FAULT\033[0m \n";
+            std::cerr << "fredomToMove" << std::endl;
             return true;
         }
 
-        if(boardTiles.size() == 1)
+        if(boardTiles.size() == 1 || level != 1)
         {   
             return false;
         }
 
-        // CONSTANT CONTACT
         Position newPosition = position + direction;
-
-        if (isEmpty(neighborPosition1) && isEmpty(neighborPosition2) && level == 1 && getLevel(newPosition) == 0)
+        if (constantContact(neighborPosition1, neighborPosition2, newPosition))
         {
-            std::cerr << "\033[1;31mITS MY FAULT\033[0m " << newPosition.x << " " << newPosition.y << std::endl;
+            std::cerr << "constantContact" << std::endl;
             return true;
         }
+
         return false;
+    }
+
+    bool MoveValidator::constantContact(const hive::Position &neighborPosition1, const hive::Position &neighborPosition2, const hive::Position &newPosition) const
+    {
+        return isEmpty(neighborPosition1) && isEmpty(neighborPosition2) && getLevel(newPosition) == 0;
+    }
+
+    bool MoveValidator::fredomToMove(const hive::Position &neighborPosition1, int level, const hive::Position &neighborPosition2) const
+    {
+        return getLevel(neighborPosition1) >= level && getLevel(neighborPosition2) >= level;
     }
 
     /*

@@ -1,0 +1,14 @@
+BUGGI:
+1) klienci muszą być zainicjowani w kolejności :D
+
+2) wYOBRAŻ SOBIE ŻE RUSZASZ BEATLE NA POZIOM WYŻEJ 
+ALE POLA KTÓRE GO MOGĄ BLOKOWAĆ MAJĄ LVL O > 1 WIĘKSZY Xd
+TO WTEDY POWINIENM TO BLOKOWAĆ ??
+
+co do refaktoryzacji:
+1) no te jebane akcje to jest porażka
+2) dobra no i druga rzecz pamiętanie osobno pozycji królowych jest nie potrzebne bo i tak mam całą mapę
+3) zmiana z char na string tam gdzie trzeba 
+
+
+Drukowanie pięro po piętrze

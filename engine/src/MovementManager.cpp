@@ -11,8 +11,8 @@ namespace hive
 
         for (auto &direction : directions)
         {
-            Position newPos = {position.x + direction.x, position.y + direction.y};
-            if (isEmpty(newPos) && !isDirectionBlocked(position, direction,1))
+            Position newPos = position + direction;
+            if (isEmpty(newPos) && !isDirectionBlocked(position, direction, 1))
             {
                 moves.insert(newPos);
             }
@@ -26,21 +26,38 @@ namespace hive
     */
     std::set<Position> MovementManager::getBeetleMoves(Position position) const
     {
+        //THIS SHOULD BE APLIED FOR ALL TYPES OF TILES
+        // An idea of refactoring : Beatle beatle(position,this) // it pass board as reference
+        //  return beatle.getMoves(); 
+        
         std::set<Position> moves;
         std::vector<Position> directions = {NW, NE, E, SE, SW, W};
         auto beetle_level = getLevel(position);
 
         for (auto &direction : directions)
         {
-            Position newPos = {position.x + direction.x, position.y + direction.y};
-            if (abs(beetle_level - getLevel(newPos)) <= 2) // trzeba zweryfikować !
+            Position newPos = position + direction;
+            if (beatleJumpUp(newPos, beetle_level))
             {
-                if (!isDirectionBlocked(position, direction,beetle_level)) //
+                int newBeetleLevel = getLevel(newPos) + 1;
+                if (!isDirectionBlocked(position, direction, newBeetleLevel))
+                {
                     moves.insert(newPos);
+                }
+
+                continue;
             }
+
+            if (!isDirectionBlocked(position, direction, beetle_level))
+                moves.insert(newPos);
         }
 
         return moves;
+    }
+
+    bool MovementManager::beatleJumpUp(const hive::Position &newPos, int beetle_level) const
+    {
+        return getLevel(newPos) >= beetle_level;
     }
 
     /*
@@ -74,13 +91,13 @@ namespace hive
             {
                 if (visited.find(neighbor) == visited.end() && isEmpty(neighbor))
                 {
-                    
-                    // Jeżeli pająk jest sąsiadem to go nie liczymy 
+
+                    // Jeżeli pająk jest sąsiadem to go nie liczymy
                     int isSpiderNeighbour = (spiderNeighbours.find(neighbor) != spiderNeighbours.end()) ? 1 : 0;
-                    if (calculateNeighbours(neighbor, "BLACK") + calculateNeighbours(neighbor, "WHITE") - isSpiderNeighbour > 0)
+                    if (calculateNeighbours(neighbor, 'B') + calculateNeighbours(neighbor, 'W') - isSpiderNeighbour > 0)
                     {
-                        Position direction = {neighbor.x - currentPos.x, neighbor.y - currentPos.y};
-                        if (isDirectionBlocked(currentPos, direction,1))
+                        Position direction = neighbor - currentPos;
+                        if (isDirectionBlocked(currentPos, direction, 1))
                         {
                             continue;
                         }
@@ -138,19 +155,21 @@ namespace hive
         std::set<Position> visited;
         std::stack<Position> stack;
 
-        for (auto &neighbours : getNeighbours(position))
+        std::vector<Position> directions = {NW, NE, E, SE, SW, W};
+        for (auto &direction : directions)
         {
-            if (emptyTiles.find(neighbours) != emptyTiles.end())
+            Position neighbour = position + direction;
+            if (emptyTiles.find(neighbour) != emptyTiles.end() && !isDirectionBlocked(position, direction, 1))
             {
-                stack.push(neighbours);
+                stack.push(neighbour);
             }
         }
+
         while (!stack.empty())
         {
             Position current = stack.top();
             stack.pop();
 
-            std::cerr << "visiting " << current.x << " " << current.y << std::endl;
 
             if (visited.find(current) != visited.end())
             {
@@ -162,10 +181,8 @@ namespace hive
 
             for (const Position &direction : directions)
             {
-                Position neighbor = {current.x + direction.x, current.y + direction.y};
-                /// duży problem bo to powinno symulować realny ruch :|
-                // rozwiązanie przekazuj aktualny level jako argument
-                if (emptyTiles.find(neighbor) != emptyTiles.end() && visited.find(neighbor) == visited.end() && !isDirectionBlocked(current, direction,1))
+                Position neighbor = current + direction;
+                if (emptyTiles.find(neighbor) != emptyTiles.end() && visited.find(neighbor) == visited.end() && !isDirectionBlocked(current, direction, 1))
                 {
                     stack.push(neighbor);
                 }
@@ -177,7 +194,6 @@ namespace hive
 
     std::set<Position> MovementManager::getAvailableMoves(Tile tile) const
     {
-        std::cerr << "Position " << tile.position.x << " " << tile.position.y << std::endl;
         switch (tile.type)
         {
         case 'Q':

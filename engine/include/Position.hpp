@@ -4,6 +4,9 @@
 
 namespace hive
 {
+    /*
+    Data structure representing a position on the board.
+    */
     struct Position
     {
         int x;
@@ -29,8 +32,20 @@ namespace hive
             return {x + other.x, y + other.y};
         }
 
+        Position operator-(const Position &other) const
+        {
+            return {x - other.x, y - other.y};
+        }
+
+        Position& operator+=(const Position &other)
+        {
+            x += other.x;
+            y += other.y;
+            return *this;
+        }
+
     };
-    
+
     constexpr Position invalidPosition{std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
     constexpr Position NW{0, -1};
     constexpr Position SE{0, 1};

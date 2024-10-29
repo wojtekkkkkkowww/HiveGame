@@ -26,28 +26,25 @@ namespace hive
         Game();
         ~Game();
         
-        /*
-        Rozważ zamianę na 0/1 i enumy zamiast stringów
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        */
-
-
         void startNewGame();
+        void startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn);
         bool applyAction(Action action);
         bool applyAction(const std::string& actionString);
         void revertAction();
         std::set<Action> getAvailableActions() const;
-        std::string getCurrentTurn() const { return currentTurn; }
+        char getCurrentTurn() const { return currentTurn; }
         std::string getGameStatus() const { return gameStatus; }
-
+        std::string getLastAction() const;
+        
         Board board;
-        std::string currentTurn;
-        std::map<std::string, Player> players;
+        char currentTurn;
+        std::map<char, Player> players;
         std::string gameStatus = "PLAYING";
 
-    private:
+    protected:
         ActionHandler actionHandler;
         TurnManager turnManager;
         ActionParser actionParser;
+        std::string lastAction;
     };
 }

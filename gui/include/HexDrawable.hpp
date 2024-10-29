@@ -3,6 +3,11 @@
 #include <string>
 #include "Board.hpp"
 
+/**
+ * @brief A class for drawing a hexagon tile.
+ * 
+ * The HexDrawable class is a drawable object that represents a hexagon tile.
+ */
 class HexDrawable : public sf::Drawable
     {
     public:

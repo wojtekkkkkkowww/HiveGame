@@ -1,6 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+/*
+* @brief The Button class represents a clickable button.
+*/
 class Button : public sf::Drawable
 {
 public:

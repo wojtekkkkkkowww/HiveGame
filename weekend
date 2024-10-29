@@ -1,0 +1,31 @@
+plan na weekend 
+1)
+poprawienie kodu :| nie wyszło
+
+poprawa tego parsowania tam trzba string lastAction  wywalić
+-- ujujujuj to nie takie łątwe do naprawy 
+== bo tam jest problem taki że po wykonaniu akcji nie można już wziąć jej stringa :/
+== da się dostać prawidłowego stringa tylko podczas tej tury która jest wykonywana
+hmm fajnie by było ograniczyć użycie tej pierwszej noatacji w taki sposób żeby abstrakcja nie miała 
+pojęcia o tych dziwnych pozycjach które używam
+
+
+ale najważeniejsze to zrobić ten test ostateczny
+
+BIG refactor + dodanie dokumentacji
+do publicznych funkcji 
+
+zrobienie czegoś z tym Position i Action
+głównie action bo to jest jakaś porażka 
+
+O zrobienie testu :|
+kurde to ważne potrzebuję testu całej partii  +
+
+
+zaczęcie robienia AI w końcu i heurystyk
+2) - nope nie wyszło nic a nic
+
+
+zaczęcie ogarniania szkicu do pracy inżynierskiej + xD niezły szkic wyszedł 
+
+rozpisanie pracy na tydzień

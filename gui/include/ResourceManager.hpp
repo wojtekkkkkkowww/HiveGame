@@ -5,6 +5,15 @@
 #include <memory>
 #include <iostream>
 
+
+/*
+Pictures of tiles are collected from website:
+https://www.instructables.com/Hive-game-with-box/
+*/
+
+/**
+ * @brief The ResourceManager class is responsible for loading and storing textures and fonts.
+ */
 class ResourceManager
 {
 public:
@@ -39,12 +48,10 @@ public:
             sf::Font font;
             if (!font.loadFromFile(std::string(SOURCE_DIR) + "/res/" + name))
             {
-                std::cerr << "Error loading font: " << name << std::endl;
             }
             else
             {
                 fonts[name] = std::move(font);
-                std::cerr << "Loaded font: " << name << std::endl;
             }
         }
         return fonts[name];

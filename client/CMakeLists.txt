@@ -1,6 +1,6 @@
 add_executable(AiClient AiClient.cpp Client.cpp)
 
-target_link_libraries(AiClient GameEngine sfml-network)
+target_link_libraries(AiClient ai GameEngine sfml-network)
 
 target_include_directories(AiClient PRIVATE
     ${CMAKE_SOURCE_DIR}/engine/include

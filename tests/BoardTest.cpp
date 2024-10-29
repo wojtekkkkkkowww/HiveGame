@@ -31,7 +31,7 @@ TEST_F(BoardTest, GetTileAtEmptyPosition)
 
 TEST_F(BoardTest, GetTileAtPosition)
 {
-    hive::Tile tile('Q',"WHITE");
+    hive::Tile tile('Q','W');
     board.addTile({0, 0}, tile);
     const auto& retrievedTile = board.getTile({0, 0});
     
@@ -41,7 +41,7 @@ TEST_F(BoardTest, GetTileAtPosition)
 
 TEST_F(BoardTest, RemoveTile)
 {
-    hive::Tile tile('Q',"WHITE");
+    hive::Tile tile('Q','W');
     board.addTile({0, 0}, tile);
     board.removeTile({0, 0});
     EXPECT_THROW(board.getTile({0, 0}), std::invalid_argument);

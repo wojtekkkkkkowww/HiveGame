@@ -7,11 +7,18 @@
 
 namespace hive
 {
-    class Tile
+    /*
+    * @brief The Tile struct represents a single tile in the game.
+    */
+    struct Tile
     {
-    public:
         Tile() {}
-        Tile(char type, std::string color) : color(color), type(type) {}
+
+        Tile(char type, char color) : color(color), type(type) {}
+        Tile(const std::string &notation) : notation(notation){
+            this->type = notation[1];
+            this->color = notation[0];
+        }
 
         bool operator==(const Tile &other) const
         {
@@ -19,10 +26,13 @@ namespace hive
         }
 
         void setPosition(Position position) { this->position = position; }
+        void setNotation(std::string notation) { this->notation = notation; }
 
         Position position;
-        std::string color;
-        char type;
+        char color;
+        std::string notation;
+        char type; 
+        bool placed = false;
     };
 
 }

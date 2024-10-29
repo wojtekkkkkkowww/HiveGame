@@ -1,80 +1,297 @@
 #pragma once
 #include "Action.hpp"
+#include "Tile.hpp"
+#include "BaseBoard.hpp"
 #include "Position.hpp"
+#include "Player.hpp"
 #include <sstream>
+#include <regex>
 
 namespace hive
 {
-
+    /**
+     * @brief The ActionParser class is responsible for converting between string notations and Action objects.
+     */
     class ActionParser
     {
     public:
-        static Action stringToAction(const std::string &actionStr)
+        ActionParser(const BaseBoard &board, const char &currentTurn) : board(board), currentTurn(currentTurn) {}
+
+        /**
+         * @brief Converts a notation string to an Action object.
+         * @param notation The string notation, e.g., "WG2-bQ".
+         * @return The corresponding Action object.
+         */
+        Action stringToAction(const std::string &notation) const
         {
+            std::regex rightDirectionRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)([-\\/]))");
+            std::regex beetleMoveRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)\.)");
+            std::regex leftDirectionRegex(R"(([WB][A-Z]\d?) ([-\\/])([WB][A-Z]\d?))");
+            std::regex firstActionRegex(R"([WB][A-Z]\d?)");
+            std::smatch matches;
 
-            std::vector<std::string> tokens = splitString(actionStr, '|');
-
-            if (tokens[0] == "P")
+            if (std::regex_search(notation, matches, leftDirectionRegex))
             {
-                if (tokens.size() < 4)
-                    throw std::invalid_argument("Invalid place action string");
-                char tile_type = tokens[1][0];
-                int x = std::stoi(tokens[2]);
-                int y = std::stoi(tokens[3]);
-                return PlaceAction({x, y}, tile_type);
+                return parseLeftDirection(matches);
             }
-            else if (tokens[0] == "M")
+            else if (std::regex_search(notation, matches, rightDirectionRegex))
             {
-                if (tokens.size() < 5)
-                    throw std::invalid_argument("Invalid move action string");
-                int x = std::stoi(tokens[1]);
-                int y = std::stoi(tokens[2]);
-                int newX = std::stoi(tokens[3]);
-                int newY = std::stoi(tokens[4]);
-                return MoveAction({x, y}, {newX, newY});
+                return parseRightDirection(matches);
             }
-            else if (tokens[0] == "W")
+            else if (std::regex_search(notation, matches, beetleMoveRegex))
             {
-                return WaitAction();
+                return parseBeetleMove(matches);
+            }
+            else if (std::regex_search(notation, matches, firstActionRegex))
+            {
+                return parseFirstAction(matches);
             }
 
-            throw std::invalid_argument("Invalid action string");
+            return WaitAction{};
         }
 
-        static std::string actionToString(const Action &action)
+        /**
+         * @brief Converts an Action object to the corresponding string notation.
+         * @param action The Action object to convert.
+         * @return The string notation, e.g., "WG2-bQ".
+         */
+        std::string actionToString(const Action &action)
         {
-            std::ostringstream oss;
-            if (action.type == "PLACE")
+            if (action.type == "WAIT")
             {
-                oss << "P|" << action.tile_type << "|" << action.position.x << "|" << action.position.y << "|";
+                return "Wait";
             }
-            else if (action.type == "MOVE")
+
+            std::string tileNotation;
+            if (action.type == "MOVE")
             {
-                oss << "M|" << action.position.x << "|" << action.position.y << "|" << action.newPosition.x << "|" << action.newPosition.y << "|";
+                tileNotation = getMoveTileNotation(action);
             }
-            else if (action.type == "WAIT")
+            else if (action.type == "PLACE")
             {
-                oss << "W|";
+                tileNotation = getPlaceTileNotation(action);
             }
-            return oss.str();
+
+            if (board.getLevel(action.newPosition) >= 1)
+            {
+                Tile tile = board.getTile(action.newPosition);
+                return tileNotation + " " + tile.notation + ".";
+            }
+
+            std::string neighborNotation = getNeighborNotation(action.newPosition);
+            return buildActionString(tileNotation, neighborNotation, action.newPosition);
         }
 
     private:
-        static std::vector<std::string> splitString(const std::string &str, char delimiter)
-        {
-            std::vector<std::string> tokens;
-            std::stringstream ss(str);
-            std::string token;
+        bool firstMove = true;
+        const BaseBoard &board;
+        const char &currentTurn;
 
-            while (std::getline(ss, token, delimiter))
+        std::map<std::string, int> tileNumber = {
+            {"WQ", 1},
+            {"WS", 1},
+            {"WB", 1},
+            {"WG", 1},
+            {"WA", 1},
+            {"BQ", 1},
+            {"BS", 1},
+            {"BB", 1},
+            {"BG", 1},
+            {"BA", 1}};
+
+        Action parseLeftDirection(const std::smatch &matches) const
+        {
+            std::string tileNotation = matches[1].str();
+            std::string direction = matches[2].str();
+            std::string destinationNotation = matches[3].str();
+
+            return createAction(tileNotation, destinationNotation, direction, "left");
+        }
+
+        Action parseRightDirection(const std::smatch &matches) const
+        {
+            std::string tileNotation = matches[1].str();
+            std::string destinationNotation = matches[2].str();
+            std::string direction = matches[3].str();
+
+            return createAction(tileNotation, destinationNotation, direction, "right");
+        }
+
+        Action parseFirstAction(const std::smatch &matches) const
+        {
+            std::string tileNotation = matches[0].str();
+
+            return PlaceAction({0, 0}, tileNotation[1]);
+        }
+
+        Action parseBeetleMove(const std::smatch &matches) const
+        {
+            std::string tileNotation = matches[1].str();
+            std::string destinationNotation = matches[2].str();
+
+            Tile tile = board.getTileByNotation(tileNotation);
+            Tile destinationTile = board.getTileByNotation(destinationNotation);
+            Position position = destinationTile.position;
+
+            return MoveAction(tile.position, position);
+        }
+
+        std::string getMoveTileNotation(const Action &action) const
+        {
+            Tile tile = board.getTile(action.position);
+            return tile.notation;
+        }
+
+        std::string getPlaceTileNotation(const Action &action)
+        {
+            std::string tileNotation = getTileNotation(action.tile_type);
+            if (currentTurn == 'W' && firstMove)
             {
-                if (!token.empty())
+                firstMove = false;
+
+                updateTileNumber(action);
+
+                return tileNotation;
+            }
+
+            updateTileNumber(action);
+
+            return tileNotation;
+        }
+
+        void updateTileNumber(const hive::Action &action)
+        {
+            std::ostringstream os;
+            os << currentTurn << action.tile_type; // content of
+            tileNumber[os.str()]++;
+        }
+
+        std::string getNeighborNotation(const Position &newPosition) const
+        {
+            std::string neighborNotation;
+            Position direction = getDirection(newPosition);
+
+            for (const auto &neighbor : board.getNeighbours(newPosition))
+            {
+                if (!board.isEmpty(neighbor))
                 {
-                    tokens.push_back(token);
+                    Tile n = board.getTile(neighbor);
+                    neighborNotation = n.notation;
+                    break;
                 }
             }
 
-            return tokens;
+            return neighborNotation;
+        }
+
+        std::string buildActionString(const std::string &tileNotation, const std::string &neighborNotation, const Position &newPosition) const
+        {
+            std::stringstream ss;
+            ss << tileNotation;
+
+            Position direction = getDirection(newPosition);
+
+            if (direction == E)
+                ss << " " << neighborNotation << "-";
+            else if (direction == W)
+                ss << " -" << neighborNotation;
+            else if (direction == NE)
+                ss << " " << neighborNotation << "/";
+            else if (direction == NW)
+                ss << " \\" << neighborNotation;
+            else if (direction == SE)
+                ss << " " << neighborNotation << "\\";
+            else if (direction == SW)
+                ss << " /" << neighborNotation;
+
+            return ss.str();
+        }
+
+        std::string getTileNotation(char tileType)
+        {
+            std::string color = (currentTurn == 'W') ? "W" : "B";
+            if (tileType == 'Q')
+            {
+                return color + tileType;
+            }
+
+            std::ostringstream os;
+            os << currentTurn << tileType;
+            std::string tileNotation = color + tileType + std::to_string(tileNumber[os.str()]);
+            return tileNotation;
+        }
+
+        Action createAction(const std::string &tileNotation, const std::string &destinationNotation,
+                            const std::string &direction, const std::string &side) const
+        {
+            Tile tile = board.getTileByNotation(tileNotation);
+            Tile destinationTile = board.getTileByNotation(destinationNotation);
+            Position position = calculatePosition(destinationTile.position, direction, side);
+            return Action(tile, position);
+        }
+
+        Position calculatePosition(const Position &neighborPosition, const std::string &direction, const std::string &side) const
+        {
+            Position newPosition = neighborPosition;
+
+            switch (direction[0])
+            {
+            case '-':
+                if (side == "left")
+                {
+                    newPosition += W;
+                }
+                else
+                {
+                    newPosition += E;
+                }
+                break;
+
+            case '\\':
+                if (side == "left")
+                {
+                    newPosition += NW;
+                }
+                else
+                {
+                    newPosition += SE;
+                }
+                break;
+
+            case '/':
+                if (side == "left")
+                {
+                    newPosition += SW;
+                }
+                else
+                {
+                    newPosition += NE;
+                }
+                break;
+
+            default:
+
+                break;
+            }
+
+            return newPosition;
+        }
+
+        Position getDirection(const Position &newPosition) const
+        {
+            Position direction = invalidPosition;
+            std::set<Position> directions = {NE, NW, E, W, SE, SW};
+
+            for (const auto &neighbor : board.getNeighbours(newPosition))
+            {
+                if (!board.isEmpty(neighbor))
+                {
+                    direction = newPosition - neighbor;
+                    break;
+                }
+            }
+
+            return direction;
         }
     };
 }

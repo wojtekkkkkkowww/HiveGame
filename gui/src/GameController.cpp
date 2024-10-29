@@ -119,7 +119,7 @@ void GameController::update()
     boardDrawable.update();
     updateTurnText();
 
-    std::cerr << "Game window updated" << std::endl;
+//    std::cerr << "Game window updated" << std::endl;
 }
 
 void GameController::render()
@@ -150,16 +150,18 @@ void GameController::updateTurnText()
         turnText.setString("Game over! " + game->gameStatus);
         return;
     }
-    turnText.setString("Current turn: " + game->currentTurn);
+    turnText.setString("Current turn: " + std::string(1,game->currentTurn));
 }
 
 void GameController::apllyOpponentAction(const std::string &action)
 {
-    game->applyAction(action);
+    if(!game->applyAction(action)){
+        std::cerr << "Failed to apply action: " << action << std::endl;
+    }
     change = true;
 }
 
-void GameController::setPlayer(const std::string &player)
+void GameController::setPlayer(char player)
 {
     this->player = player;
     boardDrawable.setPlayer(player);
@@ -195,7 +197,7 @@ void GameController::handleWaitButtonClick()
     {
         WaitAction action;
         game->applyAction(action);
-        message = actionParser.actionToString(action);
+        message = game->getLastAction();
     }
 }
 
@@ -228,10 +230,11 @@ void GameController::handlePiecePlacement(const Position &boardPos)
 {
     if (boardPos != invalidPosition)
     {
+        // to jest w miarę łatwe do zmienieania
         PlaceAction action(boardPos, pieceSelector.selectedPiece);
         if (game->applyAction(action))
         {
-            message = actionParser.actionToString(action);
+            message = game->getLastAction();
         }
     }
     pieceSelector.selectedPiece = '\0';
@@ -253,12 +256,13 @@ void GameController::handlePieceMovement(const Position &boardPos)
             MoveAction action(boardDrawable.selectedPosition, boardPos);
             if (game->applyAction(action))
             {
-                message = actionParser.actionToString(action);
+                message = game->getLastAction();
             }
             boardDrawable.selectedPosition = invalidPosition;
         }
     }
 }
+
 void GameController::handleMouseWheelScroll(float delta)
 {
     const float MIN_ZOOM_LEVEL = 0.5f;
