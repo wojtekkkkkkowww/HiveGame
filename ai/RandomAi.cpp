@@ -3,9 +3,10 @@
 #include <ctime>
 #include <iterator>
 
+//URZYJ mesuretwister ? z randoma
 namespace hive
 {
-    RandomAIAlgorithm::RandomAIAlgorithm(Game& game) : AIAlgorithm(game)
+    RandomAIAlgorithm::RandomAIAlgorithm(Game& game) : AIAlgorithm(game, "Random AI")
     {
         std::srand(std::time(nullptr)); // Seed for random number generation
     }

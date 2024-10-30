@@ -4,20 +4,10 @@ project(HiveGame)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-)
-FetchContent_MakeAvailable(googletest)
 
-include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.x
-    )
-FetchContent_MakeAvailable(SFML)
-
+find_package(GTest REQUIRED)
+find_package(SQLite3 REQUIRED)
+find_package(SFML 2.5 COMPONENTS system network graphics REQUIRED)
 
 enable_testing()
 
@@ -28,6 +18,7 @@ add_subdirectory(client)
 add_subdirectory(server)
 add_subdirectory(tests)
 add_subdirectory(ai) 
+add_subdirectory(ai_tests)
 
 add_compile_options(
   -Wall 

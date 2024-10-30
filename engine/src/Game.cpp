@@ -25,14 +25,14 @@ namespace hive
         this->currentTurn = currentTurn;
         for (auto &[position, tiles] : tiles)
         {
-            for(auto t : tiles)
+            for (auto t : tiles)
             {
-                if(t.color == 'W' && t.type == 'Q')
+                if (t.color == 'W' && t.type == 'Q')
                 {
                     board.whiteQueen = position;
                     players['W'].queenPlaced = true;
                 }
-                if(t.color == 'B' && t.type == 'Q')
+                if (t.color == 'B' && t.type == 'Q')
                 {
                     board.blackQueen = position;
                     players['B'].queenPlaced = true;
@@ -86,6 +86,21 @@ namespace hive
     std::set<Action> Game::getAvailableActions() const
     {
         return actionHandler.getAvailableActions();
+    }
+
+    bool Game::isGameOver() const
+    {
+        return gameStatus != "PLAYING";
+    }
+
+    char Game::getCurrentTurn() const
+    {
+        return currentTurn;
+    }
+
+    std::string Game::getGameStatus() const
+    {
+        return gameStatus;
     }
 
     std::string Game::getLastAction() const

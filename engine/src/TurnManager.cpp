@@ -12,8 +12,6 @@ namespace hive
         players[currentTurn].turnCounter++;
         currentTurn = (currentTurn == 'W') ? 'B' : 'W';
         updateGameStatus();
-        //std::string turn_string = (currentTurn == 'W') ? 'W' : 'B';
-//        std::cerr << "\033[32mCurrent turn: " << currentTurn << "\033[0m" << std::endl;
     }
 
     void TurnManager::revertTurn()
@@ -36,17 +34,14 @@ namespace hive
         if (whiteQueenSurrounded && blackQueenSurrounded)
         {
             gameStatus = "DRAW";
-//            std::cerr << "\033[31mDRAW\033[0m" << std::endl;
         }
         else if (whiteQueenSurrounded)
         {
             gameStatus = "BLACK_WINS";
-//            std::cerr << "\033[31mBLACK WINS\033[0m" << std::endl;
         }
         else if (blackQueenSurrounded)
         {
             gameStatus = "WHITE_WINS";
-//            std::cerr << "\033[31mWHITE WINS\033[0m" << std::endl;
         }
         else
         {

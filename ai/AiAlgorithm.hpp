@@ -3,10 +3,14 @@
 
 namespace hive
 {
+    /**
+     * @brief The AIAlgorithm class is an abstract class that represents an AI algorithm for playing the Hive game.
+     */
     class AIAlgorithm
     {
     public:
-        AIAlgorithm(Game& game) : game(game) {}
+        AIAlgorithm(Game& game, const std::string& name)
+            : game(game), name(name)  {}
         virtual ~AIAlgorithm() = default;
 
         /**
@@ -16,7 +20,10 @@ namespace hive
          */
         virtual Action getNextMove() = 0;
 
+        const std::string& getName() const { return name; }
+
     protected:
-        Game& game; ///< Reference to the game object.
+        Game& game;
+        std::string name;
     };
 }

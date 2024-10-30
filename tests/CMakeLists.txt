@@ -10,8 +10,8 @@ add_executable(
 target_link_libraries(test_GameLogic PRIVATE
     GameEngine
     GUI
-    gtest
-    gtest_main
+    GTest::GTest
+    GTest::Main
     sfml-graphics
 )
 
@@ -26,9 +26,3 @@ target_compile_definitions(test_GameLogic PUBLIC SOURCE_DIR="${CMAKE_SOURCE_DIR}
 
 include(GoogleTest)
 gtest_discover_tests(test_GameLogic)
-
-
-# tests/CMakeLists.txt
-
-
-

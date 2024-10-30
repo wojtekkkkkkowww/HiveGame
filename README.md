@@ -10,23 +10,8 @@ https://www.instructables.com/Hive-game-with-box/
 
 ## Wymagania
 
-Należy zainstalować pakiety podane przez SFML:
-https://github.com/SFML/cmake-sfml-project/blob/master/README.md
-Instalacja za pomocą menedżera pakietów, np. `apt` :
+Należy zainstalować następujące pakiety: SFML, SFML-devel, sqlite, sqlite-devel, gtest, gtest-devel
 
-```bash
-sudo apt update
-sudo apt install \
-    libxrandr-dev \
-    libxcursor-dev \
-    libudev-dev \
-    libfreetype-dev \
-    libopenal-dev \
-    libflac-dev \
-    libvorbis-dev \
-    libgl1-mesa-dev \
-    libegl1-mesa-dev
-```
 
 ## Budowanie projektu
 
@@ -58,10 +43,11 @@ Możliwe jest również uruchamianie pojedynczych testów, podając nazwę testu
 ```
 
 ## Uruchomienie gry dla dwóch graczy
-
-Aby uruchomić grę:
+Należy uruchomić server i dwóch klientów np.
 ```bash
-./main/HiveGameApp
+./server/Server 53000
+./client/HiveClient 53000 White
+./client/HiveClient 53000 Black
 ```
 
 --- 

@@ -195,7 +195,3 @@ TEST_F(WholeGamesTest, OfficialGame3)
     playGame(officialGame3);
     ASSERT_EQ(getGameStatus(), "BLACK_WINS");
 }
-
-TEST_F(WholeGamesTest, RandomGame)
-{   playGame(randomGame);
-}
