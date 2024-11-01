@@ -7,7 +7,6 @@
 
 namespace hive
 {
-    
     /*
     * @brief The TurnManager class is responsible for managing turns in the game.
     * It provides methods for changing the current turn, updating the game status, and reverting the last turn.
@@ -15,7 +14,7 @@ namespace hive
     class TurnManager
     {
     public:
-        TurnManager(Board &board, std::map<char, Player> &players, char &currentTurn, std::string &gameStatus);
+        TurnManager(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &gameStatus);
 
         void nextTurn();
         void updateGameStatus();
@@ -23,7 +22,7 @@ namespace hive
 
     private:
         Board &board;
-        std::map<char, Player> &players;
+        std::map<char, Player*> &players;
         char &currentTurn;
         std::string &gameStatus;
     };

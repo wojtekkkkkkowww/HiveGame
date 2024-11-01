@@ -39,13 +39,14 @@ namespace hive
 
         Board board;
         char currentTurn;
-        std::map<char, Player> players;
+        std::map<char, Player*> players;
         std::string gameStatus = "PLAYING";
 
     protected:
         ActionHandler actionHandler;
         TurnManager turnManager;
         ActionParser actionParser;
+        std::stack<Action> actions;
         std::string lastAction;
     };
 }

@@ -6,9 +6,7 @@ using namespace hive;
 class AntTest : public BaseTest
 {
 public:
-    AntTest() : BaseTest() {
-        saveState = true;
-    }
+    AntTest() : BaseTest() {}
 };
 
 TEST_F(AntTest, AntMove)

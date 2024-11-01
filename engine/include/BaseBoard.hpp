@@ -29,7 +29,11 @@ namespace hive
         int getTileCount() const;
         void removeTile(Position position);
         void addTile(Position position, Tile tile);
-        
+        void addEmptyTilesAroundBoard();
+
+
+        Position whiteQueen = invalidPosition;
+        Position blackQueen = invalidPosition;
 
         Tile getTile(Position position) const;
         Tile getTileByNotation(std::string notation) const;
@@ -40,16 +44,13 @@ namespace hive
 
         static std::set<Position> getNeighbours(Position position);
 
-        Position whiteQueen = invalidPosition;
-        Position blackQueen = invalidPosition;
-
-
     protected:
+
+
         std::map<Position, std::deque<std::shared_ptr<Tile>>> boardTiles;  //zła nazwa
         std::map<std::string,std::shared_ptr<Tile>> tiles;
         std::set<Position> emptyTiles;
 
         void addTile(Position position,std::shared_ptr<Tile> tile);
-        void addEmptyTilesAroundBoard();
     };
 }

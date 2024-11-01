@@ -9,8 +9,6 @@ find_package(GTest REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(SFML 2.5 COMPONENTS system network graphics REQUIRED)
 
-enable_testing()
-
 
 add_subdirectory(engine)
 add_subdirectory(gui)
@@ -19,6 +17,7 @@ add_subdirectory(server)
 add_subdirectory(tests)
 add_subdirectory(ai) 
 add_subdirectory(ai_tests)
+add_subdirectory(gameViewer)
 
 add_compile_options(
   -Wall 

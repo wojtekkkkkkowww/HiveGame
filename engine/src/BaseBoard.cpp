@@ -6,7 +6,10 @@ namespace hive
     {
         boardTiles.clear();
         emptyTiles.clear();
+        tiles.clear();
         emptyTiles.insert({0, 0});
+        blackQueen = invalidPosition;
+        whiteQueen = invalidPosition;
     }
 
     void BaseBoard::setBoardTiles(std::map<Position, std::deque<Tile>> &tiles)
@@ -27,7 +30,6 @@ namespace hive
         auto tile = boardTiles.at(position).back();
         removeTile(position);
         addTile(newPosition, tile);
-//        std::cerr << "Moving tile " << tile->type << " from " << position.x << " " << position.y << " to " << newPosition.x << " " << newPosition.y << std::endl;
     }
 
     Tile BaseBoard::getTile(Position position) const
@@ -60,11 +62,14 @@ namespace hive
     {
         if (!isEmpty(position))
         {
+            Tile tile = *boardTiles[position].back();
             boardTiles[position].pop_back();
             if (boardTiles[position].empty())
             {
                 boardTiles.erase(position);
             }
+
+            tiles.erase(tile.notation);
         }
     }
 

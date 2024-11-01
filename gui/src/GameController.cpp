@@ -18,7 +18,7 @@ GameController::GameController(sf::RenderWindow &window)
     turnText.setPosition(10, 10);
 }
 
-void GameController::handleGameControll()
+void GameController::handleGameControl()
 {
     processEvents();
     if (change)
@@ -118,8 +118,6 @@ void GameController::update()
     window.setView(boardView);
     boardDrawable.update();
     updateTurnText();
-
-//    std::cerr << "Game window updated" << std::endl;
 }
 
 void GameController::render()

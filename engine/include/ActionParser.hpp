@@ -15,7 +15,10 @@ namespace hive
     class ActionParser
     {
     public:
-        ActionParser(const BaseBoard &board, const char &currentTurn) : board(board), currentTurn(currentTurn) {}
+        ActionParser(const BaseBoard &board, const char &currentTurn, std::stack<Action> &actions) : board(board), currentTurn(currentTurn), actions(actions) 
+        {
+            reset();
+        }
 
         /**
          * @brief Converts a notation string to an Action object.
@@ -82,22 +85,40 @@ namespace hive
             return buildActionString(tileNotation, neighborNotation, action.newPosition);
         }
 
+        void reset()
+        {
+            firstMove = true;
+            tileNumber = {
+                {"WQ", 1},
+                {"WS", 1},
+                {"WB", 1},
+                {"WG", 1},
+                {"WA", 1},
+                {"BQ", 1},
+                {"BS", 1},
+                {"BB", 1},
+                {"BG", 1},
+                {"BA", 1}};
+        }
+
+        void revert()
+        {
+            Action lastAction = actions.top();
+            if(lastAction.type == "PLACE")
+            {
+                std::ostringstream os;
+                os << currentTurn << lastAction.tile_type;
+                tileNumber[os.str()]--;
+            }
+        }
+
     private:
         bool firstMove = true;
+        std::map<std::string, int> tileNumber;
         const BaseBoard &board;
         const char &currentTurn;
+        const std::stack<Action>& actions;
 
-        std::map<std::string, int> tileNumber = {
-            {"WQ", 1},
-            {"WS", 1},
-            {"WB", 1},
-            {"WG", 1},
-            {"WA", 1},
-            {"BQ", 1},
-            {"BS", 1},
-            {"BB", 1},
-            {"BG", 1},
-            {"BA", 1}};
 
         Action parseLeftDirection(const std::smatch &matches) const
         {
@@ -145,16 +166,14 @@ namespace hive
         std::string getPlaceTileNotation(const Action &action)
         {
             std::string tileNotation = getTileNotation(action.tile_type);
+            updateTileNumber(action);
+
             if (currentTurn == 'W' && firstMove)
             {
                 firstMove = false;
 
-                updateTileNumber(action);
-
                 return tileNotation;
             }
-
-            updateTileNumber(action);
 
             return tileNotation;
         }

@@ -17,26 +17,26 @@ class GameController
 {   
 public:
     GameController(sf::RenderWindow &window);
-    void handleGameControll();
+    virtual void handleGameControl();
     void apllyOpponentAction(const std::string& action);
     void setPlayer(char player);
     std::string message = "";
 
 
-private:
-    void processEvents();
-    void update();
-    void render();
+protected:
+    virtual void processEvents();
+    virtual void update();
+    virtual void render();
+    virtual void handleMouseMoved();
+    virtual void handleMouseButtonPressed(sf::Mouse::Button button);
+    virtual void handleMouseButtonReleased(sf::Mouse::Button button);
+    virtual void handleMouseWheelScroll(float delta);
+    void handleMouseClick();
+
     void updateTurnText();
     bool isMyTurn();
-    
-    void handleMouseMoved();
-    void handleMouseButtonPressed(sf::Mouse::Button button);
-    void handleMouseButtonReleased(sf::Mouse::Button button);
     void handleWindowClose();
-    void handleMouseClick();
     void handleWaitButtonClick();
-    void handleMouseWheelScroll(float delta);
     void handlePieceSelectorClick(const sf::Vector2f &mousePos);
     void handleBoardClick(sf::Vector2f mousePos);
     void handlePiecePlacement(const Position &boardPos);

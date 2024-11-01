@@ -1,3 +1,4 @@
+// Game.cpp
 #include <iostream>
 #include <deque>
 
@@ -7,17 +8,20 @@ namespace hive
 {
     Game::Game()
         : currentTurn('W'),
-          actionHandler(board, players, currentTurn, gameStatus),
+          actionHandler(board, players, currentTurn, gameStatus,actions),
           turnManager(board, players, currentTurn, gameStatus),
-          actionParser(board, currentTurn)
+          actionParser(board, currentTurn,actions)
     {
-        players['W'] = Player('W');
-        players['B'] = Player('B');
+        players['W'] = new Player('W');
+        players['B'] = new Player('B');
         startNewGame();
-        actionHandler.genAvailableActions();
     }
 
-    Game::~Game() {}
+    Game::~Game()
+    {
+        delete players['W'];
+        delete players['B'];
+    }
 
     void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn)
     {
@@ -30,12 +34,12 @@ namespace hive
                 if (t.color == 'W' && t.type == 'Q')
                 {
                     board.whiteQueen = position;
-                    players['W'].queenPlaced = true;
+                    players['W']->queenPlaced = true;
                 }
                 if (t.color == 'B' && t.type == 'Q')
                 {
                     board.blackQueen = position;
-                    players['B'].queenPlaced = true;
+                    players['B']->queenPlaced = true;
                 }
             }
         }
@@ -46,11 +50,6 @@ namespace hive
 
     bool Game::applyAction(Action action)
     {
-
-        /*
-        wymaga tego żeby było wykonane po akcji żeby znać daną notację brzmi prościej do rozwiązania
-        ale wymaga wykonania przed akcją żeby board się zgadzał
-        */
         lastAction = actionParser.actionToString(action);
 
         if (actionHandler.applyAction(action))
@@ -81,6 +80,14 @@ namespace hive
     {
         actionHandler.revertAction();
         turnManager.revertTurn();
+        for(auto &type : {'Q', 'S', 'B', 'G', 'A'}){
+            std::cerr << "Player " << type << " " << players['W']->getTileCount(type) << std::endl;
+        }
+        for(auto &type : {'Q', 'S', 'B', 'G', 'A'}){
+            std::cerr << "Player " << type << " " << players['B']->getTileCount(type) << std::endl;
+        }
+        actionParser.revert();
+        actionHandler.genAvailableActions();
     }
 
     std::set<Action> Game::getAvailableActions() const
@@ -113,5 +120,10 @@ namespace hive
         currentTurn = 'W';
         gameStatus = "PLAYING";
         board.resetBoard();
+        players['W']->reset();
+        players['B']->reset();
+        actionHandler.reset();
+        lastAction = "";
+        actionParser.reset();   
     }
 }

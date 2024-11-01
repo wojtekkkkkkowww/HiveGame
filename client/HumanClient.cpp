@@ -20,7 +20,7 @@ private:
 
     void handleMyAction() override
     {
-        gameController.handleGameControll();
+        gameController.handleGameControl();
 
         if (gameController.message != "")
         {

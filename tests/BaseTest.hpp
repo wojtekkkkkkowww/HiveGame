@@ -4,6 +4,8 @@
 #include <filesystem>
 #include "Game.hpp"
 #include "BoardDrawable.hpp"
+#include "GameViewer.hpp"
+#include "FileOperations.hpp"
 
 namespace hive
 {
@@ -12,13 +14,12 @@ namespace hive
     public:
         BaseTest() : Game()
         {
+            renderTexture.create(800, 800);
         }
 
         void SetUp() override
         {
             Game::startNewGame();
-            if (saveState)
-                renderTexture.create(800, 800);
         }
 
         void playGame(const std::vector<std::string> &game)
@@ -55,24 +56,9 @@ namespace hive
             ASSERT_EQ(actualMoves, expectedMoves);
         }
 
-        bool applyAction(const std::string &notation)
+        void TearDown() override
         {
-            bool result = Game::applyAction(notation);
-
-            if (saveState)
-                saveBoardState();
-
-            return result;
-        }
-
-        bool applyAction(const Action &action)
-        {
-            bool result = Game::applyAction(action);
-
-            if (saveState)
-                saveBoardState();
-
-            return result;
+            saveGame();
         }
 
         void saveBoardAsPng(const std::string &filePath, float hexSize = 32.0f)
@@ -98,8 +84,8 @@ namespace hive
 
         void saveBoardState()
         {
-            int turnCounter1 = players['W'].turnCounter;
-            int turnCounter2 = players['B'].turnCounter;
+            int turnCounter1 = players['W']->turnCounter;
+            int turnCounter2 = players['B']->turnCounter;
             int turnCounter = turnCounter1 + turnCounter2;
 
             const ::testing::TestInfo *test_info = ::testing::UnitTest::GetInstance()->current_test_info();
@@ -112,6 +98,18 @@ namespace hive
     protected:
         sf::RenderTexture renderTexture;
         BoardDrawable boardDrawable = BoardDrawable(board, 32.0f);
-        bool saveState = false;
+
+        void saveGame()
+        {
+            const ::testing::TestInfo *test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+            std::string testName = test_info->name();
+            std::vector<std::string> moves;
+            while (!actions.empty())
+            {
+                // moves.push_back();/// ja pierdole
+                actions.pop();
+            }
+            saveToFile(testName,moves);
+        }
     };
 }

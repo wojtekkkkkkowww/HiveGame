@@ -23,18 +23,17 @@ namespace hive
         Tile takeTile(char type);
         
         void returnTile(char type);
+        void reset();
         int getTileCount(char type) { return pieceCounters[type]; } // ilość pozoostałych pionków
         int getUnplacedPieceNumber(char type) const;
         
         bool queenPlaced = false;
         bool firstMove = true;
         int turnCounter = 0;
-        std::map<char, std::string> tileNotations;
 
     private:
-        char color;
-        std::map<char, int> pieceCounters;
-        
+        const char color;
+        std::map<char, int> pieceCounters;        
         static std::map<char, int> initialPieceCounts;
     };
 }

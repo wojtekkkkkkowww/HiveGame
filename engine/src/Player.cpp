@@ -10,7 +10,7 @@ std::map<char, int> hive::Player::initialPieceCounts = {
 
 hive::Player::Player(char color) : color(color)
 {
-    pieceCounters = initialPieceCounts;
+    reset();
 }
 
 hive::Tile hive::Player::takeTile(char type)
@@ -20,7 +20,6 @@ hive::Tile hive::Player::takeTile(char type)
         throw std::invalid_argument("No more pieces of this type available");
     }
     pieceCounters[type]--;
-
 
     std::ostringstream os;
     if (type == 'Q')
@@ -32,14 +31,29 @@ hive::Tile hive::Player::takeTile(char type)
         os << color << type << getUnplacedPieceNumber(type);
     }
     std::string notation = os.str();
-//    std::cerr << "Taking tile " << notation << std::endl;
-    tileNotations[type] = notation; 
+    
     return Tile(notation);
 }
 
 void hive::Player::returnTile(char type)
 {
+    if (type == 'Q')
+    {
+        queenPlaced = false;
+    }
+    std:: cerr << "\e[0;32m Returning tile \e[0m" << type << std::endl;
     pieceCounters[type]++;
+}
+
+void hive::Player::reset()
+{
+    for (const auto &[type, count] : initialPieceCounts)
+    {
+        pieceCounters[type] = count;
+    }
+    queenPlaced = false;
+    firstMove = true;
+    turnCounter = 0;
 }
 
 int hive::Player::getUnplacedPieceNumber(char type) const

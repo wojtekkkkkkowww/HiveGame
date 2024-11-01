@@ -3,13 +3,13 @@
 
 namespace hive
 {
-    TurnManager::TurnManager(Board &board, std::map<char, Player> &players, char &currentTurn, std::string &status)
+    TurnManager::TurnManager(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &status)
         : board(board), players(players), currentTurn(currentTurn), gameStatus(status) {}
 
     void TurnManager::nextTurn()
     {
-        players[currentTurn].firstMove = false;
-        players[currentTurn].turnCounter++;
+        players[currentTurn]->firstMove = false;
+        players[currentTurn]->turnCounter++;
         currentTurn = (currentTurn == 'W') ? 'B' : 'W';
         updateGameStatus();
     }
@@ -18,11 +18,11 @@ namespace hive
     {
         currentTurn = (currentTurn == 'W') ? 'B' : 'W';
         updateGameStatus();
-        players[currentTurn].turnCounter--;
+        players[currentTurn]->turnCounter--;
 
-        if (players[currentTurn].turnCounter == 0)
+        if (players[currentTurn]->turnCounter == 0)
         {
-            players[currentTurn].firstMove = true;
+            players[currentTurn]->firstMove = true;
         }
     }
 

@@ -14,12 +14,20 @@ namespace hive
     Action RandomAIAlgorithm::getNextMove()
     {
         auto availableActions = game.getAvailableActions();
+        std::cerr << "Available actions: " << availableActions.size() << std::endl;
         if (!availableActions.empty())
         {
-            auto it = availableActions.begin();
-            std::advance(it, std::rand() % availableActions.size());
-            return *it;
+            try{
+                auto it = availableActions.begin();
+                std::advance(it, std::rand() % availableActions.size());
+                return *it;
+            }catch(std::exception e){
+                std::cerr << "sigma \n";
+            } 
         }
+        std::cerr << "No available actions" << std::endl;
         return Action(); // Return a default action if no actions are available
     }
 }
+
+//"PAMIETAJ O TRY CATCH"

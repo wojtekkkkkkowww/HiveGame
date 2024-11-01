@@ -70,7 +70,6 @@ namespace hive
         Position newPosition = position + direction;
         if (constantContact(neighborPosition1, neighborPosition2, newPosition))
         {
-            std::cerr << "constantContact" << std::endl;
             return true;
         }
 
