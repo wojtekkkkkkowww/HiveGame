@@ -47,6 +47,6 @@ namespace hive
         TurnManager turnManager;
         ActionParser actionParser;
         std::stack<Action> actions;
-        std::string lastAction;
+        std::vector<std::string> actionStrings; 
     };
 }

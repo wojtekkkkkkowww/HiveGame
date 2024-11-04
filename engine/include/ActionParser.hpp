@@ -15,10 +15,7 @@ namespace hive
     class ActionParser
     {
     public:
-        ActionParser(const BaseBoard &board, const char &currentTurn, std::stack<Action> &actions) : board(board), currentTurn(currentTurn), actions(actions) 
-        {
-            reset();
-        }
+        ActionParser(const BaseBoard &board, const char &currentTurn, const std::map<char, Player *> &players) : board(board), currentTurn(currentTurn), players(players) {}
 
         /**
          * @brief Converts a notation string to an Action object.
@@ -85,40 +82,10 @@ namespace hive
             return buildActionString(tileNotation, neighborNotation, action.newPosition);
         }
 
-        void reset()
-        {
-            firstMove = true;
-            tileNumber = {
-                {"WQ", 1},
-                {"WS", 1},
-                {"WB", 1},
-                {"WG", 1},
-                {"WA", 1},
-                {"BQ", 1},
-                {"BS", 1},
-                {"BB", 1},
-                {"BG", 1},
-                {"BA", 1}};
-        }
-
-        void revert()
-        {
-            Action lastAction = actions.top();
-            if(lastAction.type == "PLACE")
-            {
-                std::ostringstream os;
-                os << currentTurn << lastAction.tile_type;
-                tileNumber[os.str()]--;
-            }
-        }
-
     private:
-        bool firstMove = true;
-        std::map<std::string, int> tileNumber;
         const BaseBoard &board;
         const char &currentTurn;
-        const std::stack<Action>& actions;
-
+        const std::map<char, Player *> &players;
 
         Action parseLeftDirection(const std::smatch &matches) const
         {
@@ -165,24 +132,18 @@ namespace hive
 
         std::string getPlaceTileNotation(const Action &action)
         {
-            std::string tileNotation = getTileNotation(action.tile_type);
-            updateTileNumber(action);
-
-            if (currentTurn == 'W' && firstMove)
+            std::string color = (currentTurn == 'W') ? "W" : "B";
+            if (action.tile_type == 'Q')
             {
-                firstMove = false;
-
-                return tileNotation;
+                return color + action.tile_type;
             }
 
-            return tileNotation;
-        }
+            int count = players.at(currentTurn)->getUnplacedPieceNumber(action.tile_type) + 1;
 
-        void updateTileNumber(const hive::Action &action)
-        {
-            std::ostringstream os;
-            os << currentTurn << action.tile_type; // content of
-            tileNumber[os.str()]++;
+            std::stringstream tileNotation;
+            tileNotation << color << action.tile_type << count;
+
+            return tileNotation.str();
         }
 
         std::string getNeighborNotation(const Position &newPosition) const
@@ -224,20 +185,6 @@ namespace hive
                 ss << " /" << neighborNotation;
 
             return ss.str();
-        }
-
-        std::string getTileNotation(char tileType)
-        {
-            std::string color = (currentTurn == 'W') ? "W" : "B";
-            if (tileType == 'Q')
-            {
-                return color + tileType;
-            }
-
-            std::ostringstream os;
-            os << currentTurn << tileType;
-            std::string tileNotation = color + tileType + std::to_string(tileNumber[os.str()]);
-            return tileNotation;
         }
 
         Action createAction(const std::string &tileNotation, const std::string &destinationNotation,

@@ -103,13 +103,7 @@ namespace hive
         {
             const ::testing::TestInfo *test_info = ::testing::UnitTest::GetInstance()->current_test_info();
             std::string testName = test_info->name();
-            std::vector<std::string> moves;
-            while (!actions.empty())
-            {
-                // moves.push_back();/// ja pierdole
-                actions.pop();
-            }
-            saveToFile(testName,moves);
+            saveToFile(testName,actionStrings);
         }
     };
 }

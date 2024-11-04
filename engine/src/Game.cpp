@@ -10,7 +10,7 @@ namespace hive
         : currentTurn('W'),
           actionHandler(board, players, currentTurn, gameStatus,actions),
           turnManager(board, players, currentTurn, gameStatus),
-          actionParser(board, currentTurn,actions)
+          actionParser(board, currentTurn,players)
     {
         players['W'] = new Player('W');
         players['B'] = new Player('B');
@@ -50,7 +50,9 @@ namespace hive
 
     bool Game::applyAction(Action action)
     {
-        lastAction = actionParser.actionToString(action);
+        //dlaczego niby parser nie może mieć tej tablicy co player?
+        actionStrings.push_back(actionParser.actionToString(action));
+        std::vector<char> tile_types = {'Q','S','B','G','A'};
 
         if (actionHandler.applyAction(action))
         {
@@ -64,7 +66,7 @@ namespace hive
 
     bool Game::applyAction(const std::string &actionString)
     {
-        lastAction = actionString;
+        actionStrings.push_back(actionString);
         Action action = actionParser.stringToAction(actionString);
 
         if (actionHandler.applyAction(action))
@@ -78,15 +80,10 @@ namespace hive
 
     void Game::revertAction()
     {
+        actionStrings.pop_back();
         actionHandler.revertAction();
         turnManager.revertTurn();
-        for(auto &type : {'Q', 'S', 'B', 'G', 'A'}){
-            std::cerr << "Player " << type << " " << players['W']->getTileCount(type) << std::endl;
-        }
-        for(auto &type : {'Q', 'S', 'B', 'G', 'A'}){
-            std::cerr << "Player " << type << " " << players['B']->getTileCount(type) << std::endl;
-        }
-        actionParser.revert();
+        
         actionHandler.genAvailableActions();
     }
 
@@ -112,7 +109,7 @@ namespace hive
 
     std::string Game::getLastAction() const
     {
-        return lastAction;
+        return actionStrings.back();
     }
 
     void Game::startNewGame()
@@ -123,7 +120,5 @@ namespace hive
         players['W']->reset();
         players['B']->reset();
         actionHandler.reset();
-        lastAction = "";
-        actionParser.reset();   
     }
 }

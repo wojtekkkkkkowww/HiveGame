@@ -31,7 +31,7 @@ hive::Tile hive::Player::takeTile(char type)
         os << color << type << getUnplacedPieceNumber(type);
     }
     std::string notation = os.str();
-    
+
     return Tile(notation);
 }
 
@@ -41,7 +41,7 @@ void hive::Player::returnTile(char type)
     {
         queenPlaced = false;
     }
-    std:: cerr << "\e[0;32m Returning tile \e[0m" << type << std::endl;
+    //std:: cerr << "\e[0;32m Returning tile \e[0m" << type << std::endl;
     pieceCounters[type]++;
 }
 

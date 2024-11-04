@@ -25,4 +25,5 @@ add_compile_options(
   -Wpedantic 
   -Werror 
   -std=c++17
+  -Ofast
 )
