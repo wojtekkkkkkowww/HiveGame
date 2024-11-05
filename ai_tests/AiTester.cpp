@@ -11,7 +11,7 @@
 #include <fstream>
 
 #define NUMBER_OF_GAMES 1
-#define MAX_NUMBER_OF_MOVES 100
+#define MAX_NUMBER_OF_MOVES 20
 
 using namespace hive;
 
@@ -22,7 +22,10 @@ int main()
     RandomAIAlgorithm ai1(*game);
     AlphaBetaAI alphaBetaAI(*game);
     alphaBetaAI.addHeuristic(std::make_unique<PieceCountHeuristic>(), 1.0);
+    alphaBetaAI.addHeuristic(std::make_unique<TilesOroundOpponentQueen>(), 2.0);
+    alphaBetaAI.addHeuristic(std::make_unique<QueenAvailableMoves>(), 1.0);
     alphaBetaAI.addHeuristic(std::make_unique<WinLoseHeuristic>(), 5000);
+    alphaBetaAI.addHeuristic(std::make_unique<PlacingQueenHeuristic>(), 1000);
 
     int ai1Wins = 0;
     int ai2Wins = 0;
@@ -33,7 +36,7 @@ int main()
     for (int i = 0; i < NUMBER_OF_GAMES; ++i)
     {
         game->startNewGame();
-        
+
         std::vector<std::string> moves;
         for (int j = 0; j < MAX_NUMBER_OF_MOVES && !game->isGameOver(); ++j)
         {
@@ -44,17 +47,17 @@ int main()
                 std::cout << "AI 1: " << action << std::endl;
             }
             else
-            {   
+            {
                 action = alphaBetaAI.getNextMove();
                 std::cout << "AI 2: " << action << std::endl;
+                std::cout << "branching factor: " << game->getAvailableActions().size() << std::endl;
             }
-            //std::cout << "Move: " << game->getLastAction() << std::endl;
 
             game->applyAction(action);
             moves.push_back(game->getLastAction());
-            std::cout << "Move: " << moves.back() << std::endl;    
+            std::cout << "Move: " << moves.back() << std::endl;
         }
-        saveToFile(std::to_string(i),moves); 
+        saveToFile(std::to_string(i), moves);
 
         std::string result = game->getGameStatus();
         std::string winner;
@@ -73,7 +76,6 @@ int main()
             draws++;
             winner = "Draw";
         }
-
     }
 
     std::cout << "AI 1 Wins: " << ai1Wins << std::endl;

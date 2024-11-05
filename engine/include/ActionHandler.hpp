@@ -18,6 +18,7 @@ namespace hive
         bool applyAction(Action action);
         void revertAction();
         void genAvailableActions();
+        void setAvailableActions(std::set<Action> actions) { availableActions = actions; }
         bool isActionValid(const Action &action) const;
         void reset();
         Action getLastAction() const;

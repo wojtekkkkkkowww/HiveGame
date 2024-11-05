@@ -14,7 +14,7 @@ namespace hive
     Action RandomAIAlgorithm::getNextMove()
     {
         auto availableActions = game.getAvailableActions();
-        std::cerr << "Available actions: " << availableActions.size() << std::endl;
+       // std::cerr << "Available actions: " << availableActions.size() << std::endl;
         if (!availableActions.empty())
         {
             try{
@@ -25,7 +25,7 @@ namespace hive
                 std::cerr << "sigma \n";
             } 
         }
-        std::cerr << "No available actions" << std::endl;
+        //std::cerr << "No available actions" << std::endl;
         return Action(); // Return a default action if no actions are available
     }
 }

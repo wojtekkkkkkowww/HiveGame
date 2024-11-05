@@ -1,10 +1,11 @@
 // ActionHandler.cpp
 #include "ActionHandler.hpp"
 #include <iostream>
+#include <chrono>
 
 namespace hive
 {
-    ActionHandler::ActionHandler(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &status, std::stack<Action> &actions)
+    ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions)
         : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions) {}
 
     bool ActionHandler::applyAction(Action action)
@@ -69,7 +70,6 @@ namespace hive
 
     void ActionHandler::genAvailableActions()
     {
-        //std::cerr << "\033[31mGenerating available actions\033[0m" << std::endl;
         availableActions.clear();
         if (status == "PLAYING")
         {
@@ -78,10 +78,10 @@ namespace hive
 
             if (availableActions.empty())
             {
-                WaitAction action;
-                availableActions.insert(action);
+                availableActions.insert(WaitAction());
             }
         }
+        //std ::cerr << "Available actions: " << availableActions.size() << std::endl;
     }
 
     bool ActionHandler::isActionValid(const Action &action) const
@@ -150,20 +150,20 @@ namespace hive
         {
             if (action.tile_type != 'Q')
             {
-                //std::cerr << "Queen not placed after 3 move" << std::endl;
+                // std::cerr << "Queen not placed after 3 move" << std::endl;
                 return false;
             }
         }
 
         if (players[currentTurn]->getTileCount(action.tile_type) == 0)
         {
-            //std::cerr << "No tiles of this type" << std::endl;
+            // std::cerr << "No tiles of this type" << std::endl;
             return false;
         }
 
         if (board.isOccupiedByOpponent(action.newPosition, currentTurn) && !players[currentTurn]->firstMove)
         {
-            //std::cerr << "New position Occupied by opponent" << std::endl;
+            // std::cerr << "New position Occupied by opponent" << std::endl;
             return false;
         }
 
@@ -174,16 +174,16 @@ namespace hive
     {
         if (!players[currentTurn]->queenPlaced)
         {
-            //std::cerr << "Queen not placed" << std::endl;
+            // std::cerr << "Queen not placed" << std::endl;
             return false;
         }
 
         if (board.isMoveBlocked(action.position, action.newPosition))
         {
-            //std::cerr << "Move blocked" << std::endl;
+            // std::cerr << "Move blocked" << std::endl;
             return false;
         }
-        //std::cerr << "Move correct" << std::endl;
+        // std::cerr << "Move correct" << std::endl;
         return true;
     }
 

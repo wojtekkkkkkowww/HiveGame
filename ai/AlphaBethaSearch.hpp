@@ -14,14 +14,15 @@ namespace hive {
         Action getNextMove() override;
 
     private:
-        static constexpr int maxDepth = 2; 
+        static constexpr int maxDepth = 3; 
         static constexpr const char* name = "AlphaBetaAI";
 
         std::vector<std::pair<std::unique_ptr<Heuristic>, double>> heuristics;
-
         double evaluate() const;        
+        char player;
+
         std::pair<double, Action> maxValue(double alpha, double beta, int depth);
         std::pair<double, Action> minValue(double alpha, double beta, int depth);
     };
 
-} // namespace hive
+}

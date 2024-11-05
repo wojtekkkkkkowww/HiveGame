@@ -2,50 +2,108 @@
 #include "Game.hpp"
 #include <limits>
 
-class Heuristic
+namespace hive
 {
-public:
-    virtual double evaluate(const hive::Game &state) const = 0;
-    virtual ~Heuristic() = default;
-};
 
-class PieceCountHeuristic : public Heuristic
-{
-public:
-    double evaluate(const hive::Game &state) const override
+    class Heuristic
     {
-        size_t myTilesCount = state.board.getPlayerTiles(state.currentTurn).size();
-        size_t opponnentTilesCount = state.board.getPlayerTiles(state.currentTurn == 'W' ? 'B' : 'W').size();
+    public:
+        virtual double evaluate(const Game &state, char player) const = 0;  // Include char player
+        virtual ~Heuristic() = default;
+    };
 
-        return static_cast<double>(myTilesCount - opponnentTilesCount);
-    }
-};
-
-class WinLoseHeuristic : public Heuristic
-{
-public:
-    double evaluate(const hive::Game &state) const override
+    class PlacingQueenHeuristic : public Heuristic
     {
-        if (state.isGameOver())
+        double evaluate(const Game &state, char player) const override
         {
-            if (state.getGameStatus() == "DRAW")
+            if (player == 'W')
+            {
+                return state.board.whiteQueen == invalidPosition ? 1.0 : 0.0;
+            }
+            else
+            {
+                return state.board.blackQueen == invalidPosition ? 1.0 : 0.0;
+            }
+        }
+    };
+
+
+    class PieceCountHeuristic : public Heuristic
+    {
+    public:
+        double evaluate(const Game &state, char player) const override
+        {
+            size_t myTilesCount = state.board.getPlayerTiles(player).size();
+            
+            return static_cast<double>(myTilesCount);
+        }
+    };
+
+    class QueenAvailableMoves : public Heuristic
+    {
+    public:
+        double evaluate(const Game &state, char player) const override
+        {
+
+            Position myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+            if (myQueen == invalidPosition)
             {
                 return 0.0;
             }
-            if (state.getGameStatus() == "WHITE_WON" && state.currentTurn == 'W')
+
+            return static_cast<double>(state.board.getQueenBeeMoves(myQueen).size());
+        }
+    };
+
+    class WinLoseHeuristic : public Heuristic
+    {
+    public:
+        double evaluate(const Game &state, char player) const override
+        {
+            if (state.isGameOver())
             {
-                return 1.0;
+                if (state.getGameStatus() == "DRAW")
+                {
+                    return 0.0;
+                }
+                if (state.getGameStatus() == "WHITE_WON" && player == 'W')
+                {
+                    return 1.0;
+                }
+                if (state.getGameStatus() == "BLACK_WON" && player == 'B')
+                {
+                    return 1.0;
+                }
+
+                return -1.0;
             }
-            if (state.getGameStatus() == "BLACK_WON" && state.currentTurn == 'B')
+            return 0.0;
+        }
+    };
+
+    class TilesOroundOpponentQueen : public Heuristic
+    {
+    public:
+        double evaluate(const Game &state, char player) const override
+        {
+            double value = 0.0;
+            char opponent = player == 'W' ? 'B' : 'W';
+
+            Position queenPosition = opponent == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+            std::set<Position> neighbours = state.board.getNeighbours(queenPosition);
+
+            for (const auto &neighbour : neighbours)
             {
-                return 1.0;
+                if (!state.board.isEmpty(neighbour))
+                {
+                    value += 1.0;
+                }
             }
 
-            return -1.0;
+            return value;
         }
-        return 0.0;
-    }
-};
+    };
+}
 
 namespace hive
 {

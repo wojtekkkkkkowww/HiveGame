@@ -27,8 +27,9 @@ namespace hive
         int getLevel(Position position) const;
         int calculateNeighbours(Position position, char color) const;
         int getTileCount() const;
-        void removeTile(Position position);
+        void addTile(Position position,std::shared_ptr<Tile> tile);
         void addTile(Position position, Tile tile);
+        void removeTile(Position position);
         void addEmptyTilesAroundBoard();
 
 
@@ -51,6 +52,5 @@ namespace hive
         std::map<std::string,std::shared_ptr<Tile>> tiles;
         std::set<Position> emptyTiles;
 
-        void addTile(Position position,std::shared_ptr<Tile> tile);
     };
 }

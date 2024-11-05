@@ -50,7 +50,6 @@ namespace hive
 
     bool Game::applyAction(Action action)
     {
-        //dlaczego niby parser nie może mieć tej tablicy co player?
         actionStrings.push_back(actionParser.actionToString(action));
         std::vector<char> tile_types = {'Q','S','B','G','A'};
 
@@ -80,11 +79,22 @@ namespace hive
 
     void Game::revertAction()
     {
-        actionStrings.pop_back();
+        if(!actionStrings.empty())
+            actionStrings.pop_back();
         actionHandler.revertAction();
         turnManager.revertTurn();
         
         actionHandler.genAvailableActions();
+    }
+
+    void Game::revertAction(std::set<Action> actions)
+    {
+        if(!actionStrings.empty())
+            actionStrings.pop_back();
+    
+        actionHandler.revertAction();
+        turnManager.revertTurn();
+        actionHandler.setAvailableActions(actions);
     }
 
     std::set<Action> Game::getAvailableActions() const

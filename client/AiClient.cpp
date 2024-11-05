@@ -2,6 +2,7 @@
 #include "Client.hpp"
 #include "AiAlgorithm.hpp"
 #include "RandomAi.hpp"
+#include "AlphaBethaSearch.hpp"
 #include <iostream>
 
 using namespace hive;
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     std::unique_ptr<Game> game = std::make_unique<Game>();
-    std::unique_ptr<AIAlgorithm> aiAlgorithm = std::make_unique<RandomAIAlgorithm>(*game);
+    std::unique_ptr<AIAlgorithm> aiAlgorithm = std::make_unique<AlphaBetaAI>(*game);
 
 
     AIClient client(serverIP, port, player, *game, *aiAlgorithm);

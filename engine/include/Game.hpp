@@ -30,6 +30,7 @@ namespace hive
         void startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn);
         bool applyAction(Action action);
         bool applyAction(const std::string& actionString);
+        void revertAction(std::set<Action> actions);
         void revertAction();
         bool isGameOver() const;
         char getCurrentTurn() const;

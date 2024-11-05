@@ -1,4 +1,5 @@
 #include "AlphaBethaSearch.hpp"
+#include "Heuristic.hpp"
 
 namespace hive
 {
@@ -12,11 +13,11 @@ namespace hive
 
     Action AlphaBetaAI::getNextMove()
     {
-        double alpha = -std::numeric_limits<double>::infinity();
-        double beta = std::numeric_limits<double>::infinity();
+        player = game.getCurrentTurn();
+        double alpha = NEGATIVE_INFINITY;
+        double beta = INFINITY;
 
-        const auto &[value, bestMove] = maxValue(alpha, beta, maxDepth);
-        return bestMove;
+        return maxValue(alpha, beta, maxDepth).second;
     }
 
     double AlphaBetaAI::evaluate() const
@@ -24,77 +25,88 @@ namespace hive
         double totalScore = 0.0;
         for (const auto &[heuristic, weight] : heuristics)
         {
-            totalScore += weight * heuristic->evaluate(game);
+            totalScore += weight * heuristic->evaluate(game, player);
         }
         return totalScore;
     }
 
     std::pair<double, Action> AlphaBetaAI::maxValue(double alpha, double beta, int depth)
     {
-        //std::cout << "maxValue" << std::endl;
-        //std::cout << "depth: " << depth << std::endl;
-        
-        if (game.isGameOver() || depth == 0){
+      //  std::cout << "ENTER MAX " << depth << std::endl;
+        if (game.isGameOver() || depth == 0)
+        {
+            if (game.isGameOver())
+            {
+                return {evaluate(), Action()};
+            }
+
             return {evaluate(), *(game.getAvailableActions().begin())};
         }
-        double v = -std::numeric_limits<double>::infinity();
+
+        double v = NEGATIVE_INFINITY;
         Action bestMove;
 
-        for (const auto &action : game.getAvailableActions())
+        auto actions = game.getAvailableActions();
+        for (const auto &action : actions)
         {
-
-            //std::cout << "Max checks: " << action << std::endl;
             game.applyAction(action);
             double v2 = minValue(alpha, beta, depth - 1).first;
-            game.revertAction();
-
-            //std::cout << "v: " << v << " v2: " << v2 << std::endl;
+            game.revertAction(actions);
 
             if (v2 > v)
             {
+               // std::cout << "MAX v2: " << v2 << std::endl;
                 v = v2;
                 bestMove = action;
+                alpha = std::max(alpha, v);
             }
 
-            alpha = std::max(alpha, v);
             if (v >= beta)
-                break; // Beta cutoff
+            {
+         //       std::cout << "beta puring" << std::endl;
+                break;
+            }
         }
-        //std::cout << "\e[0;35m maxValue: " << v << "\e[0m" << std::endl;
         return {v, bestMove};
     }
 
     std::pair<double, Action> AlphaBetaAI::minValue(double alpha, double beta, int depth)
     {
-        //std::cout << "minValue" << std::endl;
-        //std::cout << "depth: " << depth << std::endl;
-
-
+     //   std::cout << "ENTER MIN " << depth  << std::endl;
         if (game.isGameOver() || depth == 0)
-            return {evaluate(), *(game.getAvailableActions().begin())}; 
+        {
+            if (game.isGameOver())
+            {
+                return {evaluate(), Action()};
+            }
 
-        double v = std::numeric_limits<double>::infinity();
+            return {evaluate(), *(game.getAvailableActions().begin())};
+        }
+
+        double v = INFINITY;
         Action bestMove;
 
-        for (const auto &action : game.getAvailableActions())
+        auto actions = game.getAvailableActions();
+        for (const auto &action : actions)
         {
-            //std::cout << "Min checks: " << action << std::endl;
             game.applyAction(action);
             double v2 = maxValue(alpha, beta, depth - 1).first;
-            game.revertAction();
+            game.revertAction(actions);
 
-            //std::cout << "v: " << v << " v2: " << v2 << std::endl;
             if (v2 < v)
             {
                 v = v2;
+         //       std::cout << "MIN v: " << v << std::endl;
                 bestMove = action;
+                beta = std::min(beta, v);
             }
 
-            beta = std::min(beta, v);
             if (v <= alpha)
+            {
+           //     std::cout << "alpha puring" << std::endl;
                 break;
+            }
         }
-
         return {v, bestMove};
     }
 }
