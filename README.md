@@ -59,15 +59,17 @@ Należy uruchomić server i dwóch klientów np.
 ./client/HiveClient 53000 Black
 ```
 Gra przeciwko AI
+```bash
 ./server/Server 53000
 ./client/HiveClient 53000 White
 ./client/AiClient 53000 Black
+```
 
 ## Eksperymenty AI
 Uruchomienie eksperymentów (na razie nie dziła :D):
-'''bash
+```bash
 ./ai_tests/AiTester
-'''     
+``` 
 
 --- 
 
