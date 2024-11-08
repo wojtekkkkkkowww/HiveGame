@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     std::string serverIP = "127.0.0.1";
     if (argc > 2)
     {
-        parseArguments(player, port, argc, argv);
+        parseArguments(player, port, argv);
     }
     else
     {

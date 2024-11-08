@@ -178,7 +178,6 @@ namespace hive
 
     std::set<Position> BaseBoard::getNeighbours(Position position)
     {
-        std::set<Position> directions = {NW, SE, NE, SW, W, E};
         std::set<Position> neighbours;
 
         for (auto &dir : directions)

@@ -11,3 +11,4 @@ target_include_directories(GUI PUBLIC
 target_link_libraries(GUI PRIVATE sfml-graphics GameEngine)
 
 target_compile_definitions(GUI PUBLIC SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+target_link_libraries(GUI PUBLIC global_compile_options)

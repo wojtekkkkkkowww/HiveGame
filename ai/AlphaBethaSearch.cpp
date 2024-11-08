@@ -4,7 +4,14 @@
 namespace hive
 {
 
-    AlphaBetaAI::AlphaBetaAI(Game &game) : AIAlgorithm(game, name) {}
+    AlphaBetaAI::AlphaBetaAI(Game &game) : AIAlgorithm(game, name)
+    {
+        addHeuristic(std::make_unique<PieceCountHeuristic>(), 1.0);
+        addHeuristic(std::make_unique<TilesOroundOpponentQueen>(), 10.0);
+        addHeuristic(std::make_unique<QueenAvailableMoves>(), 1.0);
+        addHeuristic(std::make_unique<WinLoseHeuristic>(), 5000);
+        addHeuristic(std::make_unique<PlacingQueenHeuristic>(), 1000);
+    }
 
     void AlphaBetaAI::addHeuristic(std::unique_ptr<Heuristic> heuristic, double weight)
     {
@@ -32,7 +39,7 @@ namespace hive
 
     std::pair<double, Action> AlphaBetaAI::maxValue(double alpha, double beta, int depth)
     {
-      //  std::cout << "ENTER MAX " << depth << std::endl;
+        //  std::cout << "ENTER MAX " << depth << std::endl;
         if (game.isGameOver() || depth == 0)
         {
             if (game.isGameOver())
@@ -47,6 +54,23 @@ namespace hive
         Action bestMove;
 
         auto actions = game.getAvailableActions();
+        // if (depth != maxDepth)
+        // {
+        //     if (actions.size() > 20)
+        //     {
+        //         // std::random_shuffle(actions.begin(), actions.end());
+        //         std::set<Action> copy;
+        //         int i = 0;
+        //         for (auto it = actions.begin(); it != actions.end(); it++)
+        //         {
+        //             if (i < 20)
+        //                 copy.insert(*it);
+        //             i++;
+        //         }
+        //         actions = copy;
+        //     }
+        // }
+
         for (const auto &action : actions)
         {
             game.applyAction(action);
@@ -55,7 +79,7 @@ namespace hive
 
             if (v2 > v)
             {
-               // std::cout << "MAX v2: " << v2 << std::endl;
+                // std::cout << "MAX v2: " << v2 << std::endl;
                 v = v2;
                 bestMove = action;
                 alpha = std::max(alpha, v);
@@ -63,7 +87,7 @@ namespace hive
 
             if (v >= beta)
             {
-         //       std::cout << "beta puring" << std::endl;
+                //       std::cout << "beta puring" << std::endl;
                 break;
             }
         }
@@ -72,7 +96,7 @@ namespace hive
 
     std::pair<double, Action> AlphaBetaAI::minValue(double alpha, double beta, int depth)
     {
-     //   std::cout << "ENTER MIN " << depth  << std::endl;
+        //   std::cout << "ENTER MIN " << depth  << std::endl;
         if (game.isGameOver() || depth == 0)
         {
             if (game.isGameOver())
@@ -87,6 +111,23 @@ namespace hive
         Action bestMove;
 
         auto actions = game.getAvailableActions();
+        // if (depth != maxDepth)
+        // {
+        //     if (actions.size() > 20)
+        //     {
+        //         // std::random_shuffle(actions.begin(), actions.end());
+        //         std::set<Action> copy;
+        //         int i = 0;
+        //         for (auto it = actions.begin(); it != actions.end(); it++)
+        //         {
+        //             if (i < 20)
+        //                 copy.insert(*it);
+        //             i++;
+        //         }
+        //         actions = copy;
+        //     }
+        // }
+
         for (const auto &action : actions)
         {
             game.applyAction(action);
@@ -96,14 +137,14 @@ namespace hive
             if (v2 < v)
             {
                 v = v2;
-         //       std::cout << "MIN v: " << v << std::endl;
+                //       std::cout << "MIN v: " << v << std::endl;
                 bestMove = action;
                 beta = std::min(beta, v);
             }
 
             if (v <= alpha)
             {
-           //     std::cout << "alpha puring" << std::endl;
+                //     std::cout << "alpha puring" << std::endl;
                 break;
             }
         }

@@ -61,7 +61,7 @@ namespace hive
             saveGame();
         }
 
-        void saveBoardAsPng(const std::string &filePath, float hexSize = 32.0f)
+        void saveBoardAsPng(const std::string &filePath)
         {
             std::filesystem::path path(filePath);
             std::filesystem::path directory = path.parent_path();

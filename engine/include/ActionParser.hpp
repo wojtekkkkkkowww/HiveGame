@@ -149,7 +149,6 @@ namespace hive
         std::string getNeighborNotation(const Position &newPosition) const
         {
             std::string neighborNotation;
-            Position direction = getDirection(newPosition);
 
             for (const auto &neighbor : board.getNeighbours(newPosition))
             {
@@ -246,7 +245,6 @@ namespace hive
         Position getDirection(const Position &newPosition) const
         {
             Position direction = invalidPosition;
-            std::set<Position> directions = {NE, NW, E, W, SE, SW};
 
             for (const auto &neighbor : board.getNeighbours(newPosition))
             {

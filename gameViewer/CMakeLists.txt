@@ -5,4 +5,4 @@ target_include_directories(HumanClient PRIVATE
     ${CMAKE_SOURCE_DIR}/engine/include
     ${CMAKE_SOURCE_DIR}/gui/include
 )
-
+target_link_libraries(GameViewer global_compile_options)

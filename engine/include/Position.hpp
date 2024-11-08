@@ -1,6 +1,6 @@
 #pragma once
 #include <limits>
-
+#include <array>
 
 namespace hive
 {
@@ -53,5 +53,6 @@ namespace hive
     constexpr Position E{1, 0};
     constexpr Position SW{-1, 1};
     constexpr Position W{-1, 0};
+    constexpr std::array<Position, 6> directions = {NW, NE, E, SE, SW, W};
 
 }

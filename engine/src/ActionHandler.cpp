@@ -113,7 +113,7 @@ namespace hive
         {
             const auto &tile = board.getTile(position);
 
-            for (const auto &newPosition : board.getAvailableMoves(tile))
+            for (const auto &newPosition : board.getAvailableMoves(tile.type, position))
             {
                 MoveAction action(position, newPosition);
                 if (isMoveActionValid(action))

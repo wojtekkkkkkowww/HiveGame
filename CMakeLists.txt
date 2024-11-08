@@ -19,11 +19,16 @@ add_subdirectory(ai)
 add_subdirectory(ai_tests)
 add_subdirectory(gameViewer)
 
-add_compile_options(
-  -Wall 
-  -Wextra 
-  -Wpedantic 
-  -Werror 
-  -std=c++17
-  -Ofast
-)
+
+add_library(global_compile_options INTERFACE)
+target_compile_options(global_compile_options INTERFACE -Wall -Wextra -Wpedantic -Werror -std=c++17)
+
+
+#add_compile_options(
+#  -Wall 
+#  -Wextra 
+#  -Wpedantic 
+#  -Werror 
+#  -std=c++17
+#  -O3
+#)

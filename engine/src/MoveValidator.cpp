@@ -1,5 +1,6 @@
 #include "MoveValidator.hpp"
 #include "dfs.hpp"
+#include <chrono>
 
 namespace hive
 {
@@ -37,7 +38,7 @@ namespace hive
     }
 
     bool MoveValidator::isDirectionBlocked(Position position, Position direction, int level) const
-    { 
+    {
         std::map<Position, std::vector<Position>> neighboringDirections = {
             {NW, {W, NE}},
             {NE, {NW, E}},
@@ -58,12 +59,12 @@ namespace hive
 
         if (fredomToMove(neighborPosition1, level, neighborPosition2))
         {
-           // std::cerr << "fredomToMove" << std::endl;
+            // std::cerr << "fredomToMove" << std::endl;
             return true;
         }
 
-        if(boardTiles.size() == 1 || level != 1)
-        {   
+        if (boardTiles.size() == 1 || level != 1)
+        {
             return false;
         }
 
@@ -88,11 +89,17 @@ namespace hive
 
     /*
     sprawdzenie wymaga przejścia po wszystkich polach urzywając dfs
-    corner case: Koło
     */
     bool MoveValidator::isHiveConnectedAfterRemove(Position position) const
     {
+        auto start = std::chrono::high_resolution_clock::now();
+
         if (getLevel(position) > 1)
+        {
+            return true;
+        }
+
+        if(!isDisconnectionPossible(position))
         {
             return true;
         }
@@ -107,7 +114,34 @@ namespace hive
         DFS dfs(tilesPositions);
         std::set<Position> visited = dfs.performDFS();
 
-        return visited == tilesPositions;
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = end - start;
+      //  std::cerr << "Time for  DFS"<< duration.count() << " seconds" << std::endl;
+        
+        return visited.size() == tilesPositions.size();
+    }
+
+    bool MoveValidator::isDisconnectionPossible(hive::Position &position) const
+    {
+        for (auto it = directions.begin(); it != directions.end(); it++)
+        {
+            Position dir = *it;
+            Position neighbour = position + dir;
+            if (!isEmpty(neighbour))
+            {
+                while (it != directions.end())
+                {
+                    dir = *it;
+                    neighbour = position + dir;
+                    if (isEmpty(neighbour))
+                    {
+                        return true;
+                    }
+                    it++;
+                }
+            }
+        }
+        return false;
     }
 
     bool MoveValidator::isTouchingHiveAfterMove(Position position, Position newPosition) const

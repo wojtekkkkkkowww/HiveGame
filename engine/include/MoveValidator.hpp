@@ -18,6 +18,7 @@ namespace hive
 
     private:
         bool isHiveConnectedAfterRemove(Position position) const;
+        bool isDisconnectionPossible(hive::Position &position) const;
         bool isTouchingHiveAfterMove(Position position, Position newPosition) const;
         bool constantContact(const hive::Position &neighborPosition1, const hive::Position &neighborPosition2, const hive::Position &newPosition) const;
         bool fredomToMove(const hive::Position &neighborPosition1, int level, const hive::Position &neighborPosition2) const;

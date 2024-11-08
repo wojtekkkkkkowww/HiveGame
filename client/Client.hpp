@@ -45,4 +45,4 @@ private:
 
 };
 
-void parseArguments(char &player, int &port, int argc, char *argv[]);
+void parseArguments(char &player, int &port, char *argv[]);

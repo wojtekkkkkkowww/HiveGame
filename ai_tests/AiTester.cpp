@@ -11,7 +11,7 @@
 #include <fstream>
 
 #define NUMBER_OF_GAMES 1
-#define MAX_NUMBER_OF_MOVES 20
+#define MAX_NUMBER_OF_MOVES 40
 
 using namespace hive;
 
@@ -21,11 +21,6 @@ int main()
 
     RandomAIAlgorithm ai1(*game);
     AlphaBetaAI alphaBetaAI(*game);
-    alphaBetaAI.addHeuristic(std::make_unique<PieceCountHeuristic>(), 1.0);
-    alphaBetaAI.addHeuristic(std::make_unique<TilesOroundOpponentQueen>(), 2.0);
-    alphaBetaAI.addHeuristic(std::make_unique<QueenAvailableMoves>(), 1.0);
-    alphaBetaAI.addHeuristic(std::make_unique<WinLoseHeuristic>(), 5000);
-    alphaBetaAI.addHeuristic(std::make_unique<PlacingQueenHeuristic>(), 1000);
 
     int ai1Wins = 0;
     int ai2Wins = 0;

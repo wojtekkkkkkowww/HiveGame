@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     
     if (argc > 2)
     {
-        parseArguments(player, port, argc, argv);
+        parseArguments(player, port, argv);
     }
     else
     {

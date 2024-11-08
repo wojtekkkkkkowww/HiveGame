@@ -51,7 +51,7 @@ namespace hive
                 return 0.0;
             }
 
-            return static_cast<double>(state.board.getQueenBeeMoves(myQueen).size());
+            return static_cast<double>(state.board.getAvailableMoves('Q',myQueen).size());
         }
     };
 
@@ -60,24 +60,15 @@ namespace hive
     public:
         double evaluate(const Game &state, char player) const override
         {
-            if (state.isGameOver())
+            auto oponentQueen = player == 'W' ? state.board.blackQueen : state.board.whiteQueen;    
+            for(auto &direction : directions)
             {
-                if (state.getGameStatus() == "DRAW")
+                if(state.board.isEmpty(oponentQueen + direction))
                 {
                     return 0.0;
                 }
-                if (state.getGameStatus() == "WHITE_WON" && player == 'W')
-                {
-                    return 1.0;
-                }
-                if (state.getGameStatus() == "BLACK_WON" && player == 'B')
-                {
-                    return 1.0;
-                }
-
-                return -1.0;
             }
-            return 0.0;
+            return 1.0;
         }
     };
 

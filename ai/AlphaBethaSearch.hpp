@@ -14,7 +14,7 @@ namespace hive {
         Action getNextMove() override;
 
     private:
-        static constexpr int maxDepth = 3; 
+        static constexpr int maxDepth = 4; 
         static constexpr const char* name = "AlphaBetaAI";
 
         std::vector<std::pair<std::unique_ptr<Heuristic>, double>> heuristics;

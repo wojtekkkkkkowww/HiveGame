@@ -6,6 +6,12 @@
 #include "Position.hpp"
 #include "MoveValidator.hpp"
 #include "dfs.hpp"
+#include "Tiles/Beetle.hpp"
+#include "Tiles/Ant.hpp"
+#include "Tiles/Spider.hpp"
+#include "Tiles/Queen.hpp"
+#include "Tiles/Grasshopper.hpp"
+
 
 namespace hive
 {
@@ -15,15 +21,9 @@ namespace hive
     class MovementManager : public MoveValidator
     {
     public:
-        
-        std::set<Position> getQueenBeeMoves(Position position) const;
-        std::set<Position> getBeetleMoves(Position position) const;
-        std::set<Position> getSpiderMoves(Position position) const;
-        std::set<Position> getGrasshopperMoves(Position position) const;
-        std::set<Position> getAntMoves(Position position) const;
-        std::set<Position> getAvailableMoves(Tile tile) const;
+        MovementManager();
+        std::set<Position> getAvailableMoves(char type, const Position &position) const;
     private:
-        bool beatleJumpUp(const hive::Position &newPos, int beetle_level) const;
     };
 
 }

@@ -2,17 +2,17 @@
 #include <iostream>
 
 Client::Client(const std::string &serverIP, unsigned short port, char player)
-    : serverIP(serverIP), port(port), player(player) {}
+    : player(player), serverIP(serverIP), port(port) {}
 
 bool Client::startConnection()
 {
     if (socket.connect(serverIP, port) != sf::Socket::Done)
     {
-       std::cerr << "Error: Could not connect to server at " << serverIP << ":" << port << std::endl;
+        std::cerr << "Error: Could not connect to server at " << serverIP << ":" << port << std::endl;
         return false;
     }
     socket.setBlocking(false);
-    
+
     std::cout << "Connected to server!" << std::endl;
 
     return sendMessage(std::string(1, player));
@@ -61,7 +61,7 @@ void Client::run()
     while (true)
     {
         sf::Time elapsed = clock.restart();
-        
+
         handleMyAction();
         handleOpponentAction();
 
@@ -83,7 +83,7 @@ void Client::handleGameStart()
     }
 }
 
-void parseArguments(char &player, int &port, int argc, char *argv[])
+void parseArguments(char &player, int &port, char *argv[])
 {
     port = std::stoi(argv[1]);
     player = argv[2][0];
@@ -93,4 +93,4 @@ void parseArguments(char &player, int &port, int argc, char *argv[])
         std::cerr << "Invalid player color" << std::endl;
         throw std::invalid_argument("Invalid player color");
     }
-}   
+}

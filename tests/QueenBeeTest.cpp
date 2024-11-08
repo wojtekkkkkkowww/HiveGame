@@ -16,7 +16,7 @@ TEST_F(QueenBeeTest, QueenBeeAvailableMovesAtStart)
     Tile queenBee('Q', 'W');
     board.addTile({0, 0}, queenBee);
     queenBee = board.getTile({0, 0});
-    auto availableMoves = board.getAvailableMoves(queenBee);
+    auto availableMoves = board.getAvailableMoves('Q', {0, 0});
 
     std::set<Position> expectedMoves = {
         {1, -1}, {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}};
