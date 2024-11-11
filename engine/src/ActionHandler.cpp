@@ -5,8 +5,8 @@
 
 namespace hive
 {
-    ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions)
-        : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions) {}
+    ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions)
+        : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions), availableActions(availableActions) {}
 
     bool ActionHandler::applyAction(Action action)
     {
@@ -81,7 +81,7 @@ namespace hive
                 availableActions.insert(WaitAction());
             }
         }
-        //std ::cerr << "Available actions: " << availableActions.size() << std::endl;
+        // std ::cerr << "Available actions: " << availableActions.size() << std::endl;
     }
 
     bool ActionHandler::isActionValid(const Action &action) const
@@ -146,6 +146,13 @@ namespace hive
 
     bool ActionHandler::isPlaceActionValid(const Action &action) const
     {
+
+        if (players[currentTurn]->getTileCount(action.tile_type) == 0)
+        {
+            // std::cerr << "No tiles of this type" << std::endl;
+            return false;
+        }
+
         if (!players[currentTurn]->queenPlaced && players[currentTurn]->turnCounter >= 3)
         {
             if (action.tile_type != 'Q')
@@ -153,12 +160,6 @@ namespace hive
                 // std::cerr << "Queen not placed after 3 move" << std::endl;
                 return false;
             }
-        }
-
-        if (players[currentTurn]->getTileCount(action.tile_type) == 0)
-        {
-            // std::cerr << "No tiles of this type" << std::endl;
-            return false;
         }
 
         if (board.isOccupiedByOpponent(action.newPosition, currentTurn) && !players[currentTurn]->firstMove)
@@ -203,7 +204,6 @@ namespace hive
         {
             players[currentTurn]->queenPlaced = true;
             updateQueenPosition(tile, position);
-            std::string color = (currentTurn == 'W') ? "White" : "Black";
         }
     }
 

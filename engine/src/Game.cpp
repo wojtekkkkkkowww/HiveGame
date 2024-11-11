@@ -8,7 +8,7 @@ namespace hive
 {
     Game::Game()
         : currentTurn('W'),
-          actionHandler(board, players, currentTurn, gameStatus,actions),
+          actionHandler(board, players, currentTurn, gameStatus,actions, avaliableActions),
           turnManager(board, players, currentTurn, gameStatus),
           actionParser(board, currentTurn,players)
     {
@@ -63,6 +63,12 @@ namespace hive
         return false;
     }
 
+    void Game::applyValidAction(Action action)
+    {   
+        actionHandler.applyAction(action);
+        turnManager.nextTurn();
+    }
+
     bool Game::applyAction(const std::string &actionString)
     {
         actionStrings.push_back(actionString);
@@ -87,6 +93,11 @@ namespace hive
         actionHandler.genAvailableActions();
     }
 
+    void Game::genAvailableActions()
+    {   
+        actionHandler.genAvailableActions();
+    }
+
     void Game::revertAction(std::set<Action> actions)
     {
         if(!actionStrings.empty())
@@ -99,7 +110,7 @@ namespace hive
 
     std::set<Action> Game::getAvailableActions() const
     {
-        return actionHandler.getAvailableActions();
+        return avaliableActions;
     }
 
     bool Game::isGameOver() const

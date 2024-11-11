@@ -4,9 +4,16 @@
 
 namespace hive
 {
+    std::map<Position, std::vector<Position>> MoveValidator::neighboringDirections = {
+        {NW, {W, NE}},
+        {NE, {NW, E}},
+        {E, {NE, SE}},
+        {SE, {E, SW}},
+        {SW, {SE, W}},
+        {W, {NW, SW}}};
+
     bool MoveValidator::isMoveBlocked(Position position, Position newPosition) const
     {
-
         if (!isHiveConnectedAfterRemove(position))
         {
             return true;
@@ -39,25 +46,14 @@ namespace hive
 
     bool MoveValidator::isDirectionBlocked(Position position, Position direction, int level) const
     {
-        std::map<Position, std::vector<Position>> neighboringDirections = {
-            {NW, {W, NE}},
-            {NE, {NW, E}},
-            {E, {NE, SE}},
-            {SE, {E, SW}},
-            {SW, {SE, W}},
-            {W, {NW, SW}}};
-
         if (neighboringDirections.find(direction) == neighboringDirections.end())
         {
             return true;
         }
 
-        auto neighbors = neighboringDirections[direction];
+        const auto &neighbors = neighboringDirections[direction];
 
-        Position neighborPosition1 = position + neighbors[0];
-        Position neighborPosition2 = position + neighbors[1];
-
-        if (fredomToMove(neighborPosition1, level, neighborPosition2))
+        if (fredomToMove(position + neighbors[0], level, position + neighbors[1]))
         {
             // std::cerr << "fredomToMove" << std::endl;
             return true;
@@ -68,8 +64,7 @@ namespace hive
             return false;
         }
 
-        Position newPosition = position + direction;
-        if (constantContact(neighborPosition1, neighborPosition2, newPosition))
+        if (constantContact(position + neighbors[0], position + neighbors[1], position + direction))
         {
             return true;
         }
@@ -92,14 +87,12 @@ namespace hive
     */
     bool MoveValidator::isHiveConnectedAfterRemove(Position position) const
     {
-        auto start = std::chrono::high_resolution_clock::now();
-
         if (getLevel(position) > 1)
         {
             return true;
         }
 
-        if(!isDisconnectionPossible(position))
+        if (!isDisconnectionPossible(position))
         {
             return true;
         }
@@ -114,10 +107,6 @@ namespace hive
         DFS dfs(tilesPositions);
         std::set<Position> visited = dfs.performDFS();
 
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duration = end - start;
-      //  std::cerr << "Time for  DFS"<< duration.count() << " seconds" << std::endl;
-        
         return visited.size() == tilesPositions.size();
     }
 
@@ -146,7 +135,7 @@ namespace hive
 
     bool MoveValidator::isTouchingHiveAfterMove(Position position, Position newPosition) const
     {
-        for (auto neighbour : getNeighbours(newPosition))
+        for (const auto &neighbour : getNeighbours(newPosition))
         {
             if (!isEmpty(neighbour) && (neighbour != position || getLevel(position) > 1))
             {

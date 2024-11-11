@@ -22,6 +22,7 @@ namespace hive
         
         void resetBoard();
         void setBoardTiles(std::map<Position, std::deque<Tile>>& tiles);
+        void setBoardTiles(std::map<Position, std::deque<std::shared_ptr<Tile>>>& tiles);
         void moveTile(Position position, Position newPosition);
         bool isEmpty(Position position) const;
         int getLevel(Position position) const;
@@ -41,7 +42,7 @@ namespace hive
         std::set<Position> getEmptyTiles() const;
         std::list<Tile> getTiles() const;
         std::set<Position> getPlayerTiles(char color) const;
-
+        std::map<Position, std::deque<std::shared_ptr<Tile>>>& getBoardTiles();
 
         static std::set<Position> getNeighbours(Position position);
 

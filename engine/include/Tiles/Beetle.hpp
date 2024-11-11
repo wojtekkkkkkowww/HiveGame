@@ -25,20 +25,19 @@ namespace hive
 
             for (const auto &direction : directions)
             {
-                Position newPos = position + direction;
-                if (beetleJumpUp(newPos, beetle_level, val))
+                if (beetleJumpUp(position + direction, beetle_level, val))
                 {
-                    int newBeetleLevel = val.getLevel(newPos) + 1;
+                    int newBeetleLevel = val.getLevel(position + direction) + 1;
                     if (!val.isDirectionBlocked(position, direction, newBeetleLevel))
                     {
-                        moves.insert(newPos);
+                        moves.insert(position + direction);
                     }
 
                     continue;
                 }
 
                 if (!val.isDirectionBlocked(position, direction, beetle_level))
-                    moves.insert(newPos);
+                    moves.insert(position + direction);
             }
 
             return moves;

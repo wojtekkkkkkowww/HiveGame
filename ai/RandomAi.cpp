@@ -15,6 +15,24 @@ namespace hive
     {
         auto availableActions = game.getAvailableActions();
         // std::cerr << "Available actions: " << availableActions.size() << std::endl;
+
+        //win in one move
+        std::string player = game.getCurrentTurn() == 'W' ? "WHITE" : "BLACK";
+        for (const auto &action : availableActions)
+        {
+            if (action.type == "PLACE")
+                continue;
+
+            game.applyValidAction(action);
+            if (game.isGameOver() && game.getGameStatus() == player + "_WINS")
+            {
+                std::cout << "bardzo ciekawe: " + game.getGameStatus() << std::endl;
+                game.revertAction(availableActions);
+                return action;
+            }
+            game.revertAction(availableActions);
+        }
+
         if (!availableActions.empty())
         {
             auto it = availableActions.begin();

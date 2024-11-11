@@ -16,14 +16,11 @@ namespace hive
         inline std::set<Position> getMoves(Position position, const MoveValidator &val)
         {
             std::set<Position> moves;
-            moves.clear();
-
             for (auto &direction : directions)
             {
-                Position newPos = position + direction;
-                if (val.isEmpty(newPos) && !val.isDirectionBlocked(position, direction, 1))
+                if (val.isEmpty(position + direction) && !val.isDirectionBlocked(position, direction, 1))
                 {
-                    moves.insert(newPos);
+                    moves.insert(position + direction);
                 }
             }
             return moves;

@@ -13,12 +13,25 @@ namespace hive
     }
 
     void BaseBoard::setBoardTiles(std::map<Position, std::deque<Tile>> &tiles)
-    {   
+    {
         for (const auto &[position, tile] : tiles)
         {
             for (const auto &t : tile)
             {
                 addTile(position, t);
+            }
+        }
+
+        addEmptyTilesAroundBoard();
+    }
+
+    void BaseBoard::setBoardTiles(std::map<Position, std::deque<std::shared_ptr<Tile>>> &tiles)
+    {
+        for (const auto &[position, tile] : tiles)
+        {
+            for (const auto &t : tile)
+            {
+                addTile(position, *t);
             }
         }
 
@@ -76,12 +89,22 @@ namespace hive
     void BaseBoard::addTile(Position position, Tile tile)
     {
         auto tilePtr = std::make_shared<Tile>(tile);
+
         addTile(position, tilePtr);
     }
 
     void BaseBoard::addTile(Position position, std::shared_ptr<Tile> tile)
     {
         tile->setPosition(position);
+
+        if (tile->type == 'Q' && tile->color == 'W')
+        {
+            whiteQueen = position;
+        }
+        if (tile->type == 'Q' && tile->color == 'B')
+        {
+            blackQueen = position;
+        }
 
         if (isEmpty(position))
         {
@@ -135,6 +158,11 @@ namespace hive
             }
         }
         return playerTiles;
+    }
+
+    std::map<Position, std::deque<std::shared_ptr<Tile>>> &BaseBoard::getBoardTiles()
+    {
+        return boardTiles;
     }
 
     void BaseBoard::addEmptyTilesAroundBoard()

@@ -8,12 +8,14 @@ namespace hive
     {
         addHeuristic(std::make_unique<PieceCountHeuristic>(), 1.0);
         addHeuristic(std::make_unique<TilesOroundOpponentQueen>(), 10.0);
+        addHeuristic(std::make_unique<TilesValueHeuristic>(), 1.0);
         addHeuristic(std::make_unique<QueenAvailableMoves>(), 1.0);
-        addHeuristic(std::make_unique<WinLoseHeuristic>(), 5000);
-        addHeuristic(std::make_unique<PlacingQueenHeuristic>(), 1000);
+        addHeuristic(std::make_unique<WinHeuristic>(), 1.0);
+        addHeuristic(std::make_unique<LoseHeuristic>(), 1.0);
+    
     }
 
-    void AlphaBetaAI::addHeuristic(std::unique_ptr<Heuristic> heuristic, double weight)
+    void AlphaBetaAI::addHeuristic(std::unique_ptr<Heuristic> heuristic, int weight)
     {
         heuristics.push_back(std::make_pair(std::move(heuristic), weight));
     }
@@ -21,15 +23,36 @@ namespace hive
     Action AlphaBetaAI::getNextMove()
     {
         player = game.getCurrentTurn();
-        double alpha = NEGATIVE_INFINITY;
-        double beta = INFINITY;
+        int alpha = negative_infinity;
+        int beta = infinity;
+        NodesNumber = 0;
 
+        //win in one move
+        auto availableActions = game.getAvailableActions();
+        std::cout<<"checking win in one move"<<std::endl;
+        for (const auto &action : availableActions)
+        {
+            if (action.type == "PLACE")
+                continue;
+
+            game.applyValidAction(action);
+            std::string playerString = player == 'W' ? "WHITE" : "BLACK";
+            if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
+            {
+                game.revertAction(availableActions);
+                std::cout << "Win in one move Detected" << std::endl;
+                return action;
+            }
+            game.revertAction(availableActions);
+        }
+
+        std::cout << "Branching factor: " << game.getAvailableActions().size() << std::endl;
         return maxValue(alpha, beta, maxDepth).second;
     }
 
-    double AlphaBetaAI::evaluate() const
+    int AlphaBetaAI::evaluate() const
     {
-        double totalScore = 0.0;
+        int totalScore = 0.0;
         for (const auto &[heuristic, weight] : heuristics)
         {
             totalScore += weight * heuristic->evaluate(game, player);
@@ -37,46 +60,28 @@ namespace hive
         return totalScore;
     }
 
-    std::pair<double, Action> AlphaBetaAI::maxValue(double alpha, double beta, int depth)
+    std::pair<int, Action> AlphaBetaAI::maxValue(int alpha, int beta, int depth)
     {
+        //   std::cout << "deep: " << depth << std::endl;
+        NodesNumber += 1;
+
         //  std::cout << "ENTER MAX " << depth << std::endl;
         if (game.isGameOver() || depth == 0)
         {
-            if (game.isGameOver())
-            {
-                return {evaluate(), Action()};
-            }
-
-            return {evaluate(), *(game.getAvailableActions().begin())};
+            return {evaluate(), Action()};
         }
 
-        double v = NEGATIVE_INFINITY;
+        int v = negative_infinity;
         Action bestMove;
 
+        game.genAvailableActions();
         auto actions = game.getAvailableActions();
-        // if (depth != maxDepth)
-        // {
-        //     if (actions.size() > 20)
-        //     {
-        //         // std::random_shuffle(actions.begin(), actions.end());
-        //         std::set<Action> copy;
-        //         int i = 0;
-        //         for (auto it = actions.begin(); it != actions.end(); it++)
-        //         {
-        //             if (i < 20)
-        //                 copy.insert(*it);
-        //             i++;
-        //         }
-        //         actions = copy;
-        //     }
-        // }
 
         for (const auto &action : actions)
         {
-            game.applyAction(action);
-            double v2 = minValue(alpha, beta, depth - 1).first;
+            game.applyValidAction(action);
+            int v2 = minValue(alpha, beta, depth - 1).first;
             game.revertAction(actions);
-
             if (v2 > v)
             {
                 // std::cout << "MAX v2: " << v2 << std::endl;
@@ -94,46 +99,28 @@ namespace hive
         return {v, bestMove};
     }
 
-    std::pair<double, Action> AlphaBetaAI::minValue(double alpha, double beta, int depth)
+    std::pair<int, Action> AlphaBetaAI::minValue(int alpha, int beta, int depth)
     {
+        NodesNumber += 1;
         //   std::cout << "ENTER MIN " << depth  << std::endl;
         if (game.isGameOver() || depth == 0)
         {
-            if (game.isGameOver())
-            {
-                return {evaluate(), Action()};
-            }
-
-            return {evaluate(), *(game.getAvailableActions().begin())};
+            return {evaluate(), Action()};
         }
 
-        double v = INFINITY;
+        int v = infinity;
         Action bestMove;
 
+        game.genAvailableActions();
         auto actions = game.getAvailableActions();
-        // if (depth != maxDepth)
-        // {
-        //     if (actions.size() > 20)
-        //     {
-        //         // std::random_shuffle(actions.begin(), actions.end());
-        //         std::set<Action> copy;
-        //         int i = 0;
-        //         for (auto it = actions.begin(); it != actions.end(); it++)
-        //         {
-        //             if (i < 20)
-        //                 copy.insert(*it);
-        //             i++;
-        //         }
-        //         actions = copy;
-        //     }
-        // }
+
+        NodesNumber += actions.size();
 
         for (const auto &action : actions)
         {
-            game.applyAction(action);
-            double v2 = maxValue(alpha, beta, depth - 1).first;
+            game.applyValidAction(action);
+            int v2 = maxValue(alpha, beta, depth - 1).first;
             game.revertAction(actions);
-
             if (v2 < v)
             {
                 v = v2;

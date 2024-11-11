@@ -28,7 +28,7 @@ namespace hive
 
             while (!q.empty())
             {
-                auto [currentPos, depth] = q.front();
+                const auto& [currentPos, depth] = q.front();
                 q.pop();
 
                 if (depth == 3)
@@ -45,12 +45,10 @@ namespace hive
                         int isSpiderNeighbour = (spiderNeighbours.find(neighbor) != spiderNeighbours.end()) ? 1 : 0;
                         if (val.calculateNeighbours(neighbor, 'B') + val.calculateNeighbours(neighbor, 'W') - isSpiderNeighbour > 0)
                         {
-                            Position direction = neighbor - currentPos;
-                            if (val.isDirectionBlocked(currentPos, direction, 1))
+                            if (val.isDirectionBlocked(currentPos, neighbor - currentPos, 1))
                             {
                                 continue;
                             }
-
                             visited.insert(neighbor);
                             q.push({neighbor, depth + 1});
                         }

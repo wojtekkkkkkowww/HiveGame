@@ -4,26 +4,58 @@
 
 namespace hive
 {
+    static constexpr int infinity = std::numeric_limits<int>::max();
+    static constexpr int negative_infinity = std::numeric_limits<int>::min();
+
+}
+
+namespace hive
+{
 
     class Heuristic
     {
     public:
-        virtual double evaluate(const Game &state, char player) const = 0;  // Include char player
+        virtual int evaluate(const Game &state, char player) const = 0; // Include char player
         virtual ~Heuristic() = default;
     };
 
-    class PlacingQueenHeuristic : public Heuristic
+    class TilesValueHeuristic : public Heuristic
     {
-        double evaluate(const Game &state, char player) const override
+    public:
+        static const int queen = 5;
+        static const int ant = 3;
+        static const int spider = 1;
+        static const int grasshopper = 1;
+        static const int beetle = 1;
+
+        int evaluate(const Game &state, char player) const override
         {
-            if (player == 'W')
+            int value = 0.0;
+            for (const auto &pos : state.board.getPlayerTiles(player))
             {
-                return state.board.whiteQueen == invalidPosition ? 1.0 : 0.0;
+                auto tile = state.board.getTile(pos);
+                switch (tile.type)
+                {
+                case 'Q':
+                    value += queen;
+                    break;
+                case 'A':
+                    value += ant;
+                    break;
+                case 'S':
+                    value += spider;
+                    break;
+                case 'G':
+                    value += grasshopper;
+                    break;
+                case 'B':
+                    value += beetle;
+                    break;
+                default:
+                    break;
+                }
             }
-            else
-            {
-                return state.board.blackQueen == invalidPosition ? 1.0 : 0.0;
-            }
+            return value;
         }
     };
 
@@ -31,18 +63,18 @@ namespace hive
     class PieceCountHeuristic : public Heuristic
     {
     public:
-        double evaluate(const Game &state, char player) const override
+        int evaluate(const Game &state, char player) const override
         {
             size_t myTilesCount = state.board.getPlayerTiles(player).size();
-            
-            return static_cast<double>(myTilesCount);
+
+            return static_cast<int>(myTilesCount);
         }
     };
 
     class QueenAvailableMoves : public Heuristic
     {
     public:
-        double evaluate(const Game &state, char player) const override
+        int evaluate(const Game &state, char player) const override
         {
 
             Position myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
@@ -51,33 +83,50 @@ namespace hive
                 return 0.0;
             }
 
-            return static_cast<double>(state.board.getAvailableMoves('Q',myQueen).size());
+            return static_cast<int>(state.board.getAvailableMoves('Q', myQueen).size());
         }
     };
 
-    class WinLoseHeuristic : public Heuristic
+    class WinHeuristic : public Heuristic
     {
     public:
-        double evaluate(const Game &state, char player) const override
+        int evaluate(const Game &state, char player) const override
         {
-            auto oponentQueen = player == 'W' ? state.board.blackQueen : state.board.whiteQueen;    
-            for(auto &direction : directions)
+            auto oponentQueen = player == 'W' ? state.board.blackQueen : state.board.whiteQueen;
+            for (auto &direction : directions)
             {
-                if(state.board.isEmpty(oponentQueen + direction))
+                if (state.board.isEmpty(oponentQueen + direction))
                 {
-                    return 0.0;
+                    return 0;
                 }
             }
-            return 1.0;
+            return 10000;
+        }
+    };
+
+    class LoseHeuristic : public Heuristic
+    {
+    public:
+        int evaluate(const Game &state, char player) const override
+        {
+            auto myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+            for (auto &direction : directions)
+            {
+                if (state.board.isEmpty(myQueen + direction))
+                {
+                    return 0;
+                }
+            }
+            return -10000;
         }
     };
 
     class TilesOroundOpponentQueen : public Heuristic
     {
     public:
-        double evaluate(const Game &state, char player) const override
+        int evaluate(const Game &state, char player) const override
         {
-            double value = 0.0;
+            int value = 0.0;
             char opponent = player == 'W' ? 'B' : 'W';
 
             Position queenPosition = opponent == 'W' ? state.board.whiteQueen : state.board.blackQueen;
@@ -94,10 +143,4 @@ namespace hive
             return value;
         }
     };
-}
-
-namespace hive
-{
-    static constexpr double INFINITY = std::numeric_limits<double>::infinity();
-    static constexpr double NEGATIVE_INFINITY = -std::numeric_limits<double>::infinity();
 }

@@ -6,8 +6,8 @@
 namespace hive
 {
     /*
-    * @brief The MoveValidator class is responsible for validating moves.
-    */
+     * @brief The MoveValidator class is responsible for validating moves.
+     */
     class MoveValidator : public BaseBoard
     {
     public:
@@ -22,5 +22,7 @@ namespace hive
         bool isTouchingHiveAfterMove(Position position, Position newPosition) const;
         bool constantContact(const hive::Position &neighborPosition1, const hive::Position &neighborPosition2, const hive::Position &newPosition) const;
         bool fredomToMove(const hive::Position &neighborPosition1, int level, const hive::Position &neighborPosition2) const;
+
+        static std::map<Position, std::vector<Position>> neighboringDirections;
     };
 }

@@ -44,7 +44,7 @@ namespace hive
         {
             auto actions = getAvailableActions();
             std::set<Position> actualMoves{};
-
+            
             for (const auto &action : actions)
             {
                 if (action.type == "MOVE" && action.position == position)
@@ -103,7 +103,7 @@ namespace hive
         {
             const ::testing::TestInfo *test_info = ::testing::UnitTest::GetInstance()->current_test_info();
             std::string testName = test_info->name();
-            saveToFile(testName,actionStrings);
+            saveToFile(testName, actionStrings);
         }
     };
 }

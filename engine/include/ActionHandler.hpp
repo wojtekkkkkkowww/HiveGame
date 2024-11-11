@@ -14,7 +14,7 @@ namespace hive
     class ActionHandler
     {
     public:
-        ActionHandler(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &status, std::stack<Action> &actions);
+        ActionHandler(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions);
         bool applyAction(Action action);
         void revertAction();
         void genAvailableActions();
@@ -39,6 +39,8 @@ namespace hive
         char &currentTurn;
         std::string &status;
         std::stack<Action> &actions;
-        std::set<Action> availableActions;
+        std::set<Action> &availableActions; //consider not copying this 
+        // this could be defined in game i think it would be better plave
+        // here just reference to it
     };
 }

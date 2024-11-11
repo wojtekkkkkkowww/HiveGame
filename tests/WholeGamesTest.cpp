@@ -180,18 +180,21 @@ namespace
 
 TEST_F(WholeGamesTest, OfficialGame1)
 {
+    std::cout << "OfficialGame1 " << officialGame1.size() << std::endl;
     playGame(officialGame1);
     ASSERT_EQ(getGameStatus(), "WHITE_WINS");
 }
 
 TEST_F(WholeGamesTest, OfficialGame2)
 {
+    std::cout << "OfficialGame2 " << officialGame2.size() << std::endl;
     playGame(officialGame2);
     ASSERT_EQ(getGameStatus(), "WHITE_WINS");
 }
 
 TEST_F(WholeGamesTest, OfficialGame3)
 {
-    playGame(officialGame3);
+    std::cout << "OfficialGame3 " << officialGame3.size() << std::endl;
+    playGame(officialGame3);    
     ASSERT_EQ(getGameStatus(), "BLACK_WINS");
 }

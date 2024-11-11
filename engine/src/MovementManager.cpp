@@ -8,7 +8,6 @@ namespace hive
 {
     MovementManager::MovementManager() {}
 
-    // POWINIEN BRAĆ JAKO ARGUMENT POZYCJĘ PIONKA I TYP A NIE TILE
     std::set<Position> MovementManager::getAvailableMoves(char type, const Position &position) const
     {
         switch (type)

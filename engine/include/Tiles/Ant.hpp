@@ -18,8 +18,6 @@ namespace hive
     {
         inline std::set<Position> getMoves(Position position, const MoveValidator &val, const std::set<Position> &emptyTiles)
         {
-            auto start = std::chrono::high_resolution_clock::now();
-
             std::set<Position> visited;
             std::stack<Position> stack;
 
@@ -45,17 +43,13 @@ namespace hive
 
                 for (const Position &direction : directions)
                 {
-                    Position neighbor = current + direction;
-                    if (emptyTiles.find(neighbor) != emptyTiles.end() && visited.find(neighbor) == visited.end() && !val.isDirectionBlocked(current, direction, 1))
+                    if (emptyTiles.find(current + direction) != emptyTiles.end() && visited.find(current + direction) == visited.end() && !val.isDirectionBlocked(current, direction, 1))
                     {
-                        stack.push(neighbor);
+                        stack.push(current + direction);
                     }
                 }
             }
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> duration = end - start;
-            // std::cerr << "Time for Ant" << duration.count() << " seconds" << std::endl;
-
+           
             return visited;
         }
     }
