@@ -5,16 +5,17 @@
 #include "Action.hpp"
 #include "Board.hpp"
 #include "Player.hpp"
+#include "ArticulationPoints.hpp"
 
 namespace hive
 {
     /*
-    * @brief The ActionHandler class is responsible for applying and reverting actions.
-    */
+     * @brief The ActionHandler class is responsible for applying and reverting actions.
+     */
     class ActionHandler
     {
     public:
-        ActionHandler(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions);
+        ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions);
         bool applyAction(Action action);
         void revertAction();
         void genAvailableActions();
@@ -29,17 +30,19 @@ namespace hive
         void generateMoveActions();
         void generatePlaceActions();
         bool isPlaceActionValid(const Action &action) const;
-        bool isMoveActionValid(const Action &action) const;
+        bool isMoveActionValid(const Action &action, const std::set<Position> &articulationPoints) const;
         void moveTile(Position position, Position newPosition);
         void placeTile(Position position, char type);
         void updateQueenPosition(const Tile &tile, const Position &newPosition);
 
         Board &board;
-        std::map<char, Player*> &players;
+        std::map<char, Player *> &players;
         char &currentTurn;
         std::string &status;
         std::stack<Action> &actions;
-        std::set<Action> &availableActions; //consider not copying this 
+        std::set<Action> &availableActions; // consider not copying this
+        ArticulationPointFinder articulationPointFinder;
+
         // this could be defined in game i think it would be better plave
         // here just reference to it
     };

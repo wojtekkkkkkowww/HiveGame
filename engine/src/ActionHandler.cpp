@@ -6,7 +6,7 @@
 namespace hive
 {
     ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions)
-        : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions), availableActions(availableActions) {}
+        : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions), availableActions(availableActions), articulationPointFinder(board) {}
 
     bool ActionHandler::applyAction(Action action)
     {
@@ -75,13 +75,11 @@ namespace hive
         {
             generatePlaceActions();
             generateMoveActions();
-
             if (availableActions.empty())
             {
                 availableActions.insert(WaitAction());
             }
         }
-        // std ::cerr << "Available actions: " << availableActions.size() << std::endl;
     }
 
     bool ActionHandler::isActionValid(const Action &action) const
@@ -109,23 +107,35 @@ namespace hive
 
     void ActionHandler::generateMoveActions()
     {
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        std::set<Position> articulationPoints = articulationPointFinder.findArticulationPoints();
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        //std::cout << "articulation = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;        
+
+        begin = std::chrono::steady_clock::now();
+        std::set<Action> moves;
         for (const auto &position : board.getPlayerTiles(currentTurn))
         {
             const auto &tile = board.getTile(position);
-
             for (const auto &newPosition : board.getAvailableMoves(tile.type, position))
             {
                 MoveAction action(position, newPosition);
-                if (isMoveActionValid(action))
+
+                if (isMoveActionValid(action, articulationPoints))
                 {
                     availableActions.insert(action);
+                    moves.insert(action);
                 }
             }
         }
+
+        end = std::chrono::steady_clock::now();
+       // std::cout << "move = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
     }
 
     void ActionHandler::generatePlaceActions()
     {
+        //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         std::vector<char> types = {'A', 'B', 'G', 'S', 'Q'};
 
         for (const auto &type : types)
@@ -142,16 +152,18 @@ namespace hive
                 }
             }
         }
+       // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+       // std::cout << "place = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
     }
 
     bool ActionHandler::isPlaceActionValid(const Action &action) const
     {
 
-        if (players[currentTurn]->getTileCount(action.tile_type) == 0)
-        {
-            // std::cerr << "No tiles of this type" << std::endl;
-            return false;
-        }
+        // if (players[currentTurn]->getTileCount(action.tile_type) == 0)
+        // {
+        //     // std::cerr << "No tiles of this type" << std::endl;
+        //     return false;
+        // }
 
         if (!players[currentTurn]->queenPlaced && players[currentTurn]->turnCounter >= 3)
         {
@@ -171,7 +183,7 @@ namespace hive
         return true;
     }
 
-    bool ActionHandler::isMoveActionValid(const Action &action) const
+    bool ActionHandler::isMoveActionValid(const Action &action, const std::set<Position> &articulationPoints) const
     {
         if (!players[currentTurn]->queenPlaced)
         {
@@ -179,7 +191,7 @@ namespace hive
             return false;
         }
 
-        if (board.isMoveBlocked(action.position, action.newPosition))
+        if (board.isMoveBlocked(action.position, action.newPosition, articulationPoints))
         {
             // std::cerr << "Move blocked" << std::endl;
             return false;

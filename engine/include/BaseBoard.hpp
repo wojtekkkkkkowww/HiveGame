@@ -42,10 +42,10 @@ namespace hive
         std::set<Position> getEmptyTiles() const;
         std::list<Tile> getTiles() const;
         std::set<Position> getPlayerTiles(char color) const;
-        std::map<Position, std::deque<std::shared_ptr<Tile>>>& getBoardTiles();
+        std::vector<Position> getPositions() const;
 
         static std::set<Position> getNeighbours(Position position);
-
+        
     protected:
 
 

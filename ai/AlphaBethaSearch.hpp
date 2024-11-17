@@ -11,15 +11,37 @@ namespace hive
     {
     public:
         AlphaBetaAI(Game &game);
-        void addHeuristic(std::unique_ptr<Heuristic> heuristic, int weight);
+        void setHeuristicWeights(std::vector<int> weights);
         Action getNextMove() override;
         int NodesNumber = 0;
 
     private:
         static constexpr int maxDepth = 3;
         static constexpr const char *name = "AlphaBetaAI";
+        
+        QueenAvailableMoves queenAvailableMoves;
+        OpponentQueenAvailableMoves opponentQueenAvailableMoves;
+        TilesOroundOpponentQueen tilesOroundOpponentQueen;
+        TilesOroundQuuen tilesOroundQuuen;
+        
+        // QueenSafty queenSafty;
+        // AttackOponentQueen attackOponentQueen;
+        BlockedTiles blockedTiles;
+        TilesValueHeuristic tilesValueHeuristic;
+        WinLoseHeuristic winLoseHeuristic;
 
-        std::vector<std::pair<std::unique_ptr<Heuristic>, int>> heuristics;
+        // 6 42 51 1 1 10 
+        std::vector<std::pair<Heuristic&, int>> heuristics = {
+            {queenAvailableMoves, 6},
+            {opponentQueenAvailableMoves, 42},
+            {tilesOroundOpponentQueen, 51},
+            {tilesOroundQuuen, 1},
+            {blockedTiles, 1},
+            {tilesValueHeuristic, 10},
+            {winLoseHeuristic, 1},
+
+        };
+
         int evaluate() const;
         char player;
 

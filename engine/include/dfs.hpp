@@ -9,7 +9,7 @@ namespace hive
     {
     public:
         DFS(std::set<Position> &tiles) : tiles(tiles) {}
-        std::set<Position> performDFS();
+        std::set<Position> performDFS(Position start);
 
     private:
         std::set<Position> &tiles;

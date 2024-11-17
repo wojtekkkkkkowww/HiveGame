@@ -5,5 +5,8 @@ add_library(GameEngine ${ENGINE_SOURCES} ${ENGINE_HEADERS})
 
 target_include_directories(GameEngine PUBLIC ${CMAKE_SOURCE_DIR}/engine/include)
 
+find_package(OpenSSL REQUIRED)
+target_link_libraries(GameEngine PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+
 target_link_libraries(GameEngine PUBLIC global_compile_options)
 target_compile_options(GameEngine PRIVATE -O3)

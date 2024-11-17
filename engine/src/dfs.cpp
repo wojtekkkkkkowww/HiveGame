@@ -34,9 +34,8 @@ namespace hive
         }
     }
 
-    std::set<Position> DFS::performDFS()
+    std::set<Position> DFS::performDFS(Position start)
     {
-        Position start = *tiles.begin();
         visited.clear();
         explore(start);
         return visited;

@@ -4,6 +4,8 @@ add_library(ai
     RandomAi.cpp
     AlphaBethaSearch.hpp
     AlphaBethaSearch.cpp
+    Pvs.hpp
+    Pvs.cpp
 )
 
 target_include_directories(ai PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

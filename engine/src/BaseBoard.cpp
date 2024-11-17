@@ -160,9 +160,14 @@ namespace hive
         return playerTiles;
     }
 
-    std::map<Position, std::deque<std::shared_ptr<Tile>>> &BaseBoard::getBoardTiles()
+    std::vector<Position> BaseBoard::getPositions() const
     {
-        return boardTiles;
+        std::vector<Position> positions;
+        for (const auto &[p, _] : boardTiles)
+        {
+            positions.push_back(p);
+        }
+        return positions;
     }
 
     void BaseBoard::addEmptyTilesAroundBoard()
@@ -171,6 +176,7 @@ namespace hive
         for (const auto &[key, tiles] : boardTiles)
         {
             const auto &tile = tiles.back();
+            // tutaj zrobić ten trik z dir
             for (const auto &neighbourPosition : getNeighbours(tile->position))
             {
                 if (isEmpty(neighbourPosition))

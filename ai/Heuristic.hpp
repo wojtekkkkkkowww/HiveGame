@@ -17,60 +17,167 @@ namespace hive
     public:
         virtual int evaluate(const Game &state, char player) const = 0; // Include char player
         virtual ~Heuristic() = default;
+
+    protected:
+        int tileValue(char tileType) const
+        {
+            switch (tileType)
+            {
+            case 'Q':
+                return queen;
+            case 'A':
+                return ant;
+            case 'S':
+                return spider;
+            case 'G':
+                return grasshopper;
+            case 'B':
+                return beetle;
+            default:
+                return 0;
+            }
+        }
+
+        static constexpr const int queen = 5;
+        static constexpr const int ant = 3;
+        static constexpr const int spider = 1;
+        static constexpr const int grasshopper = 1;
+        static constexpr const int beetle = 1;
     };
 
     class TilesValueHeuristic : public Heuristic
     {
     public:
-        static const int queen = 5;
-        static const int ant = 3;
-        static const int spider = 1;
-        static const int grasshopper = 1;
-        static const int beetle = 1;
-
         int evaluate(const Game &state, char player) const override
         {
             int value = 0.0;
             for (const auto &pos : state.board.getPlayerTiles(player))
             {
                 auto tile = state.board.getTile(pos);
-                switch (tile.type)
-                {
-                case 'Q':
-                    value += queen;
-                    break;
-                case 'A':
-                    value += ant;
-                    break;
-                case 'S':
-                    value += spider;
-                    break;
-                case 'G':
-                    value += grasshopper;
-                    break;
-                case 'B':
-                    value += beetle;
-                    break;
-                default:
-                    break;
-                }
+                value += tileValue(tile.type);
             }
+
+            for (const auto &pos : state.board.getPlayerTiles(player == 'W' ? 'B' : 'W'))
+            {
+                auto tile = state.board.getTile(pos);
+                value -= tileValue(tile.type);
+            }
+
             return value;
         }
     };
 
-
-    class PieceCountHeuristic : public Heuristic
+    class BlockedTiles : public Heuristic
     {
     public:
         int evaluate(const Game &state, char player) const override
         {
-            size_t myTilesCount = state.board.getPlayerTiles(player).size();
+            int value = 0.0;
+            for (const auto &pos : state.board.getPlayerTiles(player))
+            {
+                if (isTileBlocked(pos, state))
+                {
+                    value -= tileValue(state.board.getTile(pos).type);
+                }
+            }
 
-            return static_cast<int>(myTilesCount);
+            for (const auto &pos : state.board.getPlayerTiles(player == 'W' ? 'B' : 'W'))
+            {
+                if (isTileBlocked(pos, state))
+                {
+                    value += tileValue(state.board.getTile(pos).type);
+                }
+            }
+
+            return value;
+        }
+
+    private:
+        bool isTileBlocked(const hive::Position &position, const Game &state) const
+        {
+            if (state.board.getTile(position).type == 'B')
+            {
+                return false;
+            }
+
+            int tilesAround = 0;
+            for (auto it = directions.begin(); it != directions.end(); it++)
+            {
+                Position dir = *it;
+                Position neighbour = position + dir;
+                if (!state.board.isEmpty(neighbour))
+                {
+                    tilesAround++;
+                    while (it != directions.end())
+                    {
+                        dir = *it;
+                        neighbour = position + dir;
+                        if (state.board.isEmpty(neighbour))
+                        {
+                            return true;
+                        }
+                        tilesAround++;
+                        it++;
+                    }
+                }
+            }
+            
+            if(tilesAround > 4)
+            {
+                return true;
+            }
+
+            return false;
         }
     };
 
+    // class QueenSafty : public Heuristic
+    // {
+    // public:
+    //     int evaluate(const Game &state, char player) const override
+    //     {
+    //         auto myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+
+    //         return quuenAvailableMoves(state, myQueen) - tilesAroundQueen(state, myQueen);
+    //     }
+
+    // private:
+    //     int tilesAroundQueen(const hive::Game &state, hive::Position &Queen) const
+    //     {
+    //         int value = 0;
+    //         for (auto &direction : directions)
+    //         {
+    //             if (!state.board.isEmpty(Queen + direction))
+    //             {
+    //                 value += 1;
+    //             }
+    //         }
+    //         return value;
+    //     }
+
+    //     int quuenAvailableMoves(const hive::Game &state, hive::Position &Queen) const
+    //     {
+    //         if (Queen == invalidPosition)
+    //         {
+    //             return 0;
+    //         }
+
+    //         return static_cast<int>(state.board.getAvailableMoves('Q', Queen).size());
+    //     }
+    // };
+
+    // class AttackOponentQueen : public QueenSafty
+    // {
+    // public:
+    //     int evaluate(const Game &state, char player) const override
+    //     {
+    //         auto opponent = player == 'W' ? 'B' : 'W';
+    //         return -1 * QueenSafty::evaluate(state, opponent);
+    //     }
+    // };
+
+
+    
     class QueenAvailableMoves : public Heuristic
     {
     public:
@@ -87,37 +194,12 @@ namespace hive
         }
     };
 
-    class WinHeuristic : public Heuristic
+    class OpponentQueenAvailableMoves : public QueenAvailableMoves
     {
     public:
         int evaluate(const Game &state, char player) const override
         {
-            auto oponentQueen = player == 'W' ? state.board.blackQueen : state.board.whiteQueen;
-            for (auto &direction : directions)
-            {
-                if (state.board.isEmpty(oponentQueen + direction))
-                {
-                    return 0;
-                }
-            }
-            return 10000;
-        }
-    };
-
-    class LoseHeuristic : public Heuristic
-    {
-    public:
-        int evaluate(const Game &state, char player) const override
-        {
-            auto myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
-            for (auto &direction : directions)
-            {
-                if (state.board.isEmpty(myQueen + direction))
-                {
-                    return 0;
-                }
-            }
-            return -10000;
+            return -1 * QueenAvailableMoves::evaluate(state, player == 'W' ? 'B' : 'W');
         }
     };
 
@@ -143,4 +225,51 @@ namespace hive
             return value;
         }
     };
+
+    class TilesOroundQuuen : public TilesOroundOpponentQueen
+    {
+    public:
+        int evaluate(const Game &state, char player) const override
+        {
+            return -1 * TilesOroundOpponentQueen::evaluate(state, player);        
+        }
+    };
+
+
+    class WinLoseHeuristic : public Heuristic
+    {
+    public:
+        int evaluate(const Game &state, char player) const override
+        {
+            auto oponentQueen = player == 'W' ? state.board.blackQueen : state.board.whiteQueen;
+            auto myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+            int value = 0;
+            if (isSurrounded(state, oponentQueen))
+            {
+                value += 10000;
+            }
+            if (isSurrounded(state, myQueen))
+            {
+                value -= 10000;
+            }
+
+            return value;
+        }
+
+    private:
+        int isSurrounded(const hive::Game &state, hive::Position &Queen) const
+        {
+            for (auto &direction : directions)
+            {
+                if (state.board.isEmpty(Queen + direction))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    };
+
+
+    //class 
 }

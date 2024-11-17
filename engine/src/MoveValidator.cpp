@@ -12,9 +12,9 @@ namespace hive
         {SW, {SE, W}},
         {W, {NW, SW}}};
 
-    bool MoveValidator::isMoveBlocked(Position position, Position newPosition) const
+    bool MoveValidator::isMoveBlocked(Position position, Position newPosition, const std::set<Position>& articulationPoints) const
     {
-        if (!isHiveConnectedAfterRemove(position))
+        if (!isHiveConnectedAfterRemove(position,articulationPoints))
         {
             return true;
         }
@@ -85,29 +85,34 @@ namespace hive
     /*
     sprawdzenie wymaga przejścia po wszystkich polach urzywając dfs
     */
-    bool MoveValidator::isHiveConnectedAfterRemove(Position position) const
+    bool MoveValidator::isHiveConnectedAfterRemove(Position position,const std::set<Position>& articulationPoints) const
     {
-        if (getLevel(position) > 1)
-        {
-            return true;
-        }
+        // if (getLevel(position) > 1)
+        // {
+        //     return true;
+        // }
 
-        if (!isDisconnectionPossible(position))
-        {
-            return true;
-        }
+        // if (!isDisconnectionPossible(position))
+        // {
+        //     return true;
+        // }
 
-        std::set<Position> tilesPositions;
-        for (auto [pos, _] : boardTiles)
-        {
-            if (pos != position)
-                tilesPositions.insert(pos);
-        }
+        // std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        // std::set<Position> tilesPositions;
+        // for (auto [pos, _] : boardTiles)
+        // {
+        //     if (pos != position)
+        //         tilesPositions.insert(pos);
+        // }
 
-        DFS dfs(tilesPositions);
-        std::set<Position> visited = dfs.performDFS();
+        // DFS dfs(tilesPositions);
+        // std::set<Position> visited = dfs.performDFS();
+        // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        // std::cout << "dfs = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
 
-        return visited.size() == tilesPositions.size();
+
+        // return visited.size() == tilesPositions.size();
+        return articulationPoints.find(position) == articulationPoints.end();
     }
 
     bool MoveValidator::isDisconnectionPossible(hive::Position &position) const

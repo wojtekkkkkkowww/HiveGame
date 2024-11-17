@@ -13,6 +13,7 @@ namespace hive
 
     Action RandomAIAlgorithm::getNextMove()
     {
+        //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         auto availableActions = game.getAvailableActions();
         // std::cerr << "Available actions: " << availableActions.size() << std::endl;
 
@@ -26,8 +27,9 @@ namespace hive
             game.applyValidAction(action);
             if (game.isGameOver() && game.getGameStatus() == player + "_WINS")
             {
-                std::cout << "bardzo ciekawe: " + game.getGameStatus() << std::endl;
                 game.revertAction(availableActions);
+                //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                //std::cout << "rand getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
                 return action;
             }
             game.revertAction(availableActions);
@@ -37,6 +39,8 @@ namespace hive
         {
             auto it = availableActions.begin();
             std::advance(it, std::rand() % availableActions.size());
+            //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+            //std::cout << "rand getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
             return *it;
         }
         // std::cerr << "No available actions" << std::endl;

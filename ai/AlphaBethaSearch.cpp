@@ -6,30 +6,29 @@ namespace hive
 
     AlphaBetaAI::AlphaBetaAI(Game &game) : AIAlgorithm(game, name)
     {
-        addHeuristic(std::make_unique<PieceCountHeuristic>(), 1.0);
-        addHeuristic(std::make_unique<TilesOroundOpponentQueen>(), 10.0);
-        addHeuristic(std::make_unique<TilesValueHeuristic>(), 1.0);
-        addHeuristic(std::make_unique<QueenAvailableMoves>(), 1.0);
-        addHeuristic(std::make_unique<WinHeuristic>(), 1.0);
-        addHeuristic(std::make_unique<LoseHeuristic>(), 1.0);
-    
     }
 
-    void AlphaBetaAI::addHeuristic(std::unique_ptr<Heuristic> heuristic, int weight)
+    /*
+    SET WEIGHTS FOR HE without winLoseHeuristic
+    */
+    void AlphaBetaAI::setHeuristicWeights(std::vector<int> weights)
     {
-        heuristics.push_back(std::make_pair(std::move(heuristic), weight));
+        for (size_t i = 0; i < weights.size() - 1; i++)
+        {
+            heuristics[i].second = weights[i];
+        }
     }
 
     Action AlphaBetaAI::getNextMove()
     {
+        //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         player = game.getCurrentTurn();
         int alpha = negative_infinity;
         int beta = infinity;
         NodesNumber = 0;
 
-        //win in one move
+        // win in one move
         auto availableActions = game.getAvailableActions();
-        std::cout<<"checking win in one move"<<std::endl;
         for (const auto &action : availableActions)
         {
             if (action.type == "PLACE")
@@ -40,14 +39,20 @@ namespace hive
             if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
             {
                 game.revertAction(availableActions);
-                std::cout << "Win in one move Detected" << std::endl;
+                //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                //std::cout << "getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+
                 return action;
             }
             game.revertAction(availableActions);
         }
 
-        std::cout << "Branching factor: " << game.getAvailableActions().size() << std::endl;
-        return maxValue(alpha, beta, maxDepth).second;
+        // std::cout << "Branching factor: " << game.getAvailableActions().size() << std::endl;
+        // maxValue(alpha, beta, maxDepth).second;
+        Action bestMove = maxValue(alpha, beta, maxDepth).second;
+        //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        //std::cout << "getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+        return bestMove;
     }
 
     int AlphaBetaAI::evaluate() const
@@ -55,7 +60,7 @@ namespace hive
         int totalScore = 0.0;
         for (const auto &[heuristic, weight] : heuristics)
         {
-            totalScore += weight * heuristic->evaluate(game, player);
+            totalScore += weight * heuristic.evaluate(game, player);
         }
         return totalScore;
     }
