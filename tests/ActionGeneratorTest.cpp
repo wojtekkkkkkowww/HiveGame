@@ -9,7 +9,15 @@ public:
     ActionGeneratorTest() : BaseTest()
     {
         // Optionally enable saving state for debugging
-       // saveState = true;
+        // saveState = true;
+    }
+
+    void checkFirstMove(const std::string &move)
+    {
+        applyAction(move);
+        ASSERT_EQ(avaliableActions.size(), 5 * 6);
+        revertAction();
+        ASSERT_EQ(avaliableActions.size(), 5);
     }
 };
 
@@ -69,13 +77,28 @@ namespace
         return temp;
     }();
 
-    std::set<Position> whiteQueenMoves = {{4,-4},{3,-2}};
-    std::set<Position> whiteAntMoves =
-    { {2,-4},{3,-4},{4,-4},{5,-4},{5,-3},{4,-2},{3,-2},{2,-1},{1,0},{0,1},{-1,2},{-2,3},{-3,4},{-4,5},
-      {-5,5},{-5,4},{-4,3},{-5,3},{-5,2},{-4,1},{-3,0},{-2,-1},{-1,-2},{0,-2},{0,-1},{1,-2},{1,-3}
-    };
-    
+    std::set<Position> whiteQueenMoves = {{4, -4}, {3, -2}};
+    Position whiteQueen = {4, -3};
 
+    std::set<Position> whiteAntMoves =
+        {{2, -4}, {3, -4}, {4, -4}, {5, -4}, {5, -3}, {4, -2}, {3, -2}, {2, -1}, {1, 0}, {0, 1}, {-1, 2}, {-2, 3}, {-3, 4}, {-4, 3}, {-5, 3}, {-5, 2}, {-4, 1}, {-3, 0}, {-2, -1}, {-1, -2}, {0, -2}, {0, -1}, {1, -2}, {1, -3}};
+
+    Position whiteAnt = {-4, 4};
+
+    Position whiteSpider = {-2, 0};
+    std::set<Position> whiteSpiderMoves = {
+        {0, -2}, {-5, 2}};
+
+    Position whiteGrasshopper1 = {-1, 0};
+    std::set<Position> whiteGrasshopper1moves = {
+        {-1, 2}, {-1, -2}, {-3, 2}, {-3, 0}, {1, 0}};
+
+    Position whiteGrasshopper2 = {0, 0};
+    std::set<Position> whiteGrasshopper2moves = {};
+
+    Position whiteGrasshopper3 = {-1, 1};
+    std::set<Position> whiteGrasshopper3moves = {
+        {-4, 1}, {-1, -2}, {4, -4}, {-5, 5}};
 }
 
 TEST_F(ActionGeneratorTest, GeneratingActionsBlackTurn)
@@ -91,4 +114,29 @@ TEST_F(ActionGeneratorTest, GeneratingActionsBlackTurn)
 TEST_F(ActionGeneratorTest, GeneratingActionsWhiteTurn)
 {
     playGame(whitegame);
+    checkMoves(whiteQueen, whiteQueenMoves);
+    checkMoves(whiteAnt, whiteAntMoves);
+    checkMoves(whiteSpider, whiteSpiderMoves);
+    checkMoves(whiteGrasshopper1, whiteGrasshopper1moves);
+    checkMoves(whiteGrasshopper2, whiteGrasshopper2moves);
+    checkMoves(whiteGrasshopper3, whiteGrasshopper3moves);
+}
+
+TEST_F(ActionGeneratorTest, FirstMove)
+{
+    checkFirstMove("WQ");
+    checkFirstMove("WG1");
+    checkFirstMove("WA1");
+    checkFirstMove("WS1");
+    checkFirstMove("WB1");
+}
+
+TEST_F(ActionGeneratorTest, SecondMove)
+{
+    applyAction("WQ");
+    applyAction("BG1 WQ-");
+    int piecesLeft = 5 - 1;
+    int avaliablePositions = 3;
+    int avaliableQueenMoves = 2;
+    ASSERT_EQ(avaliableActions.size(), piecesLeft * avaliablePositions + avaliableQueenMoves);
 }

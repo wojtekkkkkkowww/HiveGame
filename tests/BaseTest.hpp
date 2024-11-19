@@ -42,7 +42,7 @@ namespace hive
 
         void checkMoves(Position position, const std::set<Position> &expectedMoves)
         {
-            auto actions = getAvailableActions();
+            auto actions = avaliableActions;
             std::set<Position> actualMoves{};
             
             for (const auto &action : actions)
@@ -53,7 +53,30 @@ namespace hive
                 }
             }
 
-            ASSERT_EQ(actualMoves, expectedMoves);
+            EXPECT_EQ(actualMoves, expectedMoves);
+            if(actualMoves != expectedMoves)
+            {
+                std::cerr << "Empty tiles: ";
+                for (const auto &tile : board.emptyTiles)
+                {
+                    std::cerr <<"(" << tile.x << " " << tile.y << ") ";
+                }
+                std::cerr << std::endl;
+
+                std::cerr << "Expected moves: ";
+                for (const auto &move : expectedMoves)
+                {
+                    std::cerr <<"(" << move.x << " " << move.y << ") ";
+                }
+                std::cerr << std::endl;
+
+                std::cerr << "Actual moves:   ";
+                for (const auto &move : actualMoves)
+                {
+                    std::cerr <<"(" << move.x << " " << move.y << ") ";
+                }
+                std::cerr << std::endl;
+            }
         }
 
         void TearDown() override

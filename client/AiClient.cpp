@@ -32,7 +32,7 @@ private:
     {
         if (game.getCurrentTurn() == player)
         {
-            auto availableActions = game.getAvailableActions();
+            auto availableActions = game.avaliableActions;
             if (!availableActions.empty())
             {
                 Action action = aiAlgorithm.getNextMove();

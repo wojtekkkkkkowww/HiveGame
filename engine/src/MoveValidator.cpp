@@ -12,9 +12,9 @@ namespace hive
         {SW, {SE, W}},
         {W, {NW, SW}}};
 
-    bool MoveValidator::isMoveBlocked(Position position, Position newPosition, const std::set<Position>& articulationPoints) const
+    bool MoveValidator::isMoveBlocked(Position position, Position newPosition) const
     {
-        if (!isHiveConnectedAfterRemove(position,articulationPoints))
+        if (!isHiveConnectedAfterRemove(position))
         {
             return true;
         }
@@ -30,18 +30,17 @@ namespace hive
     bool MoveValidator::isOccupiedByOpponent(Position pos, char color) const
     {
         char opponent = color == 'W' ? 'B' : 'W';
-        return calculateNeighbours(pos, opponent) > 0;
+        return calculateColoredNeighbours(pos, opponent) > 0;
     }
 
     bool MoveValidator::isQueenSurrounded(char color) const
     {
-        char opponent = color == 'W' ? 'B' : 'W';
         Position position = (color == 'W') ? whiteQueen : blackQueen;
         if (position == invalidPosition)
         {
             return false;
         }
-        return calculateNeighbours(position, color) + calculateNeighbours(position, opponent) == 6;
+        return calculateNeighbours(position) == 6;
     }
 
     bool MoveValidator::isDirectionBlocked(Position position, Position direction, int level) const
@@ -72,70 +71,19 @@ namespace hive
         return false;
     }
 
-    bool MoveValidator::constantContact(const hive::Position &neighborPosition1, const hive::Position &neighborPosition2, const hive::Position &newPosition) const
+    bool MoveValidator::constantContact(hive::Position neighborPosition1, hive::Position neighborPosition2, hive::Position newPosition) const
     {
         return isEmpty(neighborPosition1) && isEmpty(neighborPosition2) && getLevel(newPosition) == 0;
     }
 
-    bool MoveValidator::fredomToMove(const hive::Position &neighborPosition1, int level, const hive::Position &neighborPosition2) const
+    bool MoveValidator::fredomToMove(hive::Position neighborPosition1, int level, hive::Position neighborPosition2) const
     {
         return getLevel(neighborPosition1) >= level && getLevel(neighborPosition2) >= level;
     }
 
-    /*
-    sprawdzenie wymaga przejścia po wszystkich polach urzywając dfs
-    */
-    bool MoveValidator::isHiveConnectedAfterRemove(Position position,const std::set<Position>& articulationPoints) const
+    bool MoveValidator::isHiveConnectedAfterRemove(Position position) const
     {
-        // if (getLevel(position) > 1)
-        // {
-        //     return true;
-        // }
-
-        // if (!isDisconnectionPossible(position))
-        // {
-        //     return true;
-        // }
-
-        // std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        // std::set<Position> tilesPositions;
-        // for (auto [pos, _] : boardTiles)
-        // {
-        //     if (pos != position)
-        //         tilesPositions.insert(pos);
-        // }
-
-        // DFS dfs(tilesPositions);
-        // std::set<Position> visited = dfs.performDFS();
-        // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        // std::cout << "dfs = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-
-
-        // return visited.size() == tilesPositions.size();
         return articulationPoints.find(position) == articulationPoints.end();
-    }
-
-    bool MoveValidator::isDisconnectionPossible(hive::Position &position) const
-    {
-        for (auto it = directions.begin(); it != directions.end(); it++)
-        {
-            Position dir = *it;
-            Position neighbour = position + dir;
-            if (!isEmpty(neighbour))
-            {
-                while (it != directions.end())
-                {
-                    dir = *it;
-                    neighbour = position + dir;
-                    if (isEmpty(neighbour))
-                    {
-                        return true;
-                    }
-                    it++;
-                }
-            }
-        }
-        return false;
     }
 
     bool MoveValidator::isTouchingHiveAfterMove(Position position, Position newPosition) const

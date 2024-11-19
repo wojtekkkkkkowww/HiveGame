@@ -15,7 +15,7 @@
 class BoardDrawable : public sf::Drawable
 {
 public:
-    BoardDrawable(const hive::Board &board, float hexSize);
+    BoardDrawable(hive::Board &board, float hexSize);
     ~BoardDrawable();
     void loadResources();
     void update();
@@ -27,7 +27,7 @@ public:
 
 
 private:
-    const hive::Board &board;
+    hive::Board &board;
     float hexSize;
     sf::Font font;
     std::map<char, sf::Texture> textures;

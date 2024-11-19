@@ -14,9 +14,8 @@ TEST_F(GameInitializationTest, BoardInit)
      
     ASSERT_EQ(game.board.getTileCount(), 0);
     
-    auto emptyTiles = game.board.getEmptyTiles();
-    ASSERT_TRUE(emptyTiles.find({0,0}) != emptyTiles.end()); 
-    ASSERT_TRUE(emptyTiles.size() == 1);
+    ASSERT_TRUE(game.board.emptyTiles.find({0,0}) != game.board.emptyTiles.end()); 
+    ASSERT_TRUE(game.board.emptyTiles.size() == 1);
 }
 
 /*

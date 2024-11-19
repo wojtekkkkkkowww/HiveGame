@@ -19,18 +19,16 @@ namespace hive
         bool applyAction(Action action);
         void revertAction();
         void genAvailableActions();
-        void setAvailableActions(std::set<Action> actions) { availableActions = actions; }
         bool isActionValid(const Action &action) const;
         void reset();
         Action getLastAction() const;
-        std::set<Action> getAvailableActions() const { return availableActions; }
 
     private:
         void revertPacedQueen(char tile_type);
         void generateMoveActions();
         void generatePlaceActions();
         bool isPlaceActionValid(const Action &action) const;
-        bool isMoveActionValid(const Action &action, const std::set<Position> &articulationPoints) const;
+        bool isMoveActionValid(const Action &action) const;
         void moveTile(Position position, Position newPosition);
         void placeTile(Position position, char type);
         void updateQueenPosition(const Tile &tile, const Position &newPosition);

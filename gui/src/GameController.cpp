@@ -132,7 +132,7 @@ void GameController::render()
     window.draw(turnText);
     window.draw(pieceSelector);
 
-    if (game->getAvailableActions().size() == 1 && game->getAvailableActions().begin()->type == "WAIT")
+    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == "WAIT")
     {
         window.draw(waitButton);
     }
@@ -191,7 +191,7 @@ void GameController::handleMouseClick()
 
 void GameController::handleWaitButtonClick()
 {
-    if (game->getAvailableActions().size() == 1 && game->getAvailableActions().begin()->type == "WAIT")
+    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == "WAIT")
     {
         WaitAction action;
         game->applyAction(action);

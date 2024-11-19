@@ -31,14 +31,13 @@ namespace hive
         bool applyAction(Action action);
         void applyValidAction(Action action);
         bool applyAction(const std::string& actionString);
-        void revertAction(std::set<Action> actions);
+        void revertAction(std::set<Action> &actions,std::set<Position> &emptyTiles);
         void revertAction();
         void genAvailableActions();
         bool isGameOver() const;
         char getCurrentTurn() const;
         std::string getGameStatus() const;
         std::string getLastAction() const;
-        std::set<Action> getAvailableActions() const;
 
         std::set<Action> avaliableActions;
         Board board;

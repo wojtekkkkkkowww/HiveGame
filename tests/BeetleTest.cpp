@@ -56,7 +56,7 @@ TEST_F(BeetleTest, freedomToMove)
     startGameFromState(tiles,'B');
     saveBoardState();
     
-    auto actions = getAvailableActions();
+    auto actions = avaliableActions;
     for(auto action : actions)
     {
         std::cerr << action << std::endl;
@@ -78,7 +78,7 @@ TEST_F(BeetleTest, freedomToMove)
     saveBoardState();
 
 
-    actions = getAvailableActions();
+    actions = avaliableActions;
     auto correctAction = MoveAction({-1,0},{0,0});
     ASSERT_TRUE(actions.find(correctAction) != actions.end());
 

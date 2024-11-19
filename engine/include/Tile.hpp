@@ -28,7 +28,7 @@ namespace hive
         void setPosition(Position position) { this->position = position; }
         void setNotation(std::string notation) { this->notation = notation; }
 
-        Position position;
+        Position position = invalidPosition;
         char color;
         std::string notation;
         char type; 

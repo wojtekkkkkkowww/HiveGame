@@ -28,7 +28,8 @@ namespace hive
         NodesNumber = 0;
 
         // win in one move
-        auto availableActions = game.getAvailableActions();
+        auto availableActions = game.avaliableActions;
+        auto emptyTiles = game.board.emptyTiles;
         for (const auto &action : availableActions)
         {
             if (action.type == "PLACE")
@@ -38,16 +39,16 @@ namespace hive
             std::string playerString = player == 'W' ? "WHITE" : "BLACK";
             if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
             {
-                game.revertAction(availableActions);
+                game.revertAction(availableActions, emptyTiles);
                 //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                 //std::cout << "getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
 
                 return action;
             }
-            game.revertAction(availableActions);
+            game.revertAction(availableActions, emptyTiles);
         }
 
-        // std::cout << "Branching factor: " << game.getAvailableActions().size() << std::endl;
+        // std::cout << "Branching factor: " << game.avaliableActions.size() << std::endl;
         // maxValue(alpha, beta, maxDepth).second;
         Action bestMove = maxValue(alpha, beta, maxDepth).second;
         //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -80,13 +81,14 @@ namespace hive
         Action bestMove;
 
         game.genAvailableActions();
-        auto actions = game.getAvailableActions();
+        auto actions = game.avaliableActions;
+        auto emptyTiles = game.board.emptyTiles;
 
         for (const auto &action : actions)
         {
             game.applyValidAction(action);
             int v2 = minValue(alpha, beta, depth - 1).first;
-            game.revertAction(actions);
+            game.revertAction(actions,emptyTiles);
             if (v2 > v)
             {
                 // std::cout << "MAX v2: " << v2 << std::endl;
@@ -117,7 +119,8 @@ namespace hive
         Action bestMove;
 
         game.genAvailableActions();
-        auto actions = game.getAvailableActions();
+        auto actions = game.avaliableActions;
+        auto emptyTiles = game.board.emptyTiles;
 
         NodesNumber += actions.size();
 
@@ -125,7 +128,7 @@ namespace hive
         {
             game.applyValidAction(action);
             int v2 = maxValue(alpha, beta, depth - 1).first;
-            game.revertAction(actions);
+            game.revertAction(actions,emptyTiles);
             if (v2 < v)
             {
                 v = v2;

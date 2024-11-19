@@ -14,7 +14,8 @@ namespace hive
     Action RandomAIAlgorithm::getNextMove()
     {
         //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        auto availableActions = game.getAvailableActions();
+        auto availableActions = game.avaliableActions;
+        auto emptyTiles = game.board.emptyTiles;
         // std::cerr << "Available actions: " << availableActions.size() << std::endl;
 
         //win in one move
@@ -27,12 +28,12 @@ namespace hive
             game.applyValidAction(action);
             if (game.isGameOver() && game.getGameStatus() == player + "_WINS")
             {
-                game.revertAction(availableActions);
+                game.revertAction(availableActions, emptyTiles);
                 //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                 //std::cout << "rand getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
                 return action;
             }
-            game.revertAction(availableActions);
+            game.revertAction(availableActions, emptyTiles);
         }
 
         if (!availableActions.empty())

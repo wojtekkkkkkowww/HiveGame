@@ -2,11 +2,12 @@
 
 namespace hive
 {
+
     void BaseBoard::resetBoard()
     {
         boardTiles.clear();
         emptyTiles.clear();
-        tiles.clear();
+        positions.clear();
         emptyTiles.insert({0, 0});
         blackQueen = invalidPosition;
         whiteQueen = invalidPosition;
@@ -25,19 +26,6 @@ namespace hive
         addEmptyTilesAroundBoard();
     }
 
-    void BaseBoard::setBoardTiles(std::map<Position, std::deque<std::shared_ptr<Tile>>> &tiles)
-    {
-        for (const auto &[position, tile] : tiles)
-        {
-            for (const auto &t : tile)
-            {
-                addTile(position, *t);
-            }
-        }
-
-        addEmptyTilesAroundBoard();
-    }
-
     void BaseBoard::moveTile(Position position, Position newPosition)
     {
         auto tile = boardTiles.at(position).back();
@@ -47,74 +35,64 @@ namespace hive
 
     Tile BaseBoard::getTile(Position position) const
     {
-        if (isEmpty(position))
-        {
-            throw std::invalid_argument("No tile at position " + std::to_string(position.x) + " " + std::to_string(position.y));
-        }
+        // if (isEmpty(position))
+        // {
+        //     throw std::invalid_argument("No tile at position " + std::to_string(position.x) + " " + std::to_string(position.y));
+        // }
 
         const auto &tiles = boardTiles.at(position);
-        return *tiles.back();
+        return tiles.back();
     }
 
+    /*
+    potencjalnie źle jak coś się popsuje to to jest kandydat
+    */
     Tile BaseBoard::getTileByNotation(std::string notation) const
     {
-        if (tiles.find(notation) == tiles.end())
+        if (positions.find(notation) == positions.end())
         {
             return Tile(notation);
         }
 
-        return *tiles.at(notation);
-    }
-
-    std::set<Position> BaseBoard::getEmptyTiles() const
-    {
-        return emptyTiles;
+        return boardTiles.at(positions.at(notation)).back();
     }
 
     void BaseBoard::removeTile(Position position)
     {
         if (!isEmpty(position))
         {
-            Tile tile = *boardTiles[position].back();
+            Tile tile = boardTiles[position].back();
             boardTiles[position].pop_back();
             if (boardTiles[position].empty())
             {
                 boardTiles.erase(position);
             }
 
-            tiles.erase(tile.notation);
+            positions.erase(tile.notation);
         }
     }
 
     void BaseBoard::addTile(Position position, Tile tile)
     {
-        auto tilePtr = std::make_shared<Tile>(tile);
+        tile.setPosition(position);
 
-        addTile(position, tilePtr);
-    }
-
-    void BaseBoard::addTile(Position position, std::shared_ptr<Tile> tile)
-    {
-        tile->setPosition(position);
-
-        if (tile->type == 'Q' && tile->color == 'W')
+        if (tile.type == 'Q' && tile.color == 'W')
         {
             whiteQueen = position;
         }
-        if (tile->type == 'Q' && tile->color == 'B')
+        if (tile.type == 'Q' && tile.color == 'B')
         {
             blackQueen = position;
         }
 
         if (isEmpty(position))
         {
-            boardTiles[position] = std::deque<std::shared_ptr<Tile>>();
+            boardTiles[position] = std::deque<Tile>();
         }
 
         boardTiles[position].push_back(tile);
-        tiles[tile->notation] = tile;
+        positions[tile.notation] = position;
 
-        addEmptyTilesAroundBoard();
     }
 
     bool BaseBoard::isEmpty(Position position) const
@@ -139,8 +117,7 @@ namespace hive
         {
             for (const auto &tile : value)
             {
-                Tile newTile = *tile;
-                tiles.push_back(newTile);
+                tiles.push_back(tile);
             }
         }
         return tiles;
@@ -152,9 +129,9 @@ namespace hive
         for (const auto &[key, tiles] : boardTiles)
         {
             const auto &tile = tiles.back();
-            if (tile->color == color)
+            if (tile.color == color)
             {
-                playerTiles.insert(tile->position);
+                playerTiles.insert(tile.position);
             }
         }
         return playerTiles;
@@ -175,31 +152,42 @@ namespace hive
         emptyTiles.clear();
         for (const auto &[key, tiles] : boardTiles)
         {
-            const auto &tile = tiles.back();
-            // tutaj zrobić ten trik z dir
-            for (const auto &neighbourPosition : getNeighbours(tile->position))
+            for (const auto &dir : directions)
             {
-                if (isEmpty(neighbourPosition))
+                Position neighbour = key + dir;
+                if (isEmpty(neighbour))
                 {
-                    emptyTiles.insert(neighbourPosition);
+                    emptyTiles.insert(neighbour);
                 }
             }
         }
     }
 
-    int BaseBoard::calculateNeighbours(Position position, char color) const
+    int BaseBoard::calculateColoredNeighbours(Position position, char color) const
     {
         int count = 0;
-        auto neighbours = getNeighbours(position);
-        for (const auto &neighbour : neighbours)
+        for (const auto &dir : directions)
         {
-            if (!isEmpty(neighbour))
+            if (!isEmpty(position + dir))
             {
-                const auto &tile = getTile(neighbour);
+                const auto &tile = getTile(position + dir);
                 if (tile.color == color)
                 {
                     count++;
                 }
+            }
+        }
+        return count;
+    }
+
+    int BaseBoard::calculateNeighbours(const Position& position) const
+    {
+        int count = 0;
+        for (const auto &dir : directions)
+        {
+            if (!isEmpty(position + dir))
+            {
+                count++;
             }
         }
         return count;

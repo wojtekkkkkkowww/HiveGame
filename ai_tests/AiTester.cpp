@@ -1,20 +1,8 @@
-#include "Game.hpp"
-#include "AiAlgorithm.hpp"
-#include "RandomAi.hpp"
-#include "AlphaBethaSearch.hpp"
-#include "Heuristic.hpp"
-#include "DataBase.hpp"
-#include "FileOperations.hpp"
-#include "Pvs.hpp"
+#include "AiTester.hpp"
 #include <iostream>
-#include <memory>
-#include <fstream>
 #include <chrono>
-#include <cmath>
-#include <random>
-#include <vector>
 #include <iomanip>
-#include <future>
+#include <random>
 
 #define NUMBER_OF_GAMES 1
 #define MAX_NUMBER_OF_MOVES 60
@@ -24,44 +12,42 @@ using namespace hive;
 const int NUM_ITERATIONS = 20;
 const int GAMES_PER_ITERATION = 2;
 
-void perft(Game &game, int depth, long &nodes)
+AiTester::AiTester()
+    : game(),
+      alphaBetaAi(game), randomAi(game),
+      pvsAi(game), ai1Type(""), ai2Type("") {}
+
+void AiTester::perft(int depth, long long &nodes)
 {
+    nodes++;
+
     if (depth == 0 || game.isGameOver())
     {
-        nodes++;
         return;
     }
-
     game.genAvailableActions();
-    auto actions = game.getAvailableActions();
+    auto actions = game.avaliableActions;
+    auto emptyTiles = game.board.emptyTiles;
+
+
     for (const auto &action : actions)
     {
-
-        try
-        {
-            game.applyValidAction(action);
-            perft(game, depth - 1, nodes);
-            game.revertAction(actions);
-        }
-        catch (std::exception &e)
-        {
-            std::cerr << "Error: " << e.what() << std::endl;
-            std::cerr << "Action: " << action << std::endl;
-            continue;
-        }
+        game.applyValidAction(action);
+        perft(depth - 1, nodes);
+        game.revertAction(actions, emptyTiles);
     }
 }
 
-void performPerftTest(Game &game, int maxDepth)
+void AiTester::performPerftTest(int maxDepth)
 {
     std::cout << "Depth & Time (ms) & Nodes & Nodes/s \\\\" << std::endl;
-    for (int depth = 0; depth <= maxDepth; ++depth)
+    for (int depth = 1; depth <= maxDepth; ++depth)
     {
-        long nodes = 0;
+        long long nodes = 0;
         auto start = std::chrono::steady_clock::now();
 
         game.startNewGame();
-        perft(game, depth, nodes);
+        perft(depth, nodes);
 
         auto end = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -73,7 +59,7 @@ void performPerftTest(Game &game, int maxDepth)
     }
 }
 
-void perturbWeights(std::vector<int> &weights, int maxChange)
+void AiTester::perturbWeights(std::vector<int> &weights, int maxChange)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -87,7 +73,7 @@ void perturbWeights(std::vector<int> &weights, int maxChange)
     }
 }
 
-int playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game)
+int AiTester::playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game) const
 {
     game.startNewGame();
     int moves = 0;
@@ -114,14 +100,13 @@ int playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game)
         return 0;
 }
 
-int runParallelGames(std::vector<int> &weights1, std::vector<int> &weights2)
+int AiTester::runParallelGames(std::vector<int> &weights1, std::vector<int> &weights2) const
 {
     std::vector<std::future<int>> futures;
 
-    // Launch each game simulation in a separate future
     for (int j = 0; j < GAMES_PER_ITERATION; ++j)
     {
-        futures.push_back(std::async(std::launch::async, [weights1, weights2]()
+        futures.push_back(std::async(std::launch::async, [this, weights1, weights2]()
                                      {
             Game game;
             AlphaBetaAI ai1(game);
@@ -131,19 +116,14 @@ int runParallelGames(std::vector<int> &weights1, std::vector<int> &weights2)
             game.startNewGame();
             int score = 0;
 
-            // Run the game twice: once with optimized AI as white, once as black
             score += playTestGame('W', ai1, ai2, game);
 
-            game.startNewGame();  // Reset game for the next simulation
-            
-
-            int black_score = playTestGame('B', ai2, ai1, game);
-            score += black_score;
+            game.startNewGame();
+            score += playTestGame('B', ai2, ai1, game);
 
             return score; }));
     }
 
-    // Collect all results once they are completed
     int totalScore = 0;
     for (auto &fut : futures)
     {
@@ -153,14 +133,13 @@ int runParallelGames(std::vector<int> &weights1, std::vector<int> &weights2)
     return totalScore;
 }
 
-int runParallelGames(std::vector<int> &weights)
+int AiTester::runParallelGames(std::vector<int> &weights)
 {
     std::vector<std::future<int>> futures;
 
-    // Launch each game simulation in a separate future
     for (int j = 0; j < GAMES_PER_ITERATION; ++j)
     {
-        futures.push_back(std::async(std::launch::async, [weights]()
+        futures.push_back(std::async(std::launch::async, [this, weights]()
                                      {
             Game game;
             AlphaBetaAI ai1(game);
@@ -169,15 +148,13 @@ int runParallelGames(std::vector<int> &weights)
             game.startNewGame();
             int score = 0;
 
-            // Run the game twice: once with optimized AI as white, once as black
             score += playTestGame('W', ai1, ai2, game);
-            game.startNewGame();  // Reset game for the next simulation
+            game.startNewGame();
             score += playTestGame('B', ai2, ai1, game);
 
             return score; }));
     }
 
-    // Collect all results once they are completed
     int totalScore = 0;
     for (auto &fut : futures)
     {
@@ -187,23 +164,15 @@ int runParallelGames(std::vector<int> &weights)
     return totalScore;
 }
 
-void localSearch()
-{                                        //0 9 17 13
+void AiTester::localSearch()
+{
     std::vector<int> globalBestWeights = {1, 1, 1, 1, 1, 1};
     double globalBestScore = -20;
 
-    /*
-            {queenAvailableMoves, 37},
-            {opponentQueenAvailableMoves, 55},
-            {tilesOroundOpponentQueen, 58},
-            {tilesOroundQuuen, 40},
-            {blockedTiles, 58},
-            {tilesValueHeuristic, 40},
-    */
-    std::vector<int> weights = {2, 19, 13, 12, 6, 3 };          // Initial heuristic weights
+    std::vector<int> weights = {2, 19, 13, 12, 6, 3};
     double bestScore = -40;
     int i = 0;
-    while ( i < NUM_ITERATIONS)
+    while (i < NUM_ITERATIONS)
     {
         std::cout << "Iteration: " << i << std::endl;
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -215,7 +184,7 @@ void localSearch()
         std::cout << " VS ";
         std::cout << newWeights[0] << " " << newWeights[1] << " " << newWeights[2] << " " << newWeights[3] << " " << newWeights[4] << " " << newWeights[5] << std::endl;
 
-        double score = runParallelGames(weights, newWeights);
+        int score = runParallelGames(weights, newWeights);
 
         std::cout << "Score " << score << std::endl;
         if (score < 0)
@@ -224,7 +193,9 @@ void localSearch()
             std::cout << "New weights: " << weights[0] << " " << weights[1] << " " << weights[2] << " " << weights[3] << std::endl;
             bestScore = score;
             i++;
-        }else{
+        }
+        else
+        {
             i = 0;
         }
 
@@ -248,51 +219,39 @@ void localSearch()
     std::cout << "Global Best Score: " << globalBestScore << std::endl;
 }
 
-void runGameSimulation(std::unique_ptr<Game> &game, std::unique_ptr<AIAlgorithm> &ai1, std::unique_ptr<AIAlgorithm> &ai2)
+void AiTester::runGameSimulation()
 {
     int ai1Wins = 0, ai2Wins = 0, draws = 0;
 
     for (int i = 0; i < NUMBER_OF_GAMES; ++i)
     {
-        game->startNewGame();
+        game.startNewGame();
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         std::vector<std::string> moves;
 
-        for (int j = 0; j < MAX_NUMBER_OF_MOVES && !game->isGameOver(); ++j)
+        for (int j = 0; j < MAX_NUMBER_OF_MOVES && !game.isGameOver(); ++j)
         {
             Action action;
-            if (game->getCurrentTurn() == 'W')
+            if (game.getCurrentTurn() == 'W')
             {
-                action = ai1->getNextMove();
+                action = getNextMove(ai1Type);
                 std::cout << "AI 1: " << action << std::endl;
             }
             else
             {
-                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-                action = ai2->getNextMove();
-                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                action = getNextMove(ai2Type);
                 std::cout << "AI 2: " << action << std::endl;
-                if (ai2->getName() == "AlphaBetaAI")
-                {
-                    std::cout << "Nodes number: " << dynamic_cast<AlphaBetaAI *>(ai2.get())->NodesNumber << std::endl;
-                    std::cout << "Time: " << (end - begin).count() << std::endl;
-                }
-                if (ai2->getName() == "PVS")
-                {
-                    std::cout << "Nodes number: " << dynamic_cast<PVS_AI *>(ai2.get())->NodesNumber << std::endl;
-                    std::cout << "Time: " << (end - begin).count() << std::endl;
-                }
             }
 
-            game->applyAction(action);
-            moves.push_back(game->getLastAction());
+            game.applyAction(action);
+            moves.push_back(game.getLastAction());
             std::cout << "Move: " << moves.back() << std::endl;
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << "Game Time = " << (end - begin).count() << std::endl;
         saveToFile(std::to_string(i), moves);
 
-        std::string result = game->getGameStatus();
+        std::string result = game.getGameStatus();
         if (result == "WHITE_WINS")
             ai1Wins++;
         else if (result == "BLACK_WINS")
@@ -306,45 +265,45 @@ void runGameSimulation(std::unique_ptr<Game> &game, std::unique_ptr<AIAlgorithm>
     std::cout << "Draws: " << draws << std::endl;
 }
 
-void setAi(char *arg, std::unique_ptr<hive::AIAlgorithm> &ai, std::unique_ptr<hive::Game> &game)
+Action hive::AiTester::getNextMove(std::string aiType)
 {
-    if (std::string(arg) == "random")
-        ai = std::make_unique<RandomAIAlgorithm>(*game);
-    else if (std::string(arg) == "alphabeta")
-        ai = std::make_unique<AlphaBetaAI>(*game);
-    else if (std::string(arg) == "pvs")
-        ai = std::make_unique<PVS_AI>(*game);
+    Action action;
+    if (aiType == "random")
+        action = randomAi.getNextMove();
+    else if (aiType == "alphabeta")
+        action = alphaBetaAi.getNextMove();
+    else if (aiType == "pvs")
+        action = pvsAi.getNextMove();
 
-    else
-        throw std::runtime_error("Unknown AI");
+    return action;
+}
+
+void AiTester::setAi(const std::string &arg1, const std::string &arg2)
+{
+    ai1Type = arg1;
+    ai2Type = arg2;
 }
 
 int main(int argc, char *argv[])
 {
-    auto game = std::make_unique<Game>();
+    AiTester tester;
 
     if (argc == 2)
     {
         if (std::string(argv[1]) == "optimize")
-            localSearch();
+            tester.localSearch();
         if (std::string(argv[1]) == "perft")
-            performPerftTest(*game, 6);
+            tester.performPerftTest(6);
     }
     else if (argc == 3)
     {
-        // Run game simulation between two AIs
-        std::unique_ptr<AIAlgorithm> ai1;
-        std::unique_ptr<AIAlgorithm> ai2;
-
-        setAi(argv[1], ai1, game);
-        setAi(argv[2], ai2, game);
-
-        runGameSimulation(game, ai1, ai2);
+        tester.setAi(argv[1], argv[2]);
+        tester.runGameSimulation();
     }
     else
     {
         std::cerr << "Usage: " << argv[0] << " <AI1> <AI2> | optimize" << std::endl;
-        std::cerr << "Implemented AIs: random, alphabeta" << std::endl;
+        std::cerr << "Implemented AIs: random, alphabeta, pvs" << std::endl;
         return 1;
     }
 

@@ -9,4 +9,4 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(GameEngine PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 
 target_link_libraries(GameEngine PUBLIC global_compile_options)
-target_compile_options(GameEngine PRIVATE -O3)
+#target_compile_options(GameEngine PRIVATE -O3)

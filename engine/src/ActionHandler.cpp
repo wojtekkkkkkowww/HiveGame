@@ -25,10 +25,11 @@ namespace hive
         {
             moveTile(action.position, action.newPosition);
         }
-
         return true;
     }
 
+    // MOŻLIWE ŻE TO I TAK NIC NIE DA :) BO TUTAJ TEŻ JEST addEmptyTilesAroundBoard();
+    // to też można ograniczyć
     void ActionHandler::revertAction()
     {
         if (actions.empty())
@@ -50,7 +51,7 @@ namespace hive
             char lastTurn = (currentTurn == 'W') ? 'B' : 'W';
             players[lastTurn]->returnTile(action.tile_type);
         }
-        board.addEmptyTilesAroundBoard();
+      //  board.addEmptyTilesAroundBoard();
     }
 
     void ActionHandler::revertPacedQueen(char tile_type)
@@ -70,6 +71,14 @@ namespace hive
 
     void ActionHandler::genAvailableActions()
     {
+        if(!players['W']->firstMove)
+        {
+            board.addEmptyTilesAroundBoard();
+        }
+        else{
+            board.emptyTiles = {{0, 0}};
+        }
+        
         availableActions.clear();
         if (status == "PLAYING")
         {
@@ -108,9 +117,9 @@ namespace hive
     void ActionHandler::generateMoveActions()
     {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        std::set<Position> articulationPoints = articulationPointFinder.findArticulationPoints();
+        board.articulationPoints = articulationPointFinder.findArticulationPoints();
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        //std::cout << "articulation = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;        
+        // std::cout << "articulation = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
 
         begin = std::chrono::steady_clock::now();
         std::set<Action> moves;
@@ -121,7 +130,7 @@ namespace hive
             {
                 MoveAction action(position, newPosition);
 
-                if (isMoveActionValid(action, articulationPoints))
+                if (isMoveActionValid(action))
                 {
                     availableActions.insert(action);
                     moves.insert(action);
@@ -130,19 +139,19 @@ namespace hive
         }
 
         end = std::chrono::steady_clock::now();
-       // std::cout << "move = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+        // std::cout << "move = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
     }
 
     void ActionHandler::generatePlaceActions()
     {
-        //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        // std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         std::vector<char> types = {'A', 'B', 'G', 'S', 'Q'};
 
         for (const auto &type : types)
         {
             if (players[currentTurn]->getTileCount(type) > 0)
             {
-                for (const auto &position : board.getEmptyTiles())
+                for (const auto &position : board.emptyTiles)
                 {
                     PlaceAction action(position, type);
                     if (isPlaceActionValid(action))
@@ -152,8 +161,8 @@ namespace hive
                 }
             }
         }
-       // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-       // std::cout << "place = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+        // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        // std::cout << "place = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
     }
 
     bool ActionHandler::isPlaceActionValid(const Action &action) const
@@ -183,7 +192,7 @@ namespace hive
         return true;
     }
 
-    bool ActionHandler::isMoveActionValid(const Action &action, const std::set<Position> &articulationPoints) const
+    bool ActionHandler::isMoveActionValid(const Action &action) const
     {
         if (!players[currentTurn]->queenPlaced)
         {
@@ -191,7 +200,7 @@ namespace hive
             return false;
         }
 
-        if (board.isMoveBlocked(action.position, action.newPosition, articulationPoints))
+        if (board.isMoveBlocked(action.position, action.newPosition))
         {
             // std::cerr << "Move blocked" << std::endl;
             return false;
@@ -217,6 +226,7 @@ namespace hive
             players[currentTurn]->queenPlaced = true;
             updateQueenPosition(tile, position);
         }
+        // board.addEmptyTilesAroundBoard();
     }
 
     void ActionHandler::updateQueenPosition(const hive::Tile &tile, const hive::Position &newPosition)

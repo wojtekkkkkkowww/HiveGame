@@ -190,7 +190,7 @@ namespace hive
                 return 0.0;
             }
 
-            return static_cast<int>(state.board.getAvailableMoves('Q', myQueen).size());
+            return static_cast<int>(state.board.getQueenMoves(myQueen).size());
         }
     };
 
