@@ -29,7 +29,7 @@ namespace hive
         void startNewGame();
         void startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn);
         bool applyAction(Action action);
-        void applyValidAction(Action action);
+        inline void applyValidAction(Action action);
         bool applyAction(const std::string& actionString);
         void revertAction(std::set<Action> &actions,std::set<Position> &emptyTiles);
         void revertAction();
@@ -52,4 +52,11 @@ namespace hive
         std::stack<Action> actions;
         std::vector<std::string> actionStrings; 
     };
+
+    inline void Game::applyValidAction(Action action)
+    {
+        actionHandler.applyAction(action);
+        turnManager.nextTurn();
+    }
+    
 }

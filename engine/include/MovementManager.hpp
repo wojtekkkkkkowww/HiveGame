@@ -22,6 +22,9 @@ namespace hive
         std::set<Position> getGrasshopperMoves(Position position) const;
         std::set<Position> getBeetleMoves(Position position) const;
         std::set<Position> getQueenMoves(Position position) const;
+
+        std::map<Position,std::set<Position>> antMoves;    
+
     };
 
 }

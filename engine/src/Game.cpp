@@ -63,23 +63,20 @@ namespace hive
         return false;
     }
 
-    void Game::applyValidAction(Action action)
-    {
-        actionHandler.applyAction(action);
-        turnManager.nextTurn();
-    }
-
     bool Game::applyAction(const std::string &actionString)
     {
+        Action action;
         actionStrings.push_back(actionString);
-        Action action = actionParser.stringToAction(actionString);
+        action = actionParser.stringToAction(actionString);
 
         if (actionHandler.applyAction(action))
         {
             turnManager.nextTurn();
             actionHandler.genAvailableActions();
+            
             return true;
         }
+        
         return false;
     }
 

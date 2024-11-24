@@ -21,13 +21,12 @@ namespace hive
 
     Action AlphaBetaAI::getNextMove()
     {
-        //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
         player = game.getCurrentTurn();
         int alpha = negative_infinity;
         int beta = infinity;
         NodesNumber = 0;
 
-        // win in one move
         auto availableActions = game.avaliableActions;
         auto emptyTiles = game.board.emptyTiles;
         for (const auto &action : availableActions)
@@ -40,19 +39,14 @@ namespace hive
             if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
             {
                 game.revertAction(availableActions, emptyTiles);
-                //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-                //std::cout << "getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
 
                 return action;
             }
             game.revertAction(availableActions, emptyTiles);
         }
 
-        // std::cout << "Branching factor: " << game.avaliableActions.size() << std::endl;
-        // maxValue(alpha, beta, maxDepth).second;
         Action bestMove = maxValue(alpha, beta, maxDepth).second;
-        //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        //std::cout << "getNextMove: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+
         return bestMove;
     }
 
@@ -68,10 +62,9 @@ namespace hive
 
     std::pair<int, Action> AlphaBetaAI::maxValue(int alpha, int beta, int depth)
     {
-        //   std::cout << "deep: " << depth << std::endl;
+
         NodesNumber += 1;
 
-        //  std::cout << "ENTER MAX " << depth << std::endl;
         if (game.isGameOver() || depth == 0)
         {
             return {evaluate(), Action()};
@@ -88,10 +81,10 @@ namespace hive
         {
             game.applyValidAction(action);
             int v2 = minValue(alpha, beta, depth - 1).first;
-            game.revertAction(actions,emptyTiles);
+            game.revertAction(actions, emptyTiles);
             if (v2 > v)
             {
-                // std::cout << "MAX v2: " << v2 << std::endl;
+
                 v = v2;
                 bestMove = action;
                 alpha = std::max(alpha, v);
@@ -99,7 +92,7 @@ namespace hive
 
             if (v >= beta)
             {
-                //       std::cout << "beta puring" << std::endl;
+
                 break;
             }
         }
@@ -109,7 +102,7 @@ namespace hive
     std::pair<int, Action> AlphaBetaAI::minValue(int alpha, int beta, int depth)
     {
         NodesNumber += 1;
-        //   std::cout << "ENTER MIN " << depth  << std::endl;
+
         if (game.isGameOver() || depth == 0)
         {
             return {evaluate(), Action()};
@@ -128,18 +121,18 @@ namespace hive
         {
             game.applyValidAction(action);
             int v2 = maxValue(alpha, beta, depth - 1).first;
-            game.revertAction(actions,emptyTiles);
+            game.revertAction(actions, emptyTiles);
             if (v2 < v)
             {
                 v = v2;
-                //       std::cout << "MIN v: " << v << std::endl;
+
                 bestMove = action;
                 beta = std::min(beta, v);
             }
 
             if (v <= alpha)
             {
-                //     std::cout << "alpha puring" << std::endl;
+
                 break;
             }
         }

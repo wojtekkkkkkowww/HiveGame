@@ -138,5 +138,6 @@ TEST_F(ActionGeneratorTest, SecondMove)
     int piecesLeft = 5 - 1;
     int avaliablePositions = 3;
     int avaliableQueenMoves = 2;
+   
     ASSERT_EQ(avaliableActions.size(), piecesLeft * avaliablePositions + avaliableQueenMoves);
 }

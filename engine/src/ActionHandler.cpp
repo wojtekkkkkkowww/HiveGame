@@ -25,11 +25,10 @@ namespace hive
         {
             moveTile(action.position, action.newPosition);
         }
+        
         return true;
     }
 
-    // MOŻLIWE ŻE TO I TAK NIC NIE DA :) BO TUTAJ TEŻ JEST addEmptyTilesAroundBoard();
-    // to też można ograniczyć
     void ActionHandler::revertAction()
     {
         if (actions.empty())
@@ -51,7 +50,6 @@ namespace hive
             char lastTurn = (currentTurn == 'W') ? 'B' : 'W';
             players[lastTurn]->returnTile(action.tile_type);
         }
-      //  board.addEmptyTilesAroundBoard();
     }
 
     void ActionHandler::revertPacedQueen(char tile_type)
@@ -71,14 +69,15 @@ namespace hive
 
     void ActionHandler::genAvailableActions()
     {
-        if(!players['W']->firstMove)
+        if (!players['W']->firstMove)
         {
             board.addEmptyTilesAroundBoard();
         }
-        else{
+        else
+        {
             board.emptyTiles = {{0, 0}};
         }
-        
+
         availableActions.clear();
         if (status == "PLAYING")
         {
@@ -116,16 +115,24 @@ namespace hive
 
     void ActionHandler::generateMoveActions()
     {
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        board.articulationPoints = articulationPointFinder.findArticulationPoints();
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        // std::cout << "articulation = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+        if (!players[currentTurn]->queenPlaced)
+        {
+            return;
+        }
 
-        begin = std::chrono::steady_clock::now();
+        board.articulationPoints = articulationPointFinder.findArticulationPoints();
+        board.antMoves.clear();
+
         std::set<Action> moves;
         for (const auto &position : board.getPlayerTiles(currentTurn))
         {
             const auto &tile = board.getTile(position);
+            
+            if(board.articulationPoints.find(position) != board.articulationPoints.end())
+            {
+                continue;
+            }
+
             for (const auto &newPosition : board.getAvailableMoves(tile.type, position))
             {
                 MoveAction action(position, newPosition);
@@ -137,75 +144,14 @@ namespace hive
                 }
             }
         }
-
-        end = std::chrono::steady_clock::now();
-        // std::cout << "move = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-    }
-
-    void ActionHandler::generatePlaceActions()
-    {
-        // std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        std::vector<char> types = {'A', 'B', 'G', 'S', 'Q'};
-
-        for (const auto &type : types)
-        {
-            if (players[currentTurn]->getTileCount(type) > 0)
-            {
-                for (const auto &position : board.emptyTiles)
-                {
-                    PlaceAction action(position, type);
-                    if (isPlaceActionValid(action))
-                    {
-                        availableActions.insert(action);
-                    }
-                }
-            }
-        }
-        // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        // std::cout << "place = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-    }
-
-    bool ActionHandler::isPlaceActionValid(const Action &action) const
-    {
-
-        // if (players[currentTurn]->getTileCount(action.tile_type) == 0)
-        // {
-        //     // std::cerr << "No tiles of this type" << std::endl;
-        //     return false;
-        // }
-
-        if (!players[currentTurn]->queenPlaced && players[currentTurn]->turnCounter >= 3)
-        {
-            if (action.tile_type != 'Q')
-            {
-                // std::cerr << "Queen not placed after 3 move" << std::endl;
-                return false;
-            }
-        }
-
-        if (board.isOccupiedByOpponent(action.newPosition, currentTurn) && !players[currentTurn]->firstMove)
-        {
-            // std::cerr << "New position Occupied by opponent" << std::endl;
-            return false;
-        }
-
-        return true;
     }
 
     bool ActionHandler::isMoveActionValid(const Action &action) const
     {
-        if (!players[currentTurn]->queenPlaced)
-        {
-            // std::cerr << "Queen not placed" << std::endl;
-            return false;
-        }
-
         if (board.isMoveBlocked(action.position, action.newPosition))
         {
-            // std::cerr << "Move blocked" << std::endl;
             return false;
         }
-        // std::cerr << "Move correct" << std::endl;
         return true;
     }
 
@@ -239,6 +185,49 @@ namespace hive
         if (tile.color == 'B' && tile.type == 'Q')
         {
             board.blackQueen = newPosition;
+        }
+    }
+
+    void ActionHandler::generatePlaceActions()
+    {
+        std::set<char> availableTypes;
+        getAvailableTypes(availableTypes);
+
+        std::set<Position> avaliablePositions;
+
+        for (const auto &position : board.emptyTiles)
+        {
+            if (isPlaceActionValid(position))
+            {
+                avaliablePositions.insert(position);
+            }
+        }
+
+        for (const auto &type : availableTypes)
+        {
+            for (const auto &position : avaliablePositions)
+            {
+                PlaceAction action(position, type);
+                availableActions.insert(action);
+            }
+        }
+    }
+
+    void ActionHandler::getAvailableTypes(std::set<char> &availableTypes) const
+    {
+        if (!players[currentTurn]->queenPlaced && players[currentTurn]->turnCounter >= 3)
+        {
+            availableTypes.insert('Q');
+        }
+        else
+        {
+            for (const auto &type : types)
+            {
+                if (players[currentTurn]->getTileCount(type) > 0)
+                {
+                    availableTypes.insert(type);
+                }
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ add_subdirectory(gameViewer)
 
 
 add_library(global_compile_options INTERFACE)
-target_compile_options(global_compile_options INTERFACE -Wall -Wextra -Wpedantic -Werror -std=c++17 -O2 -g)
+target_compile_options(global_compile_options INTERFACE -Wall -Wextra -Wpedantic -Werror -std=c++17 -O3)
 
 
 #add_compile_options(

@@ -54,6 +54,11 @@ void BoardDrawable::updateBoardTiles()
         hex.setOffset(offset);
         hex.setTile(tile, textures);
 
+        if(board.articulationPoints.find(lastPosition) != board.articulationPoints.end())
+        {
+            hex.highlight(sf::Color::Green);
+        }
+
         if (lastPosition == selectedPosition && tile.color == player)
         {
             auto nextIt = std::next(it);

@@ -10,56 +10,35 @@ namespace hive
     ArticulationPointFinder::ArticulationPointFinder(const MoveValidator &val)
         : val(val) {}
 
-    std::vector<Position> ArticulationPointFinder::getNeighbours(Position position) const
-    {
-        std::vector<Position> neighbours;
-        for (const Position &ng : val.getNeighbours(position))
-        {
-            if (!val.isEmpty(ng))
-            {
-                neighbours.push_back(ng);
-            }
-        }
-
-        return neighbours;
-    }
-
     void ArticulationPointFinder::dfsAP(Position u, Position parent)
     {
-        visited[u] = true;
+        visited.insert(u);
         disc[u] = low[u] = ++time;
         int children = 0;
-        // print(u, "u: ");
 
-        for (const Position &v : getNeighbours(u))
+        for (const auto &d : directions)
         {
-            if (!visited[v])
-            {
-                // print(v, "v: ");
+            Position v = u + d;
+            if (val.isEmpty(v))
+                continue;
 
+            if (visited.find(v) == visited.end())
+            {
                 children++;
                 dfsAP(v, u);
 
-                low[u] = std::min(low[u], low[v]);
-
-                if (parent != invalidPosition && low[v] >= disc[u])
-                {
-                    // print(u, "AP: ");
-                    ap[u] = true;
-                }
+                // Post-recursion processing for `u` and `v`
+                updateLowAndCheckAP(u, v, parent);
             }
             else if (v != parent)
             {
-                // print(v, "no parent: ");
-                low[u] = std::min(low[u], disc[v]);
+                // Back edge processing
+                updateLowForBackEdge(u, v);
             }
         }
 
-        if (parent == invalidPosition && children > 1)
-        {
-            // print(u, "ap: ");
-            ap[u] = true;
-        }
+        // Root-specific articulation point check
+        checkRootAP(u, parent, children);
     }
 
     std::set<Position> ArticulationPointFinder::findArticulationPoints()
@@ -71,32 +50,15 @@ namespace hive
             return {};
         }
 
-        // for (const Position &tile : tiles)
-        // {
-        //     if (!visited[tile])
-        //     {
-
-        // for (const Position &pos : tiles)
-        // {
-        //
-        // }
-
-        // print(tiles[3]);
-        dfsAP(tiles[3], invalidPosition);
-        //     // }
-        // }
+        dfsAP(tiles.at(0), invalidPosition);
 
         std::set<Position> articulationPoints;
-        for (const auto &[position, isAP] : ap)
+        for (const auto &position : ap)
         {
-            if (isAP)
-            {
-                // if there are more than one tile on the position, it is not an articulation point
-                if (val.getLevel(position) > 1)
-                    continue;
+            if (val.getLevel(position) > 1)
+                continue;
 
-                articulationPoints.insert(position);
-            }
+            articulationPoints.insert(position);
         }
 
         return articulationPoints;
@@ -115,8 +77,6 @@ namespace hive
         {
             disc[tile] = 0;
             low[tile] = 0;
-            ap[tile] = false;
-            visited[tile] = false;
         }
         time = 0;
     }

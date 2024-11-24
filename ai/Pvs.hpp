@@ -19,10 +19,10 @@ namespace hive
         static constexpr int maxDepth = 3;
         static constexpr const char *name = "PVS";
         
-        QueenAvailableMoves queenAvailableMoves;
-        OpponentQueenAvailableMoves opponentQueenAvailableMoves;
-        TilesOroundOpponentQueen tilesOroundOpponentQueen;
-        TilesOroundQuuen tilesOroundQuuen;
+        // QueenAvailableMoves queenAvailableMoves;
+        // OpponentQueenAvailableMoves opponentQueenAvailableMoves;
+        // TilesOroundOpponentQueen tilesOroundOpponentQueen;
+        // TilesOroundQuuen tilesOroundQuuen;
         BlockedTiles blockedTiles;
         TilesValueHeuristic tilesValueHeuristic;
         WinLoseHeuristic winLoseHeuristic;
@@ -30,7 +30,7 @@ namespace hive
         std::vector<std::pair<Heuristic&, int>> heuristics = {
           //  {queenAvailableMoves, 1},
           //  {opponentQueenAvailableMoves, 1},
-            {tilesOroundOpponentQueen, 100},
+       //     {tilesOroundOpponentQueen, 100},
          //   {tilesOroundQuuen, 1},
          //   {blockedTiles, 1},
           //  {tilesValueHeuristic, 2},

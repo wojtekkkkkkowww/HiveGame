@@ -189,8 +189,19 @@ namespace hive
         Action createAction(const std::string &tileNotation, const std::string &destinationNotation,
                             const std::string &direction, const std::string &side) const
         {
-            Tile tile = board.getTileByNotation(tileNotation);
-            Tile destinationTile = board.getTileByNotation(destinationNotation);
+            Tile tile;
+            Tile destinationTile;
+            try{
+                std::cout << "tileNotation: " << tileNotation << std::endl;
+                std::cout << "destinationNotation: " << destinationNotation << std::endl;
+            tile = board.getTileByNotation(tileNotation);
+            destinationTile = board.getTileByNotation(destinationNotation);
+            }catch(...){
+                std::cerr << "Error in createAction" << std::endl;
+                for(auto &[key,position] : board.positions){
+                    std::cout << key << std::endl;
+                }
+            }
             Position position = calculatePosition(destinationTile.position, direction, side);
             return Action(tile, position);
         }

@@ -31,7 +31,6 @@ hive::Tile hive::Player::takeTile(char type)
         os << color << type << getUnplacedPieceNumber(type);
     }
     std::string notation = os.str();
-
     return Tile(notation);
 }
 

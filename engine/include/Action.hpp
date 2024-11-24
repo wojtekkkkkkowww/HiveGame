@@ -5,7 +5,6 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <iostream>
-#include <functional>
 #include "Tile.hpp"
 #include "Position.hpp"
 
@@ -101,22 +100,6 @@ namespace hive
             return os;
         }
     };
-
-    struct ActionHash
-    {
-        std::size_t operator()(const Action &action) const
-        {
-            std::size_t h1 = std::hash<std::string>()(action.type);
-            std::size_t h2 = std::hash<char>()(action.tile_type);
-            std::size_t h3 = PositionHash()(action.position);
-            std::size_t h4 = PositionHash()(action.newPosition);
-
-            return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
-        }
-    };
-
-    using ActionSet = std::unordered_set<hive::Action, hive::ActionHash>;
-    using ActionMap = std::unordered_map<hive::Action, int, hive::ActionHash>;
 
     struct MoveAction : public Action
     {

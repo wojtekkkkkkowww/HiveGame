@@ -26,12 +26,13 @@ namespace hive
     private:
         void revertPacedQueen(char tile_type);
         void generateMoveActions();
-        void generatePlaceActions();
-        bool isPlaceActionValid(const Action &action) const;
         bool isMoveActionValid(const Action &action) const;
         void moveTile(Position position, Position newPosition);
         void placeTile(Position position, char type);
         void updateQueenPosition(const Tile &tile, const Position &newPosition);
+        void generatePlaceActions();
+        inline bool isPlaceActionValid(const Position &position) const;
+        void getAvailableTypes(std::set<char> &availableTypes) const;
 
         Board &board;
         std::map<char, Player *> &players;
@@ -40,8 +41,11 @@ namespace hive
         std::stack<Action> &actions;
         std::set<Action> &availableActions; // consider not copying this
         ArticulationPointFinder articulationPointFinder;
-
-        // this could be defined in game i think it would be better plave
-        // here just reference to it
+        constexpr static std::array<char, 5> types = {'A', 'B', 'G', 'S', 'Q'};
     };
+
+    inline bool ActionHandler::isPlaceActionValid(const Position &position) const
+    {
+        return !(board.isOccupiedByOpponent(position, currentTurn) && !players[currentTurn]->firstMove);
+    }
 }

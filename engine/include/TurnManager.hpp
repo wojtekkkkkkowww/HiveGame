@@ -14,11 +14,12 @@ namespace hive
     class TurnManager
     {
     public:
-        TurnManager(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &gameStatus);
+        TurnManager(Board &board, std::map<char, Player*> &players, char &currentTurn, std::string &status)
+        : board(board), players(players), currentTurn(currentTurn), gameStatus(status) {}
 
-        void nextTurn();
-        void updateGameStatus();
-        void revertTurn();
+        inline void nextTurn();
+        inline void updateGameStatus();
+        inline void revertTurn();
 
     private:
         Board &board;
@@ -26,4 +27,47 @@ namespace hive
         char &currentTurn;
         std::string &gameStatus;
     };
+
+    inline void TurnManager::nextTurn()
+    {
+        players[currentTurn]->firstMove = false;
+        players[currentTurn]->turnCounter++;
+        currentTurn = (currentTurn == 'W') ? 'B' : 'W';
+        updateGameStatus();
+    }
+
+    inline void TurnManager::revertTurn()
+    {
+        currentTurn = (currentTurn == 'W') ? 'B' : 'W';
+        updateGameStatus();
+        players[currentTurn]->turnCounter--;
+
+        if (players[currentTurn]->turnCounter == 0)
+        {
+            players[currentTurn]->firstMove = true;
+        }
+    }
+
+    inline void TurnManager::updateGameStatus()
+    {
+        bool whiteQueenSurrounded = board.isQueenSurrounded('W');
+        bool blackQueenSurrounded = board.isQueenSurrounded('B');
+
+        if (whiteQueenSurrounded && blackQueenSurrounded)
+        {
+            gameStatus = "DRAW";
+        }
+        else if (whiteQueenSurrounded)
+        {
+            gameStatus = "BLACK_WINS";
+        }
+        else if (blackQueenSurrounded)
+        {
+            gameStatus = "WHITE_WINS";
+        }
+        else
+        {
+            gameStatus = "PLAYING";
+        }
+    }
 }

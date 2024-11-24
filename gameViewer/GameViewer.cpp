@@ -96,6 +96,7 @@ void GameViewer::handleNextMove()
 {
     if (currentMoveIndex < moves.size())
     {
+        
         if (game->applyAction(moves[currentMoveIndex]))
         {
             std::cerr << "move applyed "<< currentMoveIndex << std::endl;
@@ -108,6 +109,8 @@ void GameViewer::handleNextMove()
             
             std::cerr << "Failed to apply next move: " << currentMoveIndex  << std::endl;
         }
+
+
     }else{
         std::cerr << "No more moves" << std::endl;
     }

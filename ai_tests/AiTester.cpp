@@ -10,7 +10,7 @@
 using namespace hive;
 
 const int NUM_ITERATIONS = 20;
-const int GAMES_PER_ITERATION = 2;
+const int GAMES_PER_ITERATION = 20;
 
 AiTester::AiTester()
     : game(),
@@ -27,21 +27,26 @@ void AiTester::perft(int depth, long long &nodes)
     }
     game.genAvailableActions();
     auto actions = game.avaliableActions;
+    
     auto emptyTiles = game.board.emptyTiles;
 
-
+    int i = 0;
     for (const auto &action : actions)
     {
+        // if(i > 5){
+        //    break;
+        // }
         game.applyValidAction(action);
         perft(depth - 1, nodes);
         game.revertAction(actions, emptyTiles);
+        i++;
     }
 }
 
 void AiTester::performPerftTest(int maxDepth)
 {
     std::cout << "Depth & Time (ms) & Nodes & Nodes/s \\\\" << std::endl;
-    for (int depth = 1; depth <= maxDepth; ++depth)
+    for (int depth = 2; depth <= maxDepth; ++depth)
     {
         long long nodes = 0;
         auto start = std::chrono::steady_clock::now();
@@ -166,10 +171,7 @@ int AiTester::runParallelGames(std::vector<int> &weights)
 
 void AiTester::localSearch()
 {
-    std::vector<int> globalBestWeights = {1, 1, 1, 1, 1, 1};
-    double globalBestScore = -20;
-
-    std::vector<int> weights = {2, 19, 13, 12, 6, 3};
+    std::vector<int> weights = {1, 1, 1, 1};
     double bestScore = -40;
     int i = 0;
     while (i < NUM_ITERATIONS)
@@ -180,23 +182,23 @@ void AiTester::localSearch()
         std::vector<int> newWeights = weights;
         perturbWeights(newWeights, 5);
 
-        std::cout << weights[0] << " " << weights[1] << " " << weights[2] << " " << weights[3] << " " << weights[4] << " " << weights[5];
+        std::cout << weights[0] << " " << weights[1] << " " << weights[2] << " " << weights[3];
         std::cout << " VS ";
-        std::cout << newWeights[0] << " " << newWeights[1] << " " << newWeights[2] << " " << newWeights[3] << " " << newWeights[4] << " " << newWeights[5] << std::endl;
+        std::cout << newWeights[0] << " " << newWeights[1] << " " << newWeights[2] << " " << newWeights[3] << std::endl;
 
-        int score = runParallelGames(weights, newWeights);
+        int score = runParallelGames(newWeights);
 
         std::cout << "Score " << score << std::endl;
-        if (score < 0)
+        if (score > bestScore)
         {
             weights = newWeights;
             std::cout << "New weights: " << weights[0] << " " << weights[1] << " " << weights[2] << " " << weights[3] << std::endl;
             bestScore = score;
-            i++;
+            i = 0;
         }
         else
         {
-            i = 0;
+            i++;
         }
 
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -210,13 +212,6 @@ void AiTester::localSearch()
     }
     std::cout << std::endl;
     std::cout << "Best Score: " << bestScore << std::endl;
-
-    for (int weight : globalBestWeights)
-    {
-        std::cout << weight << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "Global Best Score: " << globalBestScore << std::endl;
 }
 
 void AiTester::runGameSimulation()
@@ -293,7 +288,7 @@ int main(int argc, char *argv[])
         if (std::string(argv[1]) == "optimize")
             tester.localSearch();
         if (std::string(argv[1]) == "perft")
-            tester.performPerftTest(6);
+            tester.performPerftTest(10);
     }
     else if (argc == 3)
     {
