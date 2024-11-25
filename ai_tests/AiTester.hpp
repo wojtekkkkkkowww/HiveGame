@@ -22,6 +22,7 @@ namespace hive
         void performPerftTest(int maxDepth);
         void runGameSimulation();
         void setAi(const std::string &arg1, const std::string &arg2);
+        void performRandomMoves(int, int);
         Action getNextMove(std::string aiType);
         
     private:

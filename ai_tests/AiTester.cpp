@@ -279,16 +279,59 @@ void AiTester::setAi(const std::string &arg1, const std::string &arg2)
     ai2Type = arg2;
 }
 
+void AiTester::performRandomMoves(int iterations, int epochs)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::vector<std::vector<int>> branchingFactorSum(epochs, std::vector<int>(iterations, 0));
+    for (int epoch = 0; epoch < epochs; ++epoch)
+    {
+        game.startNewGame();
+        for (int i = 0; i < iterations; ++i)
+        {
+            if (game.isGameOver())
+            {
+                std::cerr << "Game Over" << std::endl;
+                break;
+            }
+
+            game.genAvailableActions();
+            auto actions = game.avaliableActions;
+            branchingFactorSum[epoch][i] = actions.size();
+
+            if (actions.empty())
+                break;
+
+            std::uniform_int_distribution<> dis(0, actions.size() - 1);
+            auto it = std::next(actions.begin(), dis(gen));
+            game.applyValidAction(*it);
+        }
+    }
+
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < epochs; ++j)
+        {
+            std::cout << branchingFactorSum[j][i] << " ";
+        }
+        std::cout << std::endl;
+    }
+    
+}
+
+
 int main(int argc, char *argv[])
 {
     AiTester tester;
-
     if (argc == 2)
     {
         if (std::string(argv[1]) == "optimize")
             tester.localSearch();
         if (std::string(argv[1]) == "perft")
             tester.performPerftTest(10);
+        if (std::string(argv[1]) == "bf")
+            tester.performRandomMoves(100,30);
     }
     else if (argc == 3)
     {
