@@ -15,7 +15,7 @@ namespace hive
     class ActionHandler
     {
     public:
-        ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions);
+        ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::vector<Action> &availableActions);
         bool applyAction(Action action);
         void revertAction();
         void genAvailableActions();
@@ -39,7 +39,7 @@ namespace hive
         char &currentTurn;
         std::string &status;
         std::stack<Action> &actions;
-        std::set<Action> &availableActions; // consider not copying this
+        std::vector<Action> &availableActions; // consider not copying this
         ArticulationPointFinder articulationPointFinder;
         constexpr static std::array<char, 5> types = {'A', 'B', 'G', 'S', 'Q'};
     };

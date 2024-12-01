@@ -19,15 +19,15 @@ public:
         startNewGame();
         board.setBoardTiles(tiles);
         
-        std::set<Position> articulationPoints = articulationPointFinder.findArticulationPoints();
-        EXPECT_EQ(articulationPoints, expectedPositions);
-        if (articulationPoints == expectedPositions)
+        articulationPointFinder.findArticulationPoints();
+        EXPECT_EQ(board.articulationPoints, expectedPositions);
+        if (board.articulationPoints == expectedPositions)
         {
             std::cerr << "correct check \n";
         }
         else
         {
-            for (auto &pos : articulationPoints)
+            for (auto &pos : board.articulationPoints)
             {
                 std::cerr << "articulation point: " << pos.x << " " << pos.y << std::endl;
             }

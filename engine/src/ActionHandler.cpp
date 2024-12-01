@@ -2,10 +2,11 @@
 #include "ActionHandler.hpp"
 #include <iostream>
 #include <chrono>
+#include <algorithm>
 
 namespace hive
 {
-    ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::set<Action> &availableActions)
+    ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn, std::string &status, std::stack<Action> &actions, std::vector<Action> &availableActions)
         : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions), availableActions(availableActions), articulationPointFinder(board) {}
 
     bool ActionHandler::applyAction(Action action)
@@ -85,14 +86,14 @@ namespace hive
             generateMoveActions();
             if (availableActions.empty())
             {
-                availableActions.insert(WaitAction());
+                availableActions.push_back(WaitAction());
             }
         }
     }
 
     bool ActionHandler::isActionValid(const Action &action) const
     {
-        return availableActions.find(action) != availableActions.end();
+        return std::find(availableActions.begin(), availableActions.end(), action) != availableActions.end();
     }
 
     void ActionHandler::reset()
@@ -120,7 +121,7 @@ namespace hive
             return;
         }
 
-        board.articulationPoints = articulationPointFinder.findArticulationPoints();
+        articulationPointFinder.findArticulationPoints();
         board.antMoves.clear();
 
         std::set<Action> moves;
@@ -139,7 +140,7 @@ namespace hive
 
                 if (isMoveActionValid(action))
                 {
-                    availableActions.insert(action);
+                    availableActions.push_back(action);
                     moves.insert(action);
                 }
             }
@@ -208,7 +209,7 @@ namespace hive
             for (const auto &position : avaliablePositions)
             {
                 PlaceAction action(position, type);
-                availableActions.insert(action);
+                availableActions.push_back(action);
             }
         }
     }

@@ -16,14 +16,13 @@ namespace hive
     class ArticulationPointFinder
     {
     public:
-        ArticulationPointFinder(const MoveValidator &val);
+        ArticulationPointFinder(MoveValidator &val);
 
-        std::set<Position> findArticulationPoints();
-
+        void findArticulationPoints();
         void prepareData();
 
     private:
-        const MoveValidator &val;
+        MoveValidator &val;
 
         std::vector<Position> tiles;
         std::map<Position, int> disc;

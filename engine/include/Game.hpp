@@ -31,7 +31,7 @@ namespace hive
         bool applyAction(Action action);
         inline void applyValidAction(Action action);
         bool applyAction(const std::string& actionString);
-        void revertAction(std::set<Action> &actions,std::set<Position> &emptyTiles);
+        void revertAction(std::vector<Action> &actions,std::set<Position> &emptyTiles);
         void revertAction();
         void genAvailableActions();
         bool isGameOver() const;
@@ -39,7 +39,7 @@ namespace hive
         std::string getGameStatus() const;
         std::string getLastAction() const;
 
-        std::set<Action> avaliableActions;
+        std::vector<Action> avaliableActions;
         Board board;
         char currentTurn;
         std::map<char, Player*> players;

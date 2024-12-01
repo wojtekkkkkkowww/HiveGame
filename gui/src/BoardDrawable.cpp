@@ -56,7 +56,7 @@ void BoardDrawable::updateBoardTiles()
 
         if(board.articulationPoints.find(lastPosition) != board.articulationPoints.end())
         {
-            hex.highlight(sf::Color::Green);
+        //    hex.highlight(sf::Color::Green);
         }
 
         if (lastPosition == selectedPosition && tile.color == player)
@@ -78,7 +78,6 @@ void BoardDrawable::updateBoardTiles()
 
 void BoardDrawable::updateEmptyTiles()
 {
-    board.addEmptyTilesAroundBoard();
     for (const auto &emptyPosition : board.emptyTiles)
     {
         HexDrawable hex(0.95f * hexSize);
@@ -100,7 +99,7 @@ void BoardDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) cons
         sf::Text text = getPositionText(hex.tilePosition.x, hex.tilePosition.y);
         sf::Vector2f pos = hex.getPosition();
         text.setPosition(pos.x - 10, pos.y - 10);
-        target.draw(text, states);
+        //target.draw(text, states);
     }
 }
 

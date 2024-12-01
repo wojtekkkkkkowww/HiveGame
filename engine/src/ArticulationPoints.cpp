@@ -7,7 +7,7 @@
 
 namespace hive
 {
-    ArticulationPointFinder::ArticulationPointFinder(const MoveValidator &val)
+    ArticulationPointFinder::ArticulationPointFinder(MoveValidator &val)
         : val(val) {}
 
     void ArticulationPointFinder::dfsAP(Position u, Position parent)
@@ -41,33 +41,30 @@ namespace hive
         checkRootAP(u, parent, children);
     }
 
-    std::set<Position> ArticulationPointFinder::findArticulationPoints()
+    void ArticulationPointFinder::findArticulationPoints()
     {
         prepareData();
 
         if (tiles.size() == 0)
         {
-            return {};
+            return;
         }
 
         dfsAP(tiles.at(0), invalidPosition);
 
-        std::set<Position> articulationPoints;
-        for (const auto &position : ap)
+        for (auto &position : ap)
         {
             if (val.getLevel(position) > 1)
                 continue;
 
-            articulationPoints.insert(position);
+            val.articulationPoints.insert(position);
         }
-
-        return articulationPoints;
     }
 
     void ArticulationPointFinder::prepareData()
     {
-        tiles = val.getPositions();
-
+        tiles = val.getPositions(); //possible improve
+        val.articulationPoints.clear();
         disc.clear();
         low.clear();
         ap.clear();

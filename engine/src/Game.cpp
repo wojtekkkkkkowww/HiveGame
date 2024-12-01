@@ -95,7 +95,7 @@ namespace hive
         actionHandler.genAvailableActions();
     }
 
-    void Game::revertAction(std::set<Action> &actions, std::set<Position> &emptyTiles)
+    void Game::revertAction(std::vector<Action> &actions, std::set<Position> &emptyTiles)
     {
         if (!actionStrings.empty())
             actionStrings.pop_back();

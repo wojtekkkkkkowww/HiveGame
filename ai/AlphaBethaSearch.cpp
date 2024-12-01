@@ -11,9 +11,9 @@ namespace hive
     /*
     SET WEIGHTS FOR HE without winLoseHeuristic
     */
-    void AlphaBetaAI::setHeuristicWeights(std::vector<int> weights)
+    void AlphaBetaAI::setHeuristicWeights(std::vector<double> weights)
     {
-        for (size_t i = 0; i < weights.size() - 1; i++)
+        for (size_t i = 0; i < weights.size(); i++)
         {
             heuristics[i].second = weights[i];
         }
@@ -23,8 +23,9 @@ namespace hive
     {
 
         player = game.getCurrentTurn();
-        int alpha = negative_infinity;
-        int beta = infinity;
+        playerString = player == 'W' ? "WHITE" : "BLACK";
+        double alpha = negative_infinity;
+        double beta = infinity;
         NodesNumber = 0;
 
         auto availableActions = game.avaliableActions;
@@ -35,7 +36,6 @@ namespace hive
                 continue;
 
             game.applyValidAction(action);
-            std::string playerString = player == 'W' ? "WHITE" : "BLACK";
             if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
             {
                 game.revertAction(availableActions, emptyTiles);
@@ -50,41 +50,50 @@ namespace hive
         return bestMove;
     }
 
-    int AlphaBetaAI::evaluate() const
+    double AlphaBetaAI::evaluate() const
     {
-        int totalScore = 0.0;
+        double totalScore = 0.0;
         for (const auto &[heuristic, weight] : heuristics)
         {
-            totalScore += weight * heuristic.evaluate(game, player);
+            totalScore += weight * static_cast<double>(heuristic.evaluate(game, player));
         }
         return totalScore;
     }
 
-    std::pair<int, Action> AlphaBetaAI::maxValue(int alpha, int beta, int depth)
+    std::pair<double, Action> AlphaBetaAI::maxValue(double alpha, double beta, int depth)
     {
 
         NodesNumber += 1;
 
         if (game.isGameOver() || depth == 0)
         {
+            if(game.isGameOver())
+            {
+                if(game.getGameStatus() == playerString + "_WINS")
+                    return {infinity, Action()};
+                else if(game.getGameStatus() == "DRAW")
+                    return {0.0, Action()};
+                else 
+                    return {negative_infinity, Action()};
+            }
             return {evaluate(), Action()};
         }
 
-        int v = negative_infinity;
+        double v = negative_infinity;
         Action bestMove;
 
         game.genAvailableActions();
         auto actions = game.avaliableActions;
+        std::shuffle(actions.begin(), actions.end(), randomGenerator);
         auto emptyTiles = game.board.emptyTiles;
 
         for (const auto &action : actions)
         {
             game.applyValidAction(action);
-            int v2 = minValue(alpha, beta, depth - 1).first;
+            double v2 = minValue(alpha, beta, depth - 1).first;
             game.revertAction(actions, emptyTiles);
             if (v2 > v)
             {
-
                 v = v2;
                 bestMove = action;
                 alpha = std::max(alpha, v);
@@ -99,28 +108,38 @@ namespace hive
         return {v, bestMove};
     }
 
-    std::pair<int, Action> AlphaBetaAI::minValue(int alpha, int beta, int depth)
+    std::pair<double, Action> AlphaBetaAI::minValue(double alpha, double beta, int depth)
     {
         NodesNumber += 1;
 
         if (game.isGameOver() || depth == 0)
         {
+            if(game.isGameOver())
+            {
+                if(game.getGameStatus() == playerString + "_WINS")
+                    return {infinity, Action()};
+                else if(game.getGameStatus() == "DRAW")
+                    return {0.0, Action()};
+                else 
+                    return {negative_infinity, Action()};
+            }
             return {evaluate(), Action()};
         }
 
-        int v = infinity;
+        double v = infinity;
         Action bestMove;
 
         game.genAvailableActions();
         auto actions = game.avaliableActions;
         auto emptyTiles = game.board.emptyTiles;
+        std::shuffle(actions.begin(), actions.end(), randomGenerator);
 
         NodesNumber += actions.size();
 
         for (const auto &action : actions)
         {
             game.applyValidAction(action);
-            int v2 = maxValue(alpha, beta, depth - 1).first;
+            double v2 = maxValue(alpha, beta, depth - 1).first;
             game.revertAction(actions, emptyTiles);
             if (v2 < v)
             {

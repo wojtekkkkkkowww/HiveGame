@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <random>
 #include "Game.hpp"
 #include "AiAlgorithm.hpp"
 #include "Heuristic.hpp"
@@ -11,46 +12,33 @@ namespace hive
     {
     public:
         AlphaBetaAI(Game &game);
-        void setHeuristicWeights(std::vector<int> weights);
+        void setHeuristicWeights(std::vector<double> weights);
         Action getNextMove() override;
         int NodesNumber = 0;
 
     private:
-        static constexpr int maxDepth = 3;
+        std::mt19937 randomGenerator{std::random_device{}()};
+        static constexpr int maxDepth = 4;
         static constexpr const char *name = "AlphaBetaAI";
 
-        // QueenAvailableMoves queenAvailableMoves;
-        // OpponentQueenAvailableMoves opponentQueenAvailableMoves;
-        // TilesOroundOpponentQueen tilesOroundOpponentQueen;
-        // TilesOroundQuuen tilesOroundQuuen;
 
         QueenSafty queenSafty;
         AttackOponentQueen attackOponentQueen;
         BlockedTiles blockedTiles;
-        TilesValueHeuristic tilesValueHeuristic;
-        WinLoseHeuristic winLoseHeuristic;
+        std::string playerString;
 
-        // 6 42 51 1 1 10
-        // 8 13 20 2 7 16
-        // 15 11 1 0
-        std::vector<std::pair<Heuristic &, int>> heuristics = {
-            // {queenAvailableMoves, 8},
-            // {opponentQueenAvailableMoves, 13},
-            // {tilesOroundOpponentQueen, 20},
-            // {tilesOroundQuuen, 2},
-            {queenSafty, 15},
-            {attackOponentQueen, 11},
-            {blockedTiles, 1},
-            {tilesValueHeuristic, 0},
-            {winLoseHeuristic, 1},
-
+        std::vector<std::pair<Heuristic &, double>> heuristics = {
+            //10 10 2.52577 
+            {queenSafty, 10},
+            {attackOponentQueen, 10},
+            {blockedTiles, 2.52577},
         };
 
-        int evaluate() const;
+        double evaluate() const;
         char player;
 
-        std::pair<int, Action> maxValue(int alpha, int beta, int depth);
-        std::pair<int, Action> minValue(int alpha, int beta, int depth);
+        std::pair<double, Action> maxValue(double alpha, double beta, int depth);
+        std::pair<double, Action> minValue(double alpha, double beta, int depth);
         
         char opponent(char player) const
         {

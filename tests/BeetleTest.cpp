@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
+#include <algorithm>
 #include "BaseTest.hpp"
+
 
 using namespace hive;
 
@@ -63,7 +65,7 @@ TEST_F(BeetleTest, freedomToMove)
     }
 
     auto wrongAction = MoveAction({-1,0},{0,0});
-    ASSERT_TRUE(actions.find(wrongAction) == actions.end());
+    ASSERT_TRUE(std::find(actions.begin(), actions.end(), wrongAction) == actions.end());
 
 
     board.resetBoard();
@@ -80,7 +82,7 @@ TEST_F(BeetleTest, freedomToMove)
 
     actions = avaliableActions;
     auto correctAction = MoveAction({-1,0},{0,0});
-    ASSERT_TRUE(actions.find(correctAction) != actions.end());
+    ASSERT_TRUE(std::find(actions.begin(), actions.end(), correctAction) != actions.end());
 
 
 }

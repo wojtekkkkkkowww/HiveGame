@@ -63,6 +63,9 @@ namespace hive
         return positions;
     }
 
+    /*
+    possible to make emptyTiles updates during adding and removing tiles
+    */
     void BaseBoard::addEmptyTilesAroundBoard()
     {
         emptyTiles.clear();
@@ -78,6 +81,39 @@ namespace hive
             }
         }
     }
+
+    // void BaseBoard::removeEmptyTilesAroundPosition(Position position)
+    // {   if(isEmpty(position))
+    //     {
+    //        if(emptyTiles.find(position) != emptyTiles.end())
+    //        {
+    //            emptyTiles.erase(position);
+    //        }
+    //     }
+
+    //     for (const auto &dir : directions)
+    //     {
+    //         Position neighbour = position + dir;
+    //         if (isEmpty(neighbour))
+    //         {
+    //             if (emptyTiles.find(neighbour) != emptyTiles.end())
+    //                 emptyTiles.erase(neighbour);
+    //         }
+    //     }
+    // }
+
+    // void BaseBoard::addEmptyTilesAroundPosition(Position position)
+    // {
+    //     for (const auto &dir : directions)
+    //     {
+    //         Position neighbour = position + dir;
+    //         if (isEmpty(neighbour))
+    //         {
+    //             if (emptyTiles.find(neighbour) == emptyTiles.end())
+    //                 emptyTiles.insert(neighbour);
+    //         }
+    //     }
+    // }
 
     std::set<Position> BaseBoard::getNeighbours(Position position)
     {

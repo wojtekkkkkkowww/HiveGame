@@ -3,19 +3,21 @@
 #include <chrono>
 #include <iomanip>
 #include <random>
+#include <fstream>
+#include <map>
 
 #define NUMBER_OF_GAMES 1
-#define MAX_NUMBER_OF_MOVES 60
+#define MAX_NUMBER_OF_MOVES 200
 
 using namespace hive;
 
-const int NUM_ITERATIONS = 20;
-const int GAMES_PER_ITERATION = 20;
+const int NUM_ITERATIONS = 10000;
+const int GAMES_PER_ITERATION = 2;
 
 AiTester::AiTester()
     : game(),
       alphaBetaAi(game), randomAi(game),
-      pvsAi(game), ai1Type(""), ai2Type("") {}
+      ai1Type(""), ai2Type("") {}
 
 void AiTester::perft(int depth, long long &nodes)
 {
@@ -27,15 +29,16 @@ void AiTester::perft(int depth, long long &nodes)
     }
     game.genAvailableActions();
     auto actions = game.avaliableActions;
-    
+
     auto emptyTiles = game.board.emptyTiles;
 
     int i = 0;
     for (const auto &action : actions)
     {
-        // if(i > 5){
-        //    break;
-        // }
+        if (i > 5)
+        {
+            break;
+        }
         game.applyValidAction(action);
         perft(depth - 1, nodes);
         game.revertAction(actions, emptyTiles);
@@ -64,17 +67,15 @@ void AiTester::performPerftTest(int maxDepth)
     }
 }
 
-void AiTester::perturbWeights(std::vector<int> &weights, int maxChange)
+void AiTester::randomWeights(std::vector<double> &weights)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(-maxChange, maxChange);
+    std::uniform_real_distribution<> dist(0, 10);
 
     for (auto &weight : weights)
     {
-        weight += dist(gen);
-        weight = std::max(0, weight);
-        weight = std::min(20, weight);
+        weight = dist(gen);
     }
 }
 
@@ -94,18 +95,21 @@ int AiTester::playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game
         std::swap(currentAi, opponentAi);
     }
 
-    std::cout << "END GAME" << std::endl;
+    //   std::cout << "END GAME" << std::endl;
     std::string result = game.getGameStatus();
 
     if (result == "WHITE_WINS")
-        return player == 'W' ? 1 : -1;
+        return player == 'W' ? 1 : -2;
     else if (result == "BLACK_WINS")
-        return player == 'B' ? 1 : -1;
-    else
+        return player == 'B' ? 1 : -2;
+    else{
+        if(result == "DRAW")
+            std::cout << "DRAW" << std::endl;
         return 0;
+    }
 }
 
-int AiTester::runParallelGames(std::vector<int> &weights1, std::vector<int> &weights2) const
+int AiTester::runParallelGames(std::vector<double> &weights1, std::vector<double> &weights2) const
 {
     std::vector<std::future<int>> futures;
 
@@ -122,8 +126,17 @@ int AiTester::runParallelGames(std::vector<int> &weights1, std::vector<int> &wei
             int score = 0;
 
             score += playTestGame('W', ai1, ai2, game);
+            return score; }));
 
+        futures.push_back(std::async(std::launch::async, [this, weights1, weights2]()
+                                     {
+            Game game;
+            AlphaBetaAI ai1(game);
+            ai1.setHeuristicWeights(weights1);
+            AlphaBetaAI ai2(game);
+            ai2.setHeuristicWeights(weights2);
             game.startNewGame();
+            int score = 0;
             score += playTestGame('B', ai2, ai1, game);
 
             return score; }));
@@ -138,7 +151,7 @@ int AiTester::runParallelGames(std::vector<int> &weights1, std::vector<int> &wei
     return totalScore;
 }
 
-int AiTester::runParallelGames(std::vector<int> &weights)
+int AiTester::runParallelGames(std::vector<double> &weights)
 {
     std::vector<std::future<int>> futures;
 
@@ -169,49 +182,111 @@ int AiTester::runParallelGames(std::vector<int> &weights)
     return totalScore;
 }
 
-void AiTester::localSearch()
+
+
+std::vector<double> AiTester::neighbourWeigths(std::vector<double> &weigths)
 {
-    std::vector<int> weights = {1, 1, 1, 1};
+    std::vector<double> newWeights = weigths;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution dis(0, 3);
+    int index = dis(gen) % 3;
+    std::uniform_real_distribution<> dis2(-2, 2);
+    newWeights[index] = std::min(std::max(0.0, newWeights[index] + dis2(gen)), 10.0);
+    return newWeights;
+}
+
+void AiTester::SA()
+{
+    std::vector<double> weights = {5, 5, 5};
+    std::list<std::pair<std::vector<double>, int>> scores;
     double bestScore = -40;
+    double currentScore = runParallelGames(weights);
+    std::cout << "Initial Score: " << currentScore << std::endl;
+
+    std::vector<std::vector<double>> opponents;
+    for (int i = 0; i < 20; i++)
+    {
+        std::vector<double> random = weights;
+        randomWeights(random);
+        opponents.push_back(random);
+    }
+
+    double temperature = 10000.0;
+    double coolingRate = 0.003;
     int i = 0;
-    while (i < NUM_ITERATIONS)
+
+    while (i < NUM_ITERATIONS && temperature > 1)
     {
         std::cout << "Iteration: " << i << std::endl;
+        std::cout << "Temperature: " << temperature << std::endl;
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-        std::vector<int> newWeights = weights;
-        perturbWeights(newWeights, 5);
-
-        std::cout << weights[0] << " " << weights[1] << " " << weights[2] << " " << weights[3];
+        std::vector<double> neighbour = neighbourWeigths(weights);
+        std::cout << weights[0] << " " << weights[1] << " " << weights[2];
         std::cout << " VS ";
-        std::cout << newWeights[0] << " " << newWeights[1] << " " << newWeights[2] << " " << newWeights[3] << std::endl;
+        std::cout << neighbour[0] << " " << neighbour[1] << " " << neighbour[2] << std::endl;
 
-        int score = runParallelGames(newWeights);
-
-        std::cout << "Score " << score << std::endl;
-        if (score > bestScore)
+        int score = 0;
+        for (int j = 0; j < 20; j++)
         {
-            weights = newWeights;
-            std::cout << "New weights: " << weights[0] << " " << weights[1] << " " << weights[2] << " " << weights[3] << std::endl;
-            bestScore = score;
-            i = 0;
-        }
-        else
-        {
-            i++;
+            score += runParallelGames(neighbour, opponents[j]);
         }
 
+        double acceptanceProbability = exp((score - currentScore) / temperature);
+        if (score > currentScore || (rand() / double(RAND_MAX)) < acceptanceProbability)
+        {
+            weights = neighbour;
+            currentScore = score;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                std::cout << "New best weights: " << weights[0] << " " << weights[1] << " " << weights[2] << std::endl;
+            }
+            scores.push_back(std::make_pair(weights, score));
+        }
+
+        temperature *= 1 - coolingRate;
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << "Iteration Time = " << (end - begin).count() << std::endl;
+        i++;
     }
 
     std::cout << "Optimized Heuristic Weights: ";
-    for (int weight : weights)
+    for (double weight : weights)
     {
         std::cout << weight << " ";
     }
     std::cout << std::endl;
+    std::cout << "Current Score: " << currentScore << std::endl;
     std::cout << "Best Score: " << bestScore << std::endl;
+
+    std::ofstream cacheFile("cache.txt");
+    if (cacheFile.is_open())
+    {
+        for (const auto &entry : scores)
+        {
+            if (entry.second > 0)
+                cacheFile << entry.first[0] << " "
+                          << entry.first[1] << " "
+                          << entry.first[2] << " "
+                          << entry.second << std::endl;
+        }
+        cacheFile.close();
+    }
+}
+
+void hive::AiTester::testAI()
+{   int score = 0;
+    for(int i = 0; i < 1000; i++)
+    {
+        game.startNewGame();
+        score += playTestGame('W', alphaBetaAi, randomAi, game);
+        game.startNewGame();
+        score += playTestGame('B', randomAi, alphaBetaAi, game);
+        std::cout << "Score: " << score << std::endl;
+    }
+    std::cout << "Total Score: " << score << std::endl;
 }
 
 void AiTester::runGameSimulation()
@@ -267,8 +342,6 @@ Action hive::AiTester::getNextMove(std::string aiType)
         action = randomAi.getNextMove();
     else if (aiType == "alphabeta")
         action = alphaBetaAi.getNextMove();
-    else if (aiType == "pvs")
-        action = pvsAi.getNextMove();
 
     return action;
 }
@@ -309,17 +382,15 @@ void AiTester::performRandomMoves(int iterations, int epochs)
         }
     }
 
-    for(int i = 0; i < iterations; ++i)
+    for (int i = 0; i < iterations; ++i)
     {
-        for(int j = 0; j < epochs; ++j)
+        for (int j = 0; j < epochs; ++j)
         {
             std::cout << branchingFactorSum[j][i] << " ";
         }
         std::cout << std::endl;
     }
-    
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -327,11 +398,13 @@ int main(int argc, char *argv[])
     if (argc == 2)
     {
         if (std::string(argv[1]) == "optimize")
-            tester.localSearch();
+            tester.SA();
         if (std::string(argv[1]) == "perft")
             tester.performPerftTest(10);
         if (std::string(argv[1]) == "bf")
-            tester.performRandomMoves(100,30);
+            tester.performRandomMoves(100, 30);
+        if (std::string(argv[1]) == "test")
+            tester.testAI();
     }
     else if (argc == 3)
     {
@@ -341,7 +414,7 @@ int main(int argc, char *argv[])
     else
     {
         std::cerr << "Usage: " << argv[0] << " <AI1> <AI2> | optimize" << std::endl;
-        std::cerr << "Implemented AIs: random, alphabeta, pvs" << std::endl;
+        std::cerr << "Implemented AIs: random, alphabeta" << std::endl;
         return 1;
     }
 

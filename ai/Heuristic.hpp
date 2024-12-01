@@ -45,41 +45,19 @@ namespace hive
         static constexpr const int beetle = 1;
     };
 
-    class TilesValueHeuristic : public Heuristic
-    {
-    public:
-        int evaluate(const Game &state, char player) const override
-        {
-            int value = 0.0;
-            for (const auto &pos : state.board.getPlayerTiles(player))
-            {
-                auto tile = state.board.getTile(pos);
-                value += tileValue(tile.type);
-            }
-
-            for (const auto &pos : state.board.getPlayerTiles(player == 'W' ? 'B' : 'W'))
-            {
-                auto tile = state.board.getTile(pos);
-                value -= tileValue(tile.type);
-            }
-
-            return value;
-        }
-    };
-
     class BlockedTiles : public Heuristic
     {
     public:
         int evaluate(const Game &state, char player) const override
         {
             int value = 0.0;
-            for (const auto &pos : state.board.getPlayerTiles(player))
-            {
-                if (isTileBlocked(pos, state))
-                {
-                    value -= tileValue(state.board.getTile(pos).type);
-                }
-            }
+            // for (const auto &pos : state.board.getPlayerTiles(player))
+            // {
+            //     if (isTileBlocked(pos, state))
+            //     {
+            //         value -= tileValue(state.board.getTile(pos).type);
+            //     }
+            // }
 
             for (const auto &pos : state.board.getPlayerTiles(player == 'W' ? 'B' : 'W'))
             {
@@ -117,7 +95,7 @@ namespace hive
         }
     };
 
-    class QueenSafty : public Heuristic
+    class QueenSafty : public Heuristic  // wrzucic tu jeszcze is tile blocked ?? nie no nie xD
     {
     public:
         int evaluate(const Game &state, char player) const override
@@ -240,7 +218,7 @@ namespace hive
         }
 
     private:
-        int isSurrounded(const hive::Game &state, hive::Position &Queen) const
+        bool isSurrounded(const hive::Game &state, hive::Position &Queen) const
         {
             for (auto &direction : directions)
             {
