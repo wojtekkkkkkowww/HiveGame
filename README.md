@@ -11,7 +11,7 @@ https://www.instructables.com/Hive-game-with-box/
 
 ## Wymagania
 
-Należy zainstalować następujące pakiety: SFML, SFML-devel, sqlite, sqlite-devel, gtest, gtest-devel
+Należy zainstalować następujące pakiety: SFML, SFML-devel, gtest, gtest-devel
 
 
 ## Budowanie projektu
@@ -33,7 +33,7 @@ Po skompilowaniu projektu w katalogu build pojawią się foldery z plikami wykon
 
 Po zbudowaniu projektu można uruchomić testy w katalogu `build`. Testy generują pliki `.txt` z zapisem ruchów  w katalogu `build`.
 
-Aby uruchomić wszystkie testy:
+Aby uruchomić wszystkie Unit Testy:
 ```bash
 ./tests/test_GameLogic
 ```
@@ -46,6 +46,7 @@ Możliwe jest również uruchamianie pojedynczych testów, podając nazwę testu
 
 ## Przeglądanie zapisanych partii
 Do przeglądania zapisanej parti można użyć programu `GameViewer`. Program przyjmuje jako argument ścieżkę do pliku z zapisem partii.
+Zapisy parti zostają wygenerowane po uruchomieniu testów jednostkowych.
 
 ```bash
 ./gameViewer/GameViewer path_to_file
@@ -66,11 +67,34 @@ Gra przeciwko AI
 ```
 
 ## Eksperymenty AI
-Uruchomienie eksperymentów (na razie nie dziła :D):
+Uruchomienie pojedynczej gry:
 ```bash
-./ai_tests/AiTester
+./ai_tests/AiTester random alphabeta
 ``` 
-
+Uruchomienie testu dla wielu gier:
+```bash
+./ai_tests/AiTester test
+```
+Uruchomienie algorytmu SA:
+```bash
+./ai_tests/AiTester optimize
+```
+Uruchomienie testu performance:
+```bash
+./ai_tests/AiTester perft
+```
+Uruchomienie testu dla bf:
+```bash
+./ai_tests/AiTester bf
+```
+## tworzenie wykresów
+skrypty 'bf.py', 'heat.py', 'sa.py'
+tworzą wykresy
+W głównym katalogu są pliki z wynikami testów 'cache.txt', 'bf.txt'
+Uruchomienie skryptu dla wykrsu branching factor:
+```bash
+python3 bf.py
+```
 --- 
 
 
