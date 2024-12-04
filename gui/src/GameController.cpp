@@ -2,31 +2,11 @@
 #include "Game.hpp"
 
 GameController::GameController(sf::RenderWindow &window)
-    : window(window),
-      pieceSelector(800, 600),
-      game(std::make_unique<Game>()),
-      boardDrawable(game->board, 32.0f)
+    : BaseInterface(window),
+      pieceSelector(800, 600) // Initialize pieceSelector with window dimensions
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    boardView = window.getDefaultView();
-
     waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait", resourceManager.getFont("arial.ttf"));
-
-    turnText.setFont(resourceManager.getFont("arial.ttf"));
-    turnText.setCharacterSize(24);
-    turnText.setFillColor(sf::Color::Black);
-    turnText.setPosition(10, 10);
-}
-
-void GameController::handleGameControl()
-{
-    processEvents();
-    if (change)
-    {
-        update();
-        render();
-        change = false;
-    }
 }
 
 void GameController::processEvents()
@@ -59,19 +39,6 @@ void GameController::processEvents()
         default:
             break;
         }
-    }
-}
-
-void GameController::handleMouseMoved()
-{
-    if (dragging)
-    {
-        window.setView(boardView);
-        sf::Vector2f currentMousePos = window.mapPixelToCoords(-sf::Mouse::getPosition(window));
-        sf::Vector2f delta = (currentMousePos - lastMousePos);
-        boardView.move(delta * 0.5f);
-        lastMousePos = currentMousePos;
-        change = true;
     }
 }
 
@@ -108,18 +75,6 @@ void GameController::handleMouseButtonPressed(sf::Mouse::Button button)
     change = true;
 }
 
-void GameController::handleWindowClose()
-{
-    window.close();
-}
-
-void GameController::update()
-{
-    window.setView(boardView);
-    boardDrawable.update();
-    updateTurnText();
-}
-
 void GameController::render()
 {
     window.clear(sf::Color::White);
@@ -138,23 +93,14 @@ void GameController::render()
     }
 
     window.display();
-    std::cout<<game->board.emptyTiles.size()<<std::endl;
+    std::cout << game->board.emptyTiles.size() << std::endl;
     std ::cerr << "Game window rendered" << std::endl;
-}
-
-void GameController::updateTurnText()
-{
-    if (game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" || game->gameStatus == "DRAW")
-    {
-        turnText.setString("Game over! " + game->gameStatus);
-        return;
-    }
-    turnText.setString("Current turn: " + std::string(1,game->currentTurn));
 }
 
 void GameController::apllyOpponentAction(const std::string &action)
 {
-    if(!game->applyAction(action)){
+    if (!game->applyAction(action))
+    {
         std::cerr << "Failed to apply action: " << action << std::endl;
     }
     change = true;
@@ -260,36 +206,4 @@ void GameController::handlePieceMovement(const Position &boardPos)
             boardDrawable.selectedPosition = invalidPosition;
         }
     }
-}
-
-void GameController::handleMouseWheelScroll(float delta)
-{
-    const float MIN_ZOOM_LEVEL = 0.5f;
-    const float MAX_ZOOM_LEVEL = 2.0f;
-    const float ZOOM_IN_FACTOR = 0.9f;
-    const float ZOOM_OUT_FACTOR = 1.1f;
-
-    float currentZoom = boardView.getSize().x / window.getDefaultView().getSize().x;
-
-    if (delta > 0 && currentZoom > MIN_ZOOM_LEVEL)
-    {
-        boardView.zoom(ZOOM_IN_FACTOR);
-    }
-    else if (delta < 0 && currentZoom < MAX_ZOOM_LEVEL)
-    {
-        boardView.zoom(ZOOM_OUT_FACTOR);
-    }
-    change = true;
-}
-
-Position GameController::convertMouseToBoardPos(sf::Vector2f mousePos)
-{
-    for (const auto &hex : boardDrawable.hexDrawables)
-    {
-        if (hex.contains(mousePos))
-        {
-            return hex.tilePosition;
-        }
-    }
-    return invalidPosition;
 }
