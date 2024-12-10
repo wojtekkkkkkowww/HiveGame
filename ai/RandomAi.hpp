@@ -11,5 +11,8 @@ namespace hive
         RandomAIAlgorithm(Game &game);
         Action getNextMove() override;
         std::mt19937 randomEngine;
+    
+    private:
+        std::optional<Action> winInOneMove(char player);
     };
 }

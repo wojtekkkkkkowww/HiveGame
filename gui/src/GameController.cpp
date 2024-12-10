@@ -175,7 +175,6 @@ void GameController::handlePiecePlacement(const Position &boardPos)
 {
     if (boardPos != invalidPosition)
     {
-        // to jest w miarę łatwe do zmienieania
         PlaceAction action(boardPos, pieceSelector.selectedPiece);
         if (game->applyAction(action))
         {

@@ -26,7 +26,7 @@ namespace hive
         Position whiteQueen = invalidPosition;
         Position blackQueen = invalidPosition;
 
-        std::list<Tile> getTiles() const;
+        std::vector<std::list<Tile>> getTiles() const;
         std::set<Position> getPlayerTiles(char color) const;
         std::vector<Position> getPositions() const;
 

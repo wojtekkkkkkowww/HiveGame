@@ -11,8 +11,7 @@ https://www.instructables.com/Hive-game-with-box/
 
 ## Wymagania
 
-Należy zainstalować następujące pakiety: SFML, SFML-devel, gtest, gtest-devel
-
+Należy zainstalować następujące pakiety: SFML, SFML-devel, gtest, gtest-devel, cmake
 
 ## Budowanie projektu
 
@@ -46,7 +45,7 @@ Możliwe jest również uruchamianie pojedynczych testów, podając nazwę testu
 
 ## Przeglądanie zapisanych partii
 Do przeglądania zapisanej parti można użyć programu `GameViewer`. Program przyjmuje jako argument ścieżkę do pliku z zapisem partii.
-Zapisy parti zostają wygenerowane po uruchomieniu testów jednostkowych.
+Zapisy parti zostają wygenerowane po uruchomieniu testów jednostkowych, lub uruchomieniu pojedynczej gry w AiTester.
 
 ```bash
 ./gameViewer/GameViewer path_to_file
@@ -87,10 +86,13 @@ Uruchomienie testu dla bf:
 ```bash
 ./ai_tests/AiTester bf
 ```
-## tworzenie wykresów
+## skrypty
+w folderze /scripts 
+znajdują się skrypty do tworzenia wykresów: 
 skrypty 'bf.py', 'heat.py', 'sa.py'
-tworzą wykresy
-W głównym katalogu są pliki z wynikami testów 'cache.txt', 'bf.txt'
+Oraz skrypt mierzący czas bota: 'calculate.sh'
+
+W katalogu /results są pliki z wynikami testów 'cache.txt', 'bf.txt'
 Uruchomienie skryptu dla wykrsu branching factor:
 ```bash
 python3 bf.py

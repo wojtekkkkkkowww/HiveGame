@@ -5,7 +5,6 @@
 #include <functional>
 #include "Position.hpp"
 #include "MoveValidator.hpp"
-#include "dfs.hpp"
 
 namespace hive
 {

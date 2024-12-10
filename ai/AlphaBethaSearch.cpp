@@ -4,7 +4,7 @@
 namespace hive
 {
 
-    AlphaBetaAI::AlphaBetaAI(Game &game) : AIAlgorithm(game, name)
+    AlphaBetaAI::AlphaBetaAI(Game &game) : AIAlgorithm(game)
     {
     }
 
@@ -23,29 +23,11 @@ namespace hive
     {
 
         player = game.getCurrentTurn();
-        playerString = player == 'W' ? "WHITE" : "BLACK";
+        playerWins = (player == 'W' ? "WHITE_WINS" : "BLACK_WINS");
         double alpha = negative_infinity;
         double beta = infinity;
-        NodesNumber = 0;
 
-        auto availableActions = game.avaliableActions;
-        auto emptyTiles = game.board.emptyTiles;
-        for (const auto &action : availableActions)
-        {
-            if (action.type == "PLACE")
-                continue;
-
-            game.applyValidAction(action);
-            if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
-            {
-                game.revertAction(availableActions, emptyTiles);
-
-                return action;
-            }
-            game.revertAction(availableActions, emptyTiles);
-        }
-
-        Action bestMove = maxValue(alpha, beta, maxDepth).second;
+        Action bestMove = alphabetha(alpha, beta, maxDepth, 1).second;
 
         return bestMove;
     }
@@ -60,101 +42,55 @@ namespace hive
         return totalScore;
     }
 
-    std::pair<double, Action> AlphaBetaAI::maxValue(double alpha, double beta, int depth)
+    double AlphaBetaAI::calculateScore(int color) const
     {
-
-        NodesNumber += 1;
-
-        if (game.isGameOver() || depth == 0)
+        if (game.isGameOver())
         {
-            if(game.isGameOver())
-            {
-                if(game.getGameStatus() == playerString + "_WINS")
-                    return {infinity, Action()};
-                else if(game.getGameStatus() == "DRAW")
-                    return {0.0, Action()};
-                else 
-                    return {negative_infinity, Action()};
-            }
-            return {evaluate(), Action()};
+            if (game.getGameStatus() == playerWins)
+                return (color == 1) ? infinity : negative_infinity;
+            else if (game.getGameStatus() == "DRAW")
+                return 0.0;
+            else
+                return (color != 1) ? infinity : negative_infinity;
         }
 
-        double v = negative_infinity;
-        Action bestMove;
-
-        game.genAvailableActions();
-        auto actions = game.avaliableActions;
-        std::shuffle(actions.begin(), actions.end(), randomGenerator);
-        auto emptyTiles = game.board.emptyTiles;
-
-        for (const auto &action : actions)
-        {
-            game.applyValidAction(action);
-            double v2 = minValue(alpha, beta, depth - 1).first;
-            game.revertAction(actions, emptyTiles);
-            if (v2 > v)
-            {
-                v = v2;
-                bestMove = action;
-                alpha = std::max(alpha, v);
-            }
-
-            if (v >= beta)
-            {
-
-                break;
-            }
-        }
-        return {v, bestMove};
+        return color * evaluate();
     }
 
-    std::pair<double, Action> AlphaBetaAI::minValue(double alpha, double beta, int depth)
+    std::pair<double, Action> AlphaBetaAI::alphabetha(double alpha, double beta, int depth, int color)
     {
-        NodesNumber += 1;
-
         if (game.isGameOver() || depth == 0)
         {
-            if(game.isGameOver())
-            {
-                if(game.getGameStatus() == playerString + "_WINS")
-                    return {infinity, Action()};
-                else if(game.getGameStatus() == "DRAW")
-                    return {0.0, Action()};
-                else 
-                    return {negative_infinity, Action()};
-            }
-            return {evaluate(), Action()};
+            return std::make_pair(calculateScore(color), Action());
         }
-
-        double v = infinity;
-        Action bestMove;
 
         game.genAvailableActions();
         auto actions = game.avaliableActions;
         auto emptyTiles = game.board.emptyTiles;
-        std::shuffle(actions.begin(), actions.end(), randomGenerator);
 
-        NodesNumber += actions.size();
+        std::pair<double, Action> best = std::make_pair(negative_infinity, actions.front());
+
+        std::shuffle(actions.begin(), actions.end(), randomGenerator);
 
         for (const auto &action : actions)
         {
             game.applyValidAction(action);
-            double v2 = maxValue(alpha, beta, depth - 1).first;
+            double v2 = -alphabetha(-beta, -alpha, depth - 1, -color).first;
             game.revertAction(actions, emptyTiles);
-            if (v2 < v)
-            {
-                v = v2;
 
-                bestMove = action;
-                beta = std::min(beta, v);
+            if (v2 > best.first)
+            {
+                best = std::make_pair(v2, action);
+                alpha = std::max(alpha, best.first);
             }
 
-            if (v <= alpha)
+            if (best.first >= beta)
             {
-
                 break;
             }
         }
-        return {v, bestMove};
+
+        return best;
     }
+
 }

@@ -3,7 +3,7 @@
 
 namespace hive
 {
-    RandomAIAlgorithm::RandomAIAlgorithm(Game &game) : AIAlgorithm(game, "Random AI")
+    RandomAIAlgorithm::RandomAIAlgorithm(Game &game) : AIAlgorithm(game)
     {
 
         randomEngine.seed(std::random_device{}());
@@ -28,5 +28,25 @@ namespace hive
         }
 
         return Action();
+    }
+
+    std::optional<Action> RandomAIAlgorithm::winInOneMove(char player)
+    {
+        auto availableActions = game.avaliableActions;
+        auto emptyTiles = game.board.emptyTiles;
+        for (const auto &action : availableActions)
+        {
+            game.applyValidAction(action);
+            std::string playerString = player == 'W' ? "WHITE" : "BLACK";
+            if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
+            {
+                game.revertAction(availableActions, emptyTiles);
+
+                return action;
+            }
+            game.revertAction(availableActions, emptyTiles);
+        }
+
+        return std::nullopt;
     }
 }

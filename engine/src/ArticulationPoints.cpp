@@ -27,17 +27,14 @@ namespace hive
                 children++;
                 dfsAP(v, u);
 
-                // Post-recursion processing for `u` and `v`
                 updateLowAndCheckAP(u, v, parent);
             }
             else if (v != parent)
             {
-                // Back edge processing
                 updateLowForBackEdge(u, v);
             }
         }
 
-        // Root-specific articulation point check
         checkRootAP(u, parent, children);
     }
 
@@ -63,7 +60,7 @@ namespace hive
 
     void ArticulationPointFinder::prepareData()
     {
-        tiles = val.getPositions(); //possible improve
+        tiles = val.getPositions();
         val.articulationPoints.clear();
         disc.clear();
         low.clear();

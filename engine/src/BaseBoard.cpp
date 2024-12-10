@@ -26,16 +26,29 @@ namespace hive
         addEmptyTilesAroundBoard();
     }
 
-    std::list<Tile> BaseBoard::getTiles() const
+    std::vector<std::list<Tile>> BaseBoard::getTiles() const
     {
-        std::list<Tile> tiles;
+        size_t maxLevel = 0;
         for (const auto &[key, value] : boardTiles)
         {
-            for (const auto &tile : value)
+            if (value.size() > maxLevel)
             {
-                tiles.push_back(tile);
+                maxLevel = value.size();
             }
         }
+
+        std::vector<std::list<Tile>> tiles(maxLevel);
+
+        for (const auto &[key, value] : boardTiles)
+        {
+            int level = 0;
+            for (const auto &tile : value)
+            {
+                tiles[level].push_back(tile);
+                level++;
+            }
+        }
+
         return tiles;
     }
 
@@ -81,39 +94,6 @@ namespace hive
             }
         }
     }
-
-    // void BaseBoard::removeEmptyTilesAroundPosition(Position position)
-    // {   if(isEmpty(position))
-    //     {
-    //        if(emptyTiles.find(position) != emptyTiles.end())
-    //        {
-    //            emptyTiles.erase(position);
-    //        }
-    //     }
-
-    //     for (const auto &dir : directions)
-    //     {
-    //         Position neighbour = position + dir;
-    //         if (isEmpty(neighbour))
-    //         {
-    //             if (emptyTiles.find(neighbour) != emptyTiles.end())
-    //                 emptyTiles.erase(neighbour);
-    //         }
-    //     }
-    // }
-
-    // void BaseBoard::addEmptyTilesAroundPosition(Position position)
-    // {
-    //     for (const auto &dir : directions)
-    //     {
-    //         Position neighbour = position + dir;
-    //         if (isEmpty(neighbour))
-    //         {
-    //             if (emptyTiles.find(neighbour) == emptyTiles.end())
-    //                 emptyTiles.insert(neighbour);
-    //         }
-    //     }
-    // }
 
     std::set<Position> BaseBoard::getNeighbours(Position position)
     {

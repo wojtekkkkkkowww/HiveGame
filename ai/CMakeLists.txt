@@ -1,6 +1,5 @@
 add_library(ai
     AiAlgorithm.hpp
-    AiAlgorithm.cpp
     RandomAi.hpp
     RandomAi.cpp
     AlphaBethaSearch.hpp

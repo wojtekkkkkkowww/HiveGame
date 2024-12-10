@@ -4,6 +4,8 @@
 #include <set>
 
 constexpr auto END_MESSAGES = {"WHITE_WINS", "BLACK_WINS", "DRAW"};
+constexpr size_t bufferSize = 128;
+char buffer[bufferSize];
 
 bool isGameOver(const std::string &message)
 {
@@ -17,6 +19,70 @@ bool isGameOver(const std::string &message)
     return false;
 }
 
+void startConnection(sf::TcpListener &listener, int PORT)
+{
+    if (listener.listen(PORT) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not start listening on port" + std::to_string(PORT));
+    }
+    std::cout << "Waiting for two players to connect..." << std::endl;
+}
+
+std::string receiveMessage(sf::TcpSocket &player)
+{
+    std::size_t received;
+    if (player.receive(buffer, sizeof(buffer), received) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not receive message from player");
+    }
+    return std::string(buffer, received);
+}
+
+void sendMessage(sf::TcpSocket &player, const std::string &message)
+{
+    if (player.send(message.c_str(), message.size()) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not send message to player");
+    }
+}
+
+void connectPlayer(sf::TcpListener &listener, sf::TcpSocket &player, const std::string &prompt)
+{
+    if (listener.accept(player) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not accept player");
+    }
+    std::cout << prompt << std::endl;
+}
+
+std::string chooseColor(sf::TcpSocket &player)
+{
+    std::size_t received;
+    std::cout << "Please send your color (WHITE or BLACK):" << std::endl;
+
+    if (player.receive(buffer, bufferSize, received) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not receive color from player");
+    }
+
+    return std::string(buffer, received);
+}
+
+void startGame(sf::TcpSocket &player1, sf::TcpSocket &player2)
+{
+    std::string startMessage = "START";
+    if (player1.send(startMessage.c_str(), startMessage.size()) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not send start message to player 1");
+    }
+
+    if (player2.send(startMessage.c_str(), startMessage.size()) != sf::Socket::Done)
+    {
+        throw std::runtime_error("Could not send start message to player 2");
+    }
+    std::cout << "Game started! Players take turns sending messages..." << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     int PORT = 54000;
@@ -26,57 +92,25 @@ int main(int argc, char *argv[])
     }
 
     sf::TcpListener listener;
-    if (listener.listen(PORT) != sf::Socket::Done)
-    {
-        std::cerr << "Error: Could not start listening on port " << PORT << std::endl;
-        return -1;
-    }
-
-    std::cout << "Waiting for two players to connect..." << std::endl;
+    startConnection(listener, PORT);
 
     sf::TcpSocket player1, player2;
-
-    if (listener.accept(player1) != sf::Socket::Done)
-    {
-        std::cerr << "Error: Could not accept player 1" << std::endl;
-        return -1;
-    }
-    std::cout << "Player 1 connected! Please send your color (W or B):" << std::endl;
-
     std::string player1Color;
-    char buffer[128];
-    std::size_t received;
-
-    if (player1.receive(buffer, sizeof(buffer), received) != sf::Socket::Done)
-    {
-        std::cerr << "Error: Could not receive color from player 1" << std::endl;
-        return -1;
-    }
-    player1Color = std::string(buffer, received);
-    std::cout << "Player 1 chose color: " << player1Color << std::endl;
-
-    if (listener.accept(player2) != sf::Socket::Done)
-    {
-        std::cerr << "Error: Could not accept player 2" << std::endl;
-        return -1;
-    }
-    std::cout << "Player 2 connected! Please send your color (WHITE or BLACK):" << std::endl;
-
     std::string player2Color;
+
+    connectPlayer(listener, player1, "Player 1 connected!");
+    player1Color = chooseColor(player1);
+    std::cout << "Player 1 chose color: " << player1Color << std::endl;
+    connectPlayer(listener, player2, "Player 2 connected!");
 
     while (true)
     {
-        if (player2.receive(buffer, sizeof(buffer), received) != sf::Socket::Done)
-        {
-            std::cerr << "Error: Could not receive color from player 2" << std::endl;
-            return -1;
-        }
-        player2Color = std::string(buffer, received);
+        player2Color = chooseColor(player2);
 
         if (player2Color == player1Color)
         {
             std::string errorMsg = "Color already chosen! Please choose a different color.";
-            player2.send(errorMsg.c_str(), errorMsg.size());
+            sendMessage(player2, errorMsg);
             std::cout << "Player 2 tried to choose duplicate color: " << player2Color << std::endl;
             std::cout << "Waiting for player 2 to choose a different color..." << std::endl;
         }
@@ -90,31 +124,12 @@ int main(int argc, char *argv[])
     sf::TcpSocket *currentPlayer = &player1;
     sf::TcpSocket *waitingPlayer = &player2;
 
-    std::string startMessage = "START";
-    if (player1.send(startMessage.c_str(), startMessage.size()) != sf::Socket::Done)
-    {
-        std::cerr << "Error: Could not send start message to player 1" << std::endl;
-        return -1;
-    }
-
-    if (player2.send(startMessage.c_str(), startMessage.size()) != sf::Socket::Done)
-    {
-        std::cerr << "Error: Could not send start message to player 2" << std::endl;
-        return -1;
-    }
-    std::cout << "Game started! Players take turns sending messages..." << std::endl;
+    startGame(player1, player2);
 
     bool gameRunning = true;
     while (gameRunning)
     {
-
-        if (currentPlayer->receive(buffer, sizeof(buffer), received) != sf::Socket::Done)
-        {
-            std::cerr << "Error: Could not receive message from player" << std::endl;
-            return -1;
-        }
-
-        std::string message(buffer, received);
+        std::string message = receiveMessage(*currentPlayer);
         std::cout << "Received message: " << message << std::endl;
 
         if (isGameOver(message))
@@ -123,12 +138,7 @@ int main(int argc, char *argv[])
             gameRunning = false;
         }
 
-        if (waitingPlayer->send(message.c_str(), message.size()) != sf::Socket::Done)
-        {
-            std::cerr << "Error: Could not send message to waiting player" << std::endl;
-            return -1;
-        }
-
+        sendMessage(*waitingPlayer, message);
         std::swap(currentPlayer, waitingPlayer);
     }
 

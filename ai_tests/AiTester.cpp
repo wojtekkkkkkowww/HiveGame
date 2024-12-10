@@ -7,7 +7,7 @@
 #include <map>
 
 #define NUMBER_OF_GAMES 1
-#define MAX_NUMBER_OF_MOVES 200
+#define MAX_NUMBER_OF_MOVES 100
 
 using namespace hive;
 
@@ -298,7 +298,7 @@ void AiTester::runGameSimulation()
         game.startNewGame();
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         std::vector<std::string> moves;
-
+        int movesCounter = 0;
         for (int j = 0; j < MAX_NUMBER_OF_MOVES && !game.isGameOver(); ++j)
         {
             Action action;
@@ -315,8 +315,11 @@ void AiTester::runGameSimulation()
 
             game.applyAction(action);
             moves.push_back(game.getLastAction());
+            movesCounter++;
             std::cout << "Move: " << moves.back() << std::endl;
         }
+        std::cout << "movesCounter: " << movesCounter << std::endl;
+        std::cout << "number of moves: " << moves.size() << std::endl;
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << "Game Time = " << (end - begin).count() << std::endl;
         saveToFile(std::to_string(i), moves);

@@ -26,11 +26,11 @@ namespace hive
             switch (event.type)
             {
             case sf::Event::Closed:
-                handleWindowClose(); //
+                handleWindowClose();
                 break;
 
             case sf::Event::MouseWheelScrolled:
-                handleMouseWheelScroll(event.mouseWheelScroll.delta); //
+                handleMouseWheelScroll(event.mouseWheelScroll.delta);
                 break;
 
             case sf::Event::MouseButtonPressed:
@@ -42,7 +42,7 @@ namespace hive
                 break;
 
             case sf::Event::MouseMoved:
-                handleMouseMoved(); //
+                handleMouseMoved();
                 break;
 
             case sf::Event::KeyPressed:

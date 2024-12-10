@@ -14,36 +14,27 @@ namespace hive
         AlphaBetaAI(Game &game);
         void setHeuristicWeights(std::vector<double> weights);
         Action getNextMove() override;
-        int NodesNumber = 0;
 
     private:
-        std::mt19937 randomGenerator{std::random_device{}()};
-        static constexpr int maxDepth = 4;
-        static constexpr const char *name = "AlphaBetaAI";
-
+        double evaluate() const;
+        double calculateScore(int color) const;
+        std::pair<double, Action> alphabetha(double alpha, double beta, int depth, int color);
 
         QueenSafty queenSafty;
         AttackOponentQueen attackOponentQueen;
         BlockedTiles blockedTiles;
-        std::string playerString;
 
         std::vector<std::pair<Heuristic &, double>> heuristics = {
-            //10 10 2.52577 
             {queenSafty, 10},
             {attackOponentQueen, 10},
             {blockedTiles, 2.52577},
         };
 
-        double evaluate() const;
-        char player;
+        std::mt19937 randomGenerator{std::random_device{}()};
 
-        std::pair<double, Action> maxValue(double alpha, double beta, int depth);
-        std::pair<double, Action> minValue(double alpha, double beta, int depth);
-        
-        char opponent(char player) const
-        {
-            return (player == 'W') ? 'B' : 'W';
-        }
+        int maxDepth = 4;
+        char player;
+        std::string playerWins;
     };
 
 }

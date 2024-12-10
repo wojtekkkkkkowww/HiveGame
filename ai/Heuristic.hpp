@@ -4,8 +4,8 @@
 
 namespace hive
 {
-    static constexpr int infinity = std::numeric_limits<int>::max();
-    static constexpr int negative_infinity = std::numeric_limits<int>::min();
+    constexpr double infinity = std::numeric_limits<double>::infinity();
+    constexpr double negative_infinity = -std::numeric_limits<double>::infinity();
 
 }
 
@@ -15,7 +15,7 @@ namespace hive
     class Heuristic
     {
     public:
-        virtual int evaluate(const Game &state, char player) const = 0; // Include char player
+        virtual int evaluate(const Game &state, char player) const = 0;
         virtual ~Heuristic() = default;
 
     protected:
@@ -140,63 +140,6 @@ namespace hive
         }
     };
 
-    // class QueenAvailableMoves : public Heuristic
-    // {
-    // public:
-    //     int evaluate(const Game &state, char player) const override
-    //     {
-
-    //         Position myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
-    //         if (myQueen == invalidPosition)
-    //         {
-    //             return 0.0;
-    //         }
-
-    //         return static_cast<int>(state.board.getQueenMoves(myQueen).size());
-    //     }
-    // };
-
-    // class OpponentQueenAvailableMoves : public QueenAvailableMoves
-    // {
-    // public:
-    //     int evaluate(const Game &state, char player) const override
-    //     {
-    //         return -1 * QueenAvailableMoves::evaluate(state, player == 'W' ? 'B' : 'W');
-    //     }
-    // };
-
-    // class TilesOroundOpponentQueen : public Heuristic
-    // {
-    // public:
-    //     int evaluate(const Game &state, char player) const override
-    //     {
-    //         int value = 0.0;
-    //         char opponent = player == 'W' ? 'B' : 'W';
-
-    //         Position queenPosition = opponent == 'W' ? state.board.whiteQueen : state.board.blackQueen;
-    //         std::set<Position> neighbours = state.board.getNeighbours(queenPosition);
-
-    //         for (const auto &neighbour : neighbours)
-    //         {
-    //             if (!state.board.isEmpty(neighbour))
-    //             {
-    //                 value += 1.0;
-    //             }
-    //         }
-
-    //         return value;
-    //     }
-    // };
-
-    // class TilesOroundQuuen : public TilesOroundOpponentQueen
-    // {
-    // public:
-    //     int evaluate(const Game &state, char player) const override
-    //     {
-    //         return -1 * TilesOroundOpponentQueen::evaluate(state, player);
-    //     }
-    // };
-
     class WinLoseHeuristic : public Heuristic
     {
     public:
@@ -231,5 +174,4 @@ namespace hive
         }
     };
 
-    // class
 }

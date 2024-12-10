@@ -29,9 +29,9 @@ protected:
 
     Position convertMouseToBoardPos(sf::Vector2f mousePos);
 
+    sf::RenderWindow &window;
     std::chrono::high_resolution_clock::time_point clickStartTime;
     sf::Text turnText;
-    sf::RenderWindow &window;
     sf::View boardView;
     std::unique_ptr<Game> game;
     BoardDrawable boardDrawable;
@@ -39,3 +39,11 @@ protected:
     bool change = true;
     sf::Vector2f lastMousePos;
 };
+
+/*
+Genialny pomysł wszystkie dane dać do struktury osobnej
+Eventy to będą obiekty które będą miały referencje do tych danych :)
+
+no i poprostu każdy event ma funkcje handleEvent() która będzie działać 
+
+*/

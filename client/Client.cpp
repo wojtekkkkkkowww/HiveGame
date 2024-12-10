@@ -30,7 +30,6 @@ bool Client::sendMessage(const std::string &message)
 
 bool Client::receiveMessage(std::string &message)
 {
-    char buffer[128];
     std::size_t received;
 
     if (socket.receive(buffer, sizeof(buffer), received) == sf::Socket::Done)
