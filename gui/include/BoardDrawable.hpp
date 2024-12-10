@@ -21,6 +21,7 @@ public:
     void update();
     void updateEmptyTiles();
     void updateBoardTiles();
+void addHex(hive::Position &lastPosition, const hive::Tile & tile, float offset, size_t level);
     void setPlayer(char player) { this->player = player; }
     std::list<HexDrawable> hexDrawables;
     hive::Position selectedPosition = hive::invalidPosition;

@@ -42,27 +42,32 @@ void BoardDrawable::updateBoardTiles()
     {
         for (const auto &tile : tiles[level])
         {
-            lastPosition = tile.position;
-            HexDrawable hex(0.95f * hexSize);
-            hex.tilePosition = lastPosition;
-            hex.setOffset(offset);
-            hex.setTile(tile, textures);
-
-            if (lastPosition == selectedPosition && tile.color == player)
-            {
-                if (board.getLevel(lastPosition) == static_cast<int>(level) + 1)
-                {
-                    hex.highlight(sf::Color::Cyan);
-                }
-            }
-
-            auto [posX, posY] = calculateHexPosition(lastPosition.x, lastPosition.y);
-            hex.setPosition(posX, posY + offset);
-
-            hexDrawables.push_back(hex);
+            addHex(lastPosition, tile, offset, level);
         }
         offset += 5.0f;
     }
+}
+
+void BoardDrawable::addHex(hive::Position &lastPosition, const hive::Tile &tile, float offset, size_t level)
+{
+    lastPosition = tile.position;
+    HexDrawable hex(0.95f * hexSize);
+    hex.tilePosition = lastPosition;
+    hex.setOffset(offset);
+    hex.setTile(tile, textures);
+
+    if (lastPosition == selectedPosition && tile.color == player)
+    {
+        if (board.getLevel(lastPosition) == static_cast<int>(level) + 1)
+        {
+            hex.highlight(sf::Color::Cyan);
+        }
+    }
+
+    auto [posX, posY] = calculateHexPosition(lastPosition.x, lastPosition.y);
+    hex.setPosition(posX, posY + offset);
+
+    hexDrawables.push_back(hex);
 }
 
 void BoardDrawable::updateEmptyTiles()
