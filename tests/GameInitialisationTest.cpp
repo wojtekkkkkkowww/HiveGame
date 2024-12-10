@@ -18,9 +18,7 @@ TEST_F(GameInitializationTest, BoardInit)
     ASSERT_TRUE(game.board.emptyTiles.size() == 1);
 }
 
-/*
-to ma sprwadzać reset po zrobieniu kilku ruchów
-*/
+
 TEST_F(GameInitializationTest, GameReset)
 {
     game.startNewGame();

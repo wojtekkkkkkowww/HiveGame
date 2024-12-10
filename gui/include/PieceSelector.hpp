@@ -6,8 +6,8 @@
 #include "ResourceManager.hpp"
 
 /*
-* @brief The PieceSelector class is responsible for displaying pool of pieces that player can choose from.
-*/
+ * @brief The PieceSelector class is responsible for displaying pool of pieces that player can choose from.
+ */
 class PieceSelector : public sf::Drawable
 {
 public:
@@ -66,7 +66,7 @@ public:
     {
         return stackRect.getGlobalBounds().contains(mousePos);
     }
-    
+
     char selectedPiece;
 
 private:

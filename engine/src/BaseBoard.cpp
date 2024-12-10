@@ -76,9 +76,6 @@ namespace hive
         return positions;
     }
 
-    /*
-    possible to make emptyTiles updates during adding and removing tiles
-    */
     void BaseBoard::addEmptyTilesAroundBoard()
     {
         emptyTiles.clear();

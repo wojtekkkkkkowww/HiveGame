@@ -8,9 +8,6 @@ namespace hive
     {
     }
 
-    /*
-    SET WEIGHTS FOR HE without winLoseHeuristic
-    */
     void AlphaBetaAI::setHeuristicWeights(std::vector<double> weights)
     {
         for (size_t i = 0; i < weights.size(); i++)

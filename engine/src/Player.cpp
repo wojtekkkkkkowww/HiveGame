@@ -40,7 +40,6 @@ void hive::Player::returnTile(char type)
     {
         queenPlaced = false;
     }
-    //std:: cerr << "\e[0;32m Returning tile \e[0m" << type << std::endl;
     pieceCounters[type]++;
 }
 

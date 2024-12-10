@@ -39,11 +39,3 @@ protected:
     bool change = true;
     sf::Vector2f lastMousePos;
 };
-
-/*
-Genialny pomysł wszystkie dane dać do struktury osobnej
-Eventy to będą obiekty które będą miały referencje do tych danych :)
-
-no i poprostu każdy event ma funkcje handleEvent() która będzie działać 
-
-*/

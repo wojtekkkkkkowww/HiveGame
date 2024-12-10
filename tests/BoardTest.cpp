@@ -6,7 +6,7 @@
 class BoardTest : public ::testing::Test
 {
 protected:
-    hive::Board board; // to jest bez sensu klasa BoarTest powinan dziedziczyć po klasie Board 
+    hive::Board board;
 };
 
 TEST_F(BoardTest, GetNeighboursAtOrigin)

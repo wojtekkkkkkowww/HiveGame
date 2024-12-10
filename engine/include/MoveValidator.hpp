@@ -46,7 +46,6 @@ namespace hive
 
             if (fredomToMove(position + neighbors[0], level, position + neighbors[1]))
             {
-                // std::cerr << "fredomToMove" << std::endl;
                 return true;
             }
 

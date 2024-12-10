@@ -39,7 +39,7 @@ namespace hive
         char &currentTurn;
         std::string &status;
         std::stack<Action> &actions;
-        std::vector<Action> &availableActions; // consider not copying this
+        std::vector<Action> &availableActions;
         ArticulationPointFinder articulationPointFinder;
         constexpr static std::array<char, 5> types = {'A', 'B', 'G', 'S', 'Q'};
     };

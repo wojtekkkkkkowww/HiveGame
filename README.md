@@ -11,7 +11,14 @@ https://www.instructables.com/Hive-game-with-box/
 
 ## Wymagania
 
-Należy zainstalować następujące pakiety: SFML, SFML-devel, gtest, gtest-devel, cmake
+Przed uruchomieniem projektu należy zainstalować następujące pakiety:
+
+- `SFML`
+- `SFML-devel`
+- `gtest`
+- `gtest-devel`
+- `cmake`
+
 
 ## Budowanie projektu
 
@@ -32,13 +39,12 @@ Po skompilowaniu projektu w katalogu build pojawią się foldery z plikami wykon
 
 Po zbudowaniu projektu można uruchomić testy w katalogu `build`. Testy generują pliki `.txt` z zapisem ruchów  w katalogu `build`.
 
-Aby uruchomić wszystkie Unit Testy:
+Aby uruchomić wszystkie testy jednostkowe:
 ```bash
 ./tests/test_GameLogic
 ```
 
-Możliwe jest również uruchamianie pojedynczych testów, podając nazwę testu jako filtr. Na przykład:
-
+Można również uruchamiać pojedyncze testy, podając nazwę testu jako filtr. Na przykład:
 ```bash
 ./tests/test_GameLogic --gtest_filter=TileMovementTest.WhiteWins
 ```
@@ -86,17 +92,18 @@ Uruchomienie testu dla bf:
 ```bash
 ./ai_tests/AiTester bf
 ```
-## skrypty
-w folderze /scripts 
-znajdują się skrypty do tworzenia wykresów: 
-skrypty 'bf.py', 'heat.py', 'sa.py'
-Oraz skrypt mierzący czas bota: 'calculate.sh'
+## Skrypty
 
-W katalogu /results są pliki z wynikami testów 'cache.txt', 'bf.txt'
-Uruchomienie skryptu dla wykrsu branching factor:
+W folderze `/scripts` znajdują się skrypty do analizy danych i tworzenia wykresów:
+
+- `bf.py`, `heat.py`, `sa.py` – skrypty do generowania wykresów
+- `calculate.sh` – skrypt mierzący czas działania bota
+
+W katalogu `/results` znajdują się pliki z wynikami testów, np. `cache.txt` i `bf.txt`.
+
+Przykład uruchomienia skryptu do wykresu Branching Factor:
 ```bash
-python3 bf.py
+python3 bf.py 
 ```
---- 
 
 

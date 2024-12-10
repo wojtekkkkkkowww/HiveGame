@@ -5,7 +5,6 @@
 #include "RandomAi.hpp"
 #include "AlphaBethaSearch.hpp"
 #include "Heuristic.hpp"
-#include "DataBase.hpp"
 #include "FileOperations.hpp"
 #include <vector>
 #include <future>

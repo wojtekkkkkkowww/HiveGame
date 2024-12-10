@@ -29,9 +29,9 @@ namespace hive
 
     /*
     Ant:
-    Może ruszyć się na dowolne pole do którego może fizycznie dojść.
-    dfs po polach które są w zbiorze emptyTiles
-    lista odwiedzonych pól to możliwe ruchy dla ant
+    Can move to any tile it can physically reach.
+    DFS on tiles that are in the emptyTiles set.
+    The list of visited tiles is the possible moves for the ant.
     */
     std::set<Position> MovementManager::getAntMoves(Position position)
     {
@@ -71,9 +71,9 @@ namespace hive
     }
 
     /*
-   BEETLE:
-   Może się poruszać na sąsiednie pola na tym samym poziomie lub różnym o 1.
-   */
+    BEETLE:
+    Can move to adjacent tiles on the same level or on diferent level.
+    */
     std::set<Position> MovementManager::getBeetleMoves(Position position) const
     {
         std::set<Position> moves;
@@ -103,8 +103,8 @@ namespace hive
 
     /*
     SPIDER
-    Ruch długości 3 bez zawracania oraz w każdym pośrednim polu musi się z kimś stykać.
-    implementacja wymaga bfs który powiększa się najpierw w szerz a potem w głąb, żeby móc znaleść wszyskie ścieżki długości 3
+    Moves exactly 3 spaces without backtracking and must touch another piece at each intermediate space.
+    Implementation requires BFS which expands breadth-first and then depth-first to find all paths of length 3.
     */
     std::set<Position> MovementManager::getSpiderMoves(Position position)
     {
@@ -152,8 +152,8 @@ namespace hive
 
     /*
     GRASSHOPPER:
-    Przeskakuje przez figury na puste pole za nimi. W dowolnym kierunku.
-    Musi przeskoczyć przez co najmniej jedną figurę.
+    Jumps over pieces to an empty tile behind them. In any direction.
+    Must jump over at least one piece.
     */
 
     std::set<Position> MovementManager::getGrasshopperMoves(Position position) const
@@ -182,7 +182,7 @@ namespace hive
 
     /*
     Queen:
-    Może się poruszać na sąsiednie pola
+    Can move to adjacent tiles
     */
     std::set<Position> MovementManager::getQueenMoves(Position position) const
     {

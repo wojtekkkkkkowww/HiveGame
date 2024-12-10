@@ -5,7 +5,6 @@
 #include <memory>
 #include <iostream>
 
-
 /*
 Pictures of tiles are collected from website:
 https://www.instructables.com/Hive-game-with-box/

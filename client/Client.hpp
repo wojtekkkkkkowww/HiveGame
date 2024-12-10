@@ -29,7 +29,7 @@ protected:
     bool sendMessage(const std::string &message);
     bool receiveMessage(std::string &message);
 
-    std::string message; ///< The message buffer for communication.
+    std::string message; 
     char player;
     bool gameStarted = false;
 

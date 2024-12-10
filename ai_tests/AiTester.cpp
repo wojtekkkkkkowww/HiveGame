@@ -95,7 +95,6 @@ int AiTester::playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game
         std::swap(currentAi, opponentAi);
     }
 
-    //   std::cout << "END GAME" << std::endl;
     std::string result = game.getGameStatus();
 
     if (result == "WHITE_WINS")

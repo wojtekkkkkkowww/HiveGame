@@ -30,7 +30,6 @@ void BoardDrawable::update()
     {
         updateBoardTiles();
     }
-
 }
 
 void BoardDrawable::updateBoardTiles()
