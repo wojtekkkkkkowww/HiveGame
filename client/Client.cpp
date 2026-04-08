@@ -2,18 +2,20 @@
 #include <iostream>
 
 Client::Client(const std::string &serverIP, unsigned short port, char player)
-    : player(player), serverIP(serverIP), port(port) {}
+    : player(player), serverIP(serverIP), port(port)
+{
+}
 
 bool Client::startConnection()
 {
     if (socket.connect(serverIP, port) != sf::Socket::Done)
     {
-        std::cerr << "Error: Could not connect to server at " << serverIP << ":" << port << std::endl;
+        std::cerr << "Error: Could not connect to server at " << serverIP << ":" << port << '\n';
         return false;
     }
     socket.setBlocking(false);
 
-    std::cout << "Connected to server!" << std::endl;
+    std::cout << "Connected to server!\n";
 
     return sendMessage(std::string(1, player));
 }
@@ -22,7 +24,7 @@ bool Client::sendMessage(const std::string &message)
 {
     if (socket.send(message.c_str(), message.size()) != sf::Socket::Done)
     {
-        std::cerr << "Error: Could not send message to server" << std::endl;
+        std::cerr << "Error: Could not send message to server\n";
         return false;
     }
     return true;
@@ -41,10 +43,7 @@ bool Client::receiveMessage(std::string &message)
     return false;
 }
 
-bool Client::isConnected() const
-{
-    return socket.getRemoteAddress() != sf::IpAddress::None;
-}
+bool Client::isConnected() const { return socket.getRemoteAddress() != sf::IpAddress::None; }
 
 void Client::run()
 {
@@ -55,7 +54,7 @@ void Client::run()
     {
         handleGameStart();
     }
-    std::cout << "Game started!" << std::endl;
+    std::cout << "Game started!\n";
 
     while (true)
     {
@@ -89,7 +88,7 @@ void parseArguments(char &player, int &port, char *argv[])
 
     if (player != 'W' && player != 'B')
     {
-        std::cerr << "Invalid player color" << std::endl;
+        std::cerr << "Invalid player color\n";
         throw std::invalid_argument("Invalid player color");
     }
 }

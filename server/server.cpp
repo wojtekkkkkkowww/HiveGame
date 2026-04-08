@@ -1,7 +1,7 @@
 #include <SFML/Network.hpp>
+#include <algorithm>
 #include <iostream>
 #include <string>
-#include <set>
 
 constexpr auto END_MESSAGES = {"WHITE_WINS", "BLACK_WINS", "DRAW"};
 constexpr size_t bufferSize = 128;
@@ -9,14 +9,8 @@ char buffer[bufferSize];
 
 bool isGameOver(const std::string &message)
 {
-    for (const auto &endMsg : END_MESSAGES)
-    {
-        if (message == endMsg)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(std::begin(END_MESSAGES), std::end(END_MESSAGES),
+                       [&message](const auto &endMsg) { return message == endMsg; });
 }
 
 void startConnection(sf::TcpListener &listener, int PORT)
@@ -25,7 +19,7 @@ void startConnection(sf::TcpListener &listener, int PORT)
     {
         throw std::runtime_error("Could not start listening on port" + std::to_string(PORT));
     }
-    std::cout << "Waiting for two players to connect..." << std::endl;
+    std::cout << "Waiting for two players to connect..." << '\n';
 }
 
 std::string receiveMessage(sf::TcpSocket &player)
@@ -52,13 +46,13 @@ void connectPlayer(sf::TcpListener &listener, sf::TcpSocket &player, const std::
     {
         throw std::runtime_error("Could not accept player");
     }
-    std::cout << prompt << std::endl;
+    std::cout << prompt << '\n';
 }
 
 std::string chooseColor(sf::TcpSocket &player)
 {
     std::size_t received;
-    std::cout << "Please send your color (WHITE or BLACK):" << std::endl;
+    std::cout << "Please send your color (WHITE or BLACK):" << '\n';
 
     if (player.receive(buffer, bufferSize, received) != sf::Socket::Done)
     {
@@ -80,7 +74,7 @@ void startGame(sf::TcpSocket &player1, sf::TcpSocket &player2)
     {
         throw std::runtime_error("Could not send start message to player 2");
     }
-    std::cout << "Game started! Players take turns sending messages..." << std::endl;
+    std::cout << "Game started! Players take turns sending messages..." << '\n';
 }
 
 int main(int argc, char *argv[])
@@ -100,7 +94,7 @@ int main(int argc, char *argv[])
 
     connectPlayer(listener, player1, "Player 1 connected!");
     player1Color = chooseColor(player1);
-    std::cout << "Player 1 chose color: " << player1Color << std::endl;
+    std::cout << "Player 1 chose color: " << player1Color << '\n';
     connectPlayer(listener, player2, "Player 2 connected!");
 
     while (true)
@@ -111,12 +105,12 @@ int main(int argc, char *argv[])
         {
             std::string errorMsg = "Color already chosen! Please choose a different color.";
             sendMessage(player2, errorMsg);
-            std::cout << "Player 2 tried to choose duplicate color: " << player2Color << std::endl;
-            std::cout << "Waiting for player 2 to choose a different color..." << std::endl;
+            std::cout << "Player 2 tried to choose duplicate color: " << player2Color << '\n';
+            std::cout << "Waiting for player 2 to choose a different color..." << '\n';
         }
         else
         {
-            std::cout << "Player 2 chose color: " << player2Color << std::endl;
+            std::cout << "Player 2 chose color: " << player2Color << '\n';
             break;
         }
     }
@@ -130,11 +124,11 @@ int main(int argc, char *argv[])
     while (gameRunning)
     {
         std::string message = receiveMessage(*currentPlayer);
-        std::cout << "Received message: " << message << std::endl;
+        std::cout << "Received message: " << message << '\n';
 
         if (isGameOver(message))
         {
-            std::cout << "Game over! " << message << std::endl;
+            std::cout << "Game over! " << message << '\n';
             gameRunning = false;
         }
 
@@ -142,7 +136,7 @@ int main(int argc, char *argv[])
         std::swap(currentPlayer, waitingPlayer);
     }
 
-    std::cout << "Shutting down server..." << std::endl;
+    std::cout << "Shutting down server..." << '\n';
 
     player1.disconnect();
     player2.disconnect();

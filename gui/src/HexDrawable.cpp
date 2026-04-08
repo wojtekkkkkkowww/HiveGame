@@ -18,7 +18,7 @@ void HexDrawable::setPosition(float x, float y)
 
 void HexDrawable::setTile(const hive::Tile &tile, const std::map<char, sf::Texture> &textures)
 {
-    if(tile.color == 'W')
+    if (tile.color == 'W')
     {
         hex.setFillColor(sf::Color::White);
     }

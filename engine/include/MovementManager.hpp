@@ -1,29 +1,30 @@
 #pragma once
 
-#include <set>
-#include <utility>
-#include <functional>
-#include "Position.hpp"
 #include "MoveValidator.hpp"
+#include "Position.hpp"
+#include <map>
+#include <set>
 
 namespace hive
 {
-    /*
-     * @brief The MovementManager class is responsible for generating possible moves for each tile type.
-     */
-    class MovementManager : public MoveValidator
-    {
-    public:
-        MovementManager();
-        std::set<Position> getAvailableMoves(char type, const Position &position);
-        std::set<Position> getAntMoves(Position position);
-        std::set<Position> getSpiderMoves(Position position);
-        std::set<Position> getGrasshopperMoves(Position position) const;
-        std::set<Position> getBeetleMoves(Position position) const;
-        std::set<Position> getQueenMoves(Position position) const;
+/*
+ * @brief The MovementManager class is responsible for generating possible moves for each tile type.
+ */
+class MovementManager : public MoveValidator
+{
+  public:
+    MovementManager();
 
-        std::map<Position,std::set<Position>> antMoves;    
+    // API: output parameters for better performance
+    void getAvailableMoves(char type, const Position &position, std::set<Position> &outMoves);
+    void getAntMoves(const Position &position, std::set<Position> &outMoves);
+    void getSpiderMoves(const Position &position, std::set<Position> &outMoves);
+    void getGrasshopperMoves(const Position &position, std::set<Position> &outMoves) const;
+    void getBeetleMoves(const Position &position, std::set<Position> &outMoves) const;
+    void getQueenMoves(const Position &position, std::set<Position> &outMoves) const;
 
-    };
+    // Legacy cache (for backwards compatibility)
+    std::map<Position, std::set<Position>> antMoves;
+};
 
-}
+} // namespace hive

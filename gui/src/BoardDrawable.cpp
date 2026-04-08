@@ -2,8 +2,7 @@
 #include "ResourceManager.hpp"
 #include <iostream>
 
-BoardDrawable::BoardDrawable(hive::Board &board, float hexSize)
-    : board(board), hexSize(hexSize)
+BoardDrawable::BoardDrawable(hive::Board &board, float hexSize) : board(board), hexSize(hexSize)
 {
     loadResources();
     update();
@@ -26,7 +25,7 @@ void BoardDrawable::update()
 {
     hexDrawables.clear();
     updateEmptyTiles();
-    if (!board.getTileCount() == 0)
+    if (board.getTileCount() != 0)
     {
         updateBoardTiles();
     }
@@ -48,7 +47,8 @@ void BoardDrawable::updateBoardTiles()
     }
 }
 
-void BoardDrawable::addHex(hive::Position &lastPosition, const hive::Tile &tile, float offset, size_t level)
+void BoardDrawable::addHex(hive::Position &lastPosition, const hive::Tile &tile, float offset,
+                           size_t level)
 {
     lastPosition = tile.position;
     HexDrawable hex(0.95f * hexSize);

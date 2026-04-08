@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.5)
 project(HiveGame)
 
-set(CMAKE_CXX_STANDARD 17)
+if(APPLE)
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/sfml@2")
+    execute_process(COMMAND xcrun --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(CMAKE_OSX_SYSROOT ${CMAKE_OSX_SYSROOT} CACHE PATH "" FORCE)
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 find_package(GTest REQUIRED)
-find_package(SQLite3 REQUIRED)
-find_package(SFML 2.5 COMPONENTS system network graphics REQUIRED)
+find_package(SFML COMPONENTS system network graphics REQUIRED)
 
 
 add_subdirectory(engine)
@@ -21,7 +26,7 @@ add_subdirectory(gameViewer)
 
 
 add_library(global_compile_options INTERFACE)
-target_compile_options(global_compile_options INTERFACE -Wall -Wextra -Wpedantic -Werror -std=c++17 -O3)
+target_compile_options(global_compile_options INTERFACE -Wall -Wextra -Wpedantic -Werror -std=c++20 -O3)
 
 
 #add_compile_options(
@@ -29,6 +34,6 @@ target_compile_options(global_compile_options INTERFACE -Wall -Wextra -Wpedantic
 #  -Wextra 
 #  -Wpedantic 
 #  -Werror 
-#  -std=c++17
+#  -std=c++20
 #  -O3
 #)

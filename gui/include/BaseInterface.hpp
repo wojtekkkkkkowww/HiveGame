@@ -1,15 +1,15 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <memory>
-#include <chrono>
 #include "BoardDrawable.hpp"
 #include "Game.hpp"
-#include "ResourceManager.hpp"
+#include <SFML/Graphics.hpp>
+#include <chrono>
+#include <memory>
 
 using namespace hive;
+
 class BaseInterface
 {
-public:
+  public:
     BaseInterface(sf::RenderWindow &window);
 
     virtual ~BaseInterface() = default;
@@ -21,7 +21,7 @@ public:
     void handleGameControl();
     void update();
 
-protected:
+  protected:
     void handleMouseMoved();
     void handleMouseWheelScroll(float delta);
     void handleWindowClose();

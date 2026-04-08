@@ -1,8 +1,7 @@
-#include "Game.hpp"
-#include "Client.hpp"
 #include "AiAlgorithm.hpp"
-#include "RandomAi.hpp"
 #include "AlphaBethaSearch.hpp"
+#include "Client.hpp"
+#include "Game.hpp"
 #include <iostream>
 
 using namespace hive;
@@ -15,18 +14,18 @@ using namespace hive;
  */
 class AIClient : public Client
 {
-public:
-    AIClient(const std::string &serverIP, unsigned short port, char player, Game& game, AIAlgorithm& aiAlgorithm)
-        : Client(serverIP, port, player), game(game), aiAlgorithm(aiAlgorithm) {}
-
-private:
-    Game& game;
-    AIAlgorithm& aiAlgorithm;
-
-    void prepare() override
+  public:
+    AIClient(const std::string &serverIP, unsigned short port, char player, Game &game,
+             AIAlgorithm &aiAlgorithm)
+        : Client(serverIP, port, player), game(game), aiAlgorithm(aiAlgorithm)
     {
-        game.startNewGame();
     }
+
+  private:
+    Game &game;
+    AIAlgorithm &aiAlgorithm;
+
+    void prepare() override { game.startNewGame(); }
 
     void handleMyAction() override
     {
@@ -41,7 +40,7 @@ private:
 
                 if (!sendMessage(actionString))
                 {
-                    std::cerr << "Failed to send message to the server" << std::endl;
+                    std::cerr << "Failed to send message to the server \n";
                 }
             }
         }
@@ -61,9 +60,9 @@ private:
 
 int main(int argc, char *argv[])
 {
-    char player;
-    int port;
-    
+    char player{'W'};
+    int port{54000};
+
     std::string serverIP = "127.0.0.1";
     if (argc > 2)
     {
@@ -75,7 +74,6 @@ int main(int argc, char *argv[])
     }
     std::unique_ptr<Game> game = std::make_unique<Game>();
     std::unique_ptr<AIAlgorithm> aiAlgorithm = std::make_unique<AlphaBetaAI>(*game);
-
 
     AIClient client(serverIP, port, player, *game, *aiAlgorithm);
     client.run();

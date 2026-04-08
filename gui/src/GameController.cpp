@@ -6,7 +6,8 @@ GameController::GameController(sf::RenderWindow &window)
       pieceSelector(800, 600) // Initialize pieceSelector with window dimensions
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait", resourceManager.getFont("arial.ttf"));
+    waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait",
+                        resourceManager.getFont("arial.ttf"));
 }
 
 void GameController::processEvents()
@@ -48,7 +49,9 @@ void GameController::handleMouseButtonReleased(sf::Mouse::Button button)
     {
         dragging = false;
         auto clickEndTime = std::chrono::high_resolution_clock::now();
-        auto clickDurtion = std::chrono::duration_cast<std::chrono::milliseconds>(clickEndTime - clickStartTime).count();
+        auto clickDurtion =
+            std::chrono::duration_cast<std::chrono::milliseconds>(clickEndTime - clickStartTime)
+                .count();
 
         if (clickDurtion < 200.0f && isMyTurn())
         {
@@ -87,7 +90,7 @@ void GameController::render()
     window.draw(turnText);
     window.draw(pieceSelector);
 
-    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == "WAIT")
+    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == ActionType::WAIT)
     {
         window.draw(waitButton);
     }
@@ -112,10 +115,7 @@ void GameController::setPlayer(char player)
     boardDrawable.setPlayer(player);
 }
 
-bool GameController::isMyTurn()
-{
-    return game->currentTurn == player;
-}
+bool GameController::isMyTurn() { return game->currentTurn == player; }
 
 void GameController::handleMouseClick()
 {
@@ -138,10 +138,9 @@ void GameController::handleMouseClick()
 
 void GameController::handleWaitButtonClick()
 {
-    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == "WAIT")
+    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == ActionType::WAIT)
     {
-        WaitAction action;
-        game->applyAction(action);
+        game->applyAction(Action::makeWaitAction());
         message = game->getLastAction();
     }
 }
@@ -161,7 +160,7 @@ void GameController::handleBoardClick(sf::Vector2f mousePos)
 
     Position boardPos = convertMouseToBoardPos(mousePos);
 
-    if (!pieceSelector.selectedPiece == '\0')
+    if (pieceSelector.selectedPiece != '\0')
     {
         handlePiecePlacement(boardPos);
     }
@@ -175,8 +174,7 @@ void GameController::handlePiecePlacement(const Position &boardPos)
 {
     if (boardPos != invalidPosition)
     {
-        PlaceAction action(boardPos, pieceSelector.selectedPiece);
-        if (game->applyAction(action))
+        if (game->applyAction(Action::makePlaceAction(boardPos, pieceSelector.selectedPiece)))
         {
             message = game->getLastAction();
         }
@@ -197,7 +195,7 @@ void GameController::handlePieceMovement(const Position &boardPos)
     {
         if (boardPos != invalidPosition)
         {
-            MoveAction action(boardDrawable.selectedPosition, boardPos);
+            auto action = Action::makeMoveAction(boardDrawable.selectedPosition, boardPos);
             if (game->applyAction(action))
             {
                 message = game->getLastAction();

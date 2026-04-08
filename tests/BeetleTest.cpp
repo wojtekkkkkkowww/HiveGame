@@ -1,88 +1,76 @@
-#include <gtest/gtest.h>
-#include <algorithm>
 #include "BaseTest.hpp"
-
+#include <algorithm>
+#include <gtest/gtest.h>
 
 using namespace hive;
 
 class BeetleTest : public BaseTest
 {
-public:
-    BeetleTest() : BaseTest() {
-    //    saveState = true;
-    }
+  public:
+    BeetleTest() : BaseTest(){}
 };
 
 TEST_F(BeetleTest, BeetleJump)
 {
-    ASSERT_TRUE(applyAction(PlaceAction({0, 0}, 'Q')));
-    ASSERT_TRUE(applyAction(PlaceAction({0, -1}, 'Q')));
-    Position beetlePosition = {0, 1};
-    ASSERT_TRUE(applyAction(PlaceAction(beetlePosition, 'B')));
+    ASSERT_TRUE(applyAction(Action::makePlaceAction({0, 0}, 'Q')));
+    ASSERT_TRUE(applyAction(Action::makePlaceAction({0, -1}, 'Q')));
+    Position beetlePosition = {.x=0, .y=1};
+    ASSERT_TRUE(applyAction(Action::makePlaceAction(beetlePosition, 'B')));
 
-    Position beetlePosition2 = {0, -2};
-    ASSERT_TRUE(applyAction(PlaceAction(beetlePosition2, 'B')));        
+    Position beetlePosition2 = {.x=0, .y=-2};
+    ASSERT_TRUE(applyAction(Action::makePlaceAction(beetlePosition2, 'B')));
 
     std::set<Position> expectedMoves = {{0, 0}, {-1, 1}, {1, 0}};
 
     checkMoves(beetlePosition, expectedMoves);
-    ASSERT_TRUE(applyAction(MoveAction(beetlePosition, {0, 0})));
+    ASSERT_TRUE(applyAction(Action::makeMoveAction(beetlePosition, {0, 0})));
 
     expectedMoves = {{-1, -1}, {1, -2}, {0, -1}};
     checkMoves(beetlePosition2, expectedMoves);
 
-    ASSERT_TRUE(applyAction(MoveAction(beetlePosition2, {0, -1})));
-    ASSERT_TRUE(applyAction(MoveAction({0, 0}, {0, -1})));
+    ASSERT_TRUE(applyAction(Action::makeMoveAction(beetlePosition2, {0, -1})));
+    ASSERT_TRUE(applyAction(Action::makeMoveAction({0, 0}, {0, -1})));
 
     expectedMoves = {};
-    checkMoves({0, -1}, expectedMoves);
-    ASSERT_TRUE(applyAction(WaitAction()));
-    ASSERT_TRUE(applyAction(MoveAction({0, -1}, {0, 0})));
-    ASSERT_TRUE(applyAction(PlaceAction({-1, -1}, 'B')));
-    ASSERT_TRUE(applyAction(PlaceAction({-1, 1}, 'B')));
-    ASSERT_TRUE(applyAction(PlaceAction({0, -2}, 'A')));    
-    ASSERT_TRUE(applyAction(MoveAction({0, 0}, {0, -1})));
-    ASSERT_TRUE(applyAction(MoveAction({-1, -1}, {0, -1})));
+    checkMoves({.x=0, .y=-1}, expectedMoves);
+    ASSERT_TRUE(applyAction(Action::makeWaitAction()));
+    ASSERT_TRUE(applyAction(Action::makeMoveAction({0, -1}, {0, 0})));
+    ASSERT_TRUE(applyAction(Action::makePlaceAction({-1, -1}, 'B')));
+    ASSERT_TRUE(applyAction(Action::makePlaceAction({-1, 1}, 'B')));
+    ASSERT_TRUE(applyAction(Action::makePlaceAction({0, -2}, 'A')));
+    ASSERT_TRUE(applyAction(Action::makeMoveAction({0, 0}, {0, -1})));
+    ASSERT_TRUE(applyAction(Action::makeMoveAction({-1, -1}, {0, -1})));
 }
 
 TEST_F(BeetleTest, freedomToMove)
 {
-    std::map<Position,std::deque<hive::Tile>> tiles = 
-    {   {{0,0},{Tile("WQ")}},
-        {{-1,1},{Tile("WG1"),Tile("BB1")}},
-        {{0,-1},{Tile("BQ"),Tile("WB1")}},
-        {{-1,0},{Tile("BB2")}}
-    };
+    std::map<Position, std::deque<hive::Tile>> tiles = {{{0, 0}, {Tile("WQ")}},
+                                                        {{-1, 1}, {Tile("WG1"), Tile("BB1")}},
+                                                        {{0, -1}, {Tile("BQ"), Tile("WB1")}},
+                                                        {{-1, 0}, {Tile("BB2")}}};
 
-    
-    startGameFromState(tiles,'B');
-    saveBoardState();
-    
+    startGameFromState(tiles, 'B');
+    // saveBoardState();
+
     auto actions = avaliableActions;
-    for(auto action : actions)
+    for (const auto &action : actions)
     {
         std::cerr << action << std::endl;
     }
 
-    auto wrongAction = MoveAction({-1,0},{0,0});
+    auto wrongAction = Action::makeMoveAction({-1, 0}, {0, 0});
     ASSERT_TRUE(std::find(actions.begin(), actions.end(), wrongAction) == actions.end());
 
-
     board.resetBoard();
-    std::map<Position,std::deque<hive::Tile>> tiles2 = 
-    {   {{0,0},{Tile("WQ"),Tile("WB1")}},
-        {{-1,1},{Tile("WG1"),Tile("BB1")}},
-        {{0,-1},{Tile("BQ"),Tile("WB2")}},
-        {{-1,0},{Tile("BB2")}}
-    };
+    std::map<Position, std::deque<hive::Tile>> tiles2 = {{{0, 0}, {Tile("WQ"), Tile("WB1")}},
+                                                         {{-1, 1}, {Tile("WG1"), Tile("BB1")}},
+                                                         {{0, -1}, {Tile("BQ"), Tile("WB2")}},
+                                                         {{-1, 0}, {Tile("BB2")}}};
 
-    startGameFromState(tiles2,'B');
-    saveBoardState();
-
+    startGameFromState(tiles2, 'B');
+    // saveBoardState();
 
     actions = avaliableActions;
-    auto correctAction = MoveAction({-1,0},{0,0});
+    auto correctAction = Action::makeMoveAction({-1, 0}, {0, 0});
     ASSERT_TRUE(std::find(actions.begin(), actions.end(), correctAction) != actions.end());
-
-
 }

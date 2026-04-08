@@ -1,19 +1,19 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <memory>
 #include <chrono>
+#include <memory>
 
-#include "BoardDrawable.hpp"
-#include "PieceSelector.hpp"
-#include "Game.hpp"
-#include "Button.hpp"
 #include "BaseInterface.hpp"
+#include "BoardDrawable.hpp"
+#include "Button.hpp"
+#include "Game.hpp"
+#include "PieceSelector.hpp"
 
 using namespace hive;
 
 class GameController : public BaseInterface
 {
-public:
+  public:
     GameController(sf::RenderWindow &window);
     void apllyOpponentAction(const std::string &action);
     void setPlayer(char player);
@@ -24,7 +24,7 @@ public:
     void handleMouseButtonPressed(sf::Mouse::Button button) override;
     void handleMouseButtonReleased(sf::Mouse::Button button) override;
 
-protected:
+  protected:
     void handleMouseClick();
     bool isMyTurn();
     void handleWaitButtonClick();

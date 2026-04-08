@@ -1,150 +1,144 @@
 #pragma once
 
-#include <map>
-#include <set>
+#include "Position.hpp"
+#include "Tile.hpp"
 #include <deque>
 #include <list>
+#include <map>
+#include <set>
 #include <vector>
-#include "Tile.hpp"
-#include "Position.hpp"
 
 namespace hive
 {
-    /**
-     * @brief The BaseBoard class is for managing tiles on the board.
-     *
-     */
-    class BaseBoard
+/**
+ * @brief The BaseBoard class is for managing tiles on the board.
+ *
+ */
+class BaseBoard
+{
+  public:
+    virtual ~BaseBoard() = default;
+
+    void resetBoard();
+    void setBoardTiles(
+        const std::map<Position, std::deque<Tile>> &tiles); // to nie ma sensu bardzej move
+    void addEmptyTilesAroundBoard();
+
+    Position whiteQueen = invalidPosition;
+    Position blackQueen = invalidPosition;
+
+    std::vector<std::list<Tile>> getTiles() const;
+    std::set<Position> getPlayerTiles(char color) const;
+    std::vector<Position> getPositions() const;
+
+    static std::set<Position> getNeighbours(Position position);
+
+    std::map<Position, std::deque<Tile>> boardTiles;
+    std::set<Position> emptyTiles;
+    std::map<std::string, Position> positions;
+
+    Tile getTileByNotation(const std::string &notation) const
     {
-    public:
-        virtual ~BaseBoard() = default;
-
-        void resetBoard();
-        void setBoardTiles(std::map<Position, std::deque<Tile>> &tiles);
-        void addEmptyTilesAroundBoard();
-
-        Position whiteQueen = invalidPosition;
-        Position blackQueen = invalidPosition;
-
-        std::vector<std::list<Tile>> getTiles() const;
-        std::set<Position> getPlayerTiles(char color) const;
-        std::vector<Position> getPositions() const;
-
-        static std::set<Position> getNeighbours(Position position);
-
-        std::map<Position, std::deque<Tile>> boardTiles;
-        std::set<Position> emptyTiles;
-        std::map<std::string, Position> positions;
-
-        inline Tile getTileByNotation(std::string notation) const
+        if (positions.find(notation) == positions.end())
         {
-            if (positions.find(notation) == positions.end())
-            {
-                return Tile(notation);
-            }
-
-            Position position = positions.at(notation);
-
-            return boardTiles.at(position).back();
+            return {notation};
         }
 
-        inline int getLevel(Position position) const
-        {
-            if (isEmpty(position))
-            {
-                return 0;
-            }
+        Position position = positions.at(notation);
 
-            return boardTiles.at(position).size();
+        return boardTiles.at(position).back();
+    }
+
+    int getLevel(Position position) const
+    {
+        if (isEmpty(position))
+        {
+            return 0;
         }
+        return static_cast<int>(boardTiles.at(position).size());
+    }
 
-        inline void moveTile(Position position, Position newPosition)
-        {
-            auto tile = boardTiles.at(position).back();
-            removeTile(position);
-            addTile(newPosition, tile);
-        }
+    void moveTile(Position position, Position newPosition)
+    {
+        auto tile = boardTiles.at(position).back();
+        removeTile(position);
+        addTile(newPosition, tile);
+    }
 
-        inline int calculateColoredNeighbours(Position position, char color) const
+    int calculateColoredNeighbours(Position position, char color) const
+    {
+        int count = 0;
+        for (const auto &dir : directions)
         {
-            int count = 0;
-            for (const auto &dir : directions)
+            if (!isEmpty(position + dir))
             {
-                if (!isEmpty(position + dir))
-                {
-                    const auto &tile = getTile(position + dir);
-                    if (tile.color == color)
-                    {
-                        count++;
-                    }
-                }
-            }
-            return count;
-        }
-
-        inline int calculateNeighbours(const Position &position) const
-        {
-            int count = 0;
-            for (const auto &dir : directions)
-            {
-                if (!isEmpty(position + dir))
+                const auto &tile = getTile(position + dir);
+                if (tile.color == color)
                 {
                     count++;
                 }
             }
-            return count;
         }
+        return count;
+    }
 
-        inline int getTileCount() const
+    int calculateNeighbours(const Position &position) const
+    {
+        int count = 0;
+        for (const auto &dir : directions)
         {
-            return boardTiles.size();
-        }
-
-        inline bool isEmpty(Position position) const
-        {
-            return boardTiles.find(position) == boardTiles.end();
-        }
-
-        inline Tile getTile(Position position) const
-        {
-            const auto &tiles = boardTiles.at(position);
-            return tiles.back();
-        }
-
-        inline void removeTile(Position position)
-        {
-            if (!isEmpty(position))
+            if (!isEmpty(position + dir))
             {
-                const Tile tile = boardTiles[position].back();
-                boardTiles[position].pop_back();
-                if (boardTiles[position].empty())
-                {
-                    boardTiles.erase(position);
-                }
-                positions.erase(tile.notation);
+                count++;
             }
         }
+        return count;
+    }
 
-        inline void addTile(Position position, Tile tile)
+    int getTileCount() const { return static_cast<int>(boardTiles.size()); }
+
+    bool isEmpty(Position position) const { return boardTiles.find(position) == boardTiles.end(); }
+
+    Tile getTile(Position position) const
+    {
+        const auto &tiles = boardTiles.at(position);
+        return tiles.back();
+    }
+
+    void removeTile(Position position)
+    {
+        if (!isEmpty(position))
         {
-            tile.setPosition(position);
-
-            if (tile.type == 'Q' && tile.color == 'W')
+            const Tile tile = boardTiles[position].back();
+            boardTiles[position].pop_back();
+            if (boardTiles[position].empty())
             {
-                whiteQueen = position;
+                boardTiles.erase(position);
             }
-            if (tile.type == 'Q' && tile.color == 'B')
-            {
-                blackQueen = position;
-            }
-
-            if (isEmpty(position))
-            {
-                boardTiles[position] = std::deque<Tile>();
-            }
-
-            boardTiles[position].push_back(tile);
-            positions[tile.notation] = position;
+            positions.erase(tile.notation);
         }
-    };
-}
+    }
+
+    void addTile(Position position, Tile tile)
+    {
+        tile.setPosition(position);
+
+        if (tile.type == 'Q' && tile.color == 'W')
+        {
+            whiteQueen = position;
+        }
+        if (tile.type == 'Q' && tile.color == 'B')
+        {
+            blackQueen = position;
+        }
+
+        if (isEmpty(position))
+        {
+            boardTiles[position] = std::deque<Tile>();
+        }
+
+        boardTiles[position].push_back(tile);
+        positions[tile.notation] = position;
+    }
+};
+} // namespace hive

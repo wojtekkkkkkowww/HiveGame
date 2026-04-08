@@ -1,10 +1,22 @@
 #include "AiTester.hpp"
-#include <iostream>
 #include <chrono>
-#include <iomanip>
-#include <random>
 #include <fstream>
-#include <map>
+#include <iomanip>
+#include <iostream>
+#include <random>
+#include <future>
+#include "FileOperations.hpp"
+
+/*
+Depth & Time (ms) & Nodes & Nodes/s \\
+2 & 0 & 36 & 36.00K \\
+3 & 0 & 216 & 216.00K \\
+4 & 1 & 1296 & 1296.00K \\
+5 & 14 & 7776 & 555.43K \\
+6 & 53 & 46656 & 880.30K \\
+7 & 266 & 279408 & 1050.41K \\
+8 & 1391 & 1665980 & 1197.69K \\
+*/
 
 #define NUMBER_OF_GAMES 1
 #define MAX_NUMBER_OF_MOVES 100
@@ -14,10 +26,7 @@ using namespace hive;
 const int NUM_ITERATIONS = 10000;
 const int GAMES_PER_ITERATION = 2;
 
-AiTester::AiTester()
-    : game(),
-      alphaBetaAi(game), randomAi(game),
-      ai1Type(""), ai2Type("") {}
+AiTester::AiTester() : game(), alphaBetaAi(game), randomAi(game), ai1Type(""), ai2Type("") {}
 
 void AiTester::perft(int depth, long long &nodes)
 {
@@ -48,7 +57,7 @@ void AiTester::perft(int depth, long long &nodes)
 
 void AiTester::performPerftTest(int maxDepth)
 {
-    std::cout << "Depth & Time (ms) & Nodes & Nodes/s \\\\" << std::endl;
+    std::cout << "Depth & Time (ms) & Nodes & Nodes/s \\\\" << '\n';
     for (int depth = 2; depth <= maxDepth; ++depth)
     {
         long long nodes = 0;
@@ -60,10 +69,12 @@ void AiTester::performPerftTest(int maxDepth)
         auto end = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-        double nodesPerMs = nodes / (elapsed > 0.0 ? elapsed : 1.0);
+        double nodesPerMs =
+            elapsed > 0 ? static_cast<double>(nodes) / static_cast<double>(elapsed) : 0.0;
         std::cout << std::fixed << std::setprecision(2);
 
-        std::cout << depth << " & " << elapsed << " & " << nodes << " & " << nodesPerMs << "K \\\\" << std::endl;
+        std::cout << depth << " & " << elapsed << " & " << nodes << " & " << nodesPerMs << "K \\\\"
+                  << '\n';
     }
 }
 
@@ -101,9 +112,10 @@ int AiTester::playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game
         return player == 'W' ? 1 : -2;
     else if (result == "BLACK_WINS")
         return player == 'B' ? 1 : -2;
-    else{
-        if(result == "DRAW")
-            std::cout << "DRAW" << std::endl;
+    else
+    {
+        if (result == "DRAW")
+            std::cout << "DRAW" << '\n';
         return 0;
     }
 }
@@ -114,31 +126,35 @@ int AiTester::runParallelGames(std::vector<double> &weights1, std::vector<double
 
     for (int j = 0; j < GAMES_PER_ITERATION; ++j)
     {
-        futures.push_back(std::async(std::launch::async, [this, weights1, weights2]()
+        futures.push_back(std::async(std::launch::async,
+                                     [this, weights1, weights2]()
                                      {
-            Game game;
-            AlphaBetaAI ai1(game);
-            ai1.setHeuristicWeights(weights1);
-            AlphaBetaAI ai2(game);
-            ai2.setHeuristicWeights(weights2);
-            game.startNewGame();
-            int score = 0;
+                                         Game game;
+                                         AlphaBetaAI ai1(game);
+                                         ai1.setHeuristicWeights(weights1);
+                                         AlphaBetaAI ai2(game);
+                                         ai2.setHeuristicWeights(weights2);
+                                         game.startNewGame();
+                                         int score = 0;
 
-            score += playTestGame('W', ai1, ai2, game);
-            return score; }));
+                                         score += playTestGame('W', ai1, ai2, game);
+                                         return score;
+                                     }));
 
-        futures.push_back(std::async(std::launch::async, [this, weights1, weights2]()
+        futures.push_back(std::async(std::launch::async,
+                                     [this, weights1, weights2]()
                                      {
-            Game game;
-            AlphaBetaAI ai1(game);
-            ai1.setHeuristicWeights(weights1);
-            AlphaBetaAI ai2(game);
-            ai2.setHeuristicWeights(weights2);
-            game.startNewGame();
-            int score = 0;
-            score += playTestGame('B', ai2, ai1, game);
+                                         Game game;
+                                         AlphaBetaAI ai1(game);
+                                         ai1.setHeuristicWeights(weights1);
+                                         AlphaBetaAI ai2(game);
+                                         ai2.setHeuristicWeights(weights2);
+                                         game.startNewGame();
+                                         int score = 0;
+                                         score += playTestGame('B', ai2, ai1, game);
 
-            return score; }));
+                                         return score;
+                                     }));
     }
 
     int totalScore = 0;
@@ -154,22 +170,25 @@ int AiTester::runParallelGames(std::vector<double> &weights)
 {
     std::vector<std::future<int>> futures;
 
+    futures.reserve(GAMES_PER_ITERATION);
     for (int j = 0; j < GAMES_PER_ITERATION; ++j)
     {
-        futures.push_back(std::async(std::launch::async, [this, weights]()
+        futures.push_back(std::async(std::launch::async,
+                                     [this, weights]()
                                      {
-            Game game;
-            AlphaBetaAI ai1(game);
-            ai1.setHeuristicWeights(weights);
-            RandomAIAlgorithm ai2(game);
-            game.startNewGame();
-            int score = 0;
+                                         Game game;
+                                         AlphaBetaAI ai1(game);
+                                         ai1.setHeuristicWeights(weights);
+                                         RandomAIAlgorithm ai2(game);
+                                         game.startNewGame();
+                                         int score = 0;
 
-            score += playTestGame('W', ai1, ai2, game);
-            game.startNewGame();
-            score += playTestGame('B', ai2, ai1, game);
+                                         score += playTestGame('W', ai1, ai2, game);
+                                         game.startNewGame();
+                                         score += playTestGame('B', ai2, ai1, game);
 
-            return score; }));
+                                         return score;
+                                     }));
     }
 
     int totalScore = 0;
@@ -180,8 +199,6 @@ int AiTester::runParallelGames(std::vector<double> &weights)
 
     return totalScore;
 }
-
-
 
 std::vector<double> AiTester::neighbourWeigths(std::vector<double> &weigths)
 {
@@ -201,7 +218,7 @@ void AiTester::SA()
     std::list<std::pair<std::vector<double>, int>> scores;
     double bestScore = -40;
     double currentScore = runParallelGames(weights);
-    std::cout << "Initial Score: " << currentScore << std::endl;
+    std::cout << "Initial Score: " << currentScore << '\n';
 
     std::vector<std::vector<double>> opponents;
     for (int i = 0; i < 20; i++)
@@ -217,14 +234,14 @@ void AiTester::SA()
 
     while (i < NUM_ITERATIONS && temperature > 1)
     {
-        std::cout << "Iteration: " << i << std::endl;
-        std::cout << "Temperature: " << temperature << std::endl;
+        std::cout << "Iteration: " << i << '\n';
+        std::cout << "Temperature: " << temperature << '\n';
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
         std::vector<double> neighbour = neighbourWeigths(weights);
         std::cout << weights[0] << " " << weights[1] << " " << weights[2];
         std::cout << " VS ";
-        std::cout << neighbour[0] << " " << neighbour[1] << " " << neighbour[2] << std::endl;
+        std::cout << neighbour[0] << " " << neighbour[1] << " " << neighbour[2] << '\n';
 
         int score = 0;
         for (int j = 0; j < 20; j++)
@@ -240,14 +257,15 @@ void AiTester::SA()
             if (score > bestScore)
             {
                 bestScore = score;
-                std::cout << "New best weights: " << weights[0] << " " << weights[1] << " " << weights[2] << std::endl;
+                std::cout << "New best weights: " << weights[0] << " " << weights[1] << " "
+                          << weights[2] << '\n';
             }
             scores.push_back(std::make_pair(weights, score));
         }
 
         temperature *= 1 - coolingRate;
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        std::cout << "Iteration Time = " << (end - begin).count() << std::endl;
+        std::cout << "Iteration Time = " << (end - begin).count() << '\n';
         i++;
     }
 
@@ -256,9 +274,9 @@ void AiTester::SA()
     {
         std::cout << weight << " ";
     }
-    std::cout << std::endl;
-    std::cout << "Current Score: " << currentScore << std::endl;
-    std::cout << "Best Score: " << bestScore << std::endl;
+    std::cout << '\n';
+    std::cout << "Current Score: " << currentScore << '\n';
+    std::cout << "Best Score: " << bestScore << '\n';
 
     std::ofstream cacheFile("cache.txt");
     if (cacheFile.is_open())
@@ -266,26 +284,25 @@ void AiTester::SA()
         for (const auto &entry : scores)
         {
             if (entry.second > 0)
-                cacheFile << entry.first[0] << " "
-                          << entry.first[1] << " "
-                          << entry.first[2] << " "
-                          << entry.second << std::endl;
+                cacheFile << entry.first[0] << " " << entry.first[1] << " " << entry.first[2] << " "
+                          << entry.second << '\n';
         }
         cacheFile.close();
     }
 }
 
 void hive::AiTester::testAI()
-{   int score = 0;
-    for(int i = 0; i < 1000; i++)
+{
+    int score = 0;
+    for (int i = 0; i < 1000; i++)
     {
         game.startNewGame();
         score += playTestGame('W', alphaBetaAi, randomAi, game);
         game.startNewGame();
         score += playTestGame('B', randomAi, alphaBetaAi, game);
-        std::cout << "Score: " << score << std::endl;
+        std::cout << "Score: " << score << '\n';
     }
-    std::cout << "Total Score: " << score << std::endl;
+    std::cout << "Total Score: " << score << '\n';
 }
 
 void AiTester::runGameSimulation()
@@ -304,23 +321,23 @@ void AiTester::runGameSimulation()
             if (game.getCurrentTurn() == 'W')
             {
                 action = getNextMove(ai1Type);
-                std::cout << "AI 1: " << action << std::endl;
+                std::cout << "AI 1: " << action << '\n';
             }
             else
             {
                 action = getNextMove(ai2Type);
-                std::cout << "AI 2: " << action << std::endl;
+                std::cout << "AI 2: " << action << '\n';
             }
 
             game.applyAction(action);
             moves.push_back(game.getLastAction());
             movesCounter++;
-            std::cout << "Move: " << moves.back() << std::endl;
+            std::cout << "Move: " << moves.back() << '\n';
         }
-        std::cout << "movesCounter: " << movesCounter << std::endl;
-        std::cout << "number of moves: " << moves.size() << std::endl;
+        std::cout << "movesCounter: " << movesCounter << '\n';
+        std::cout << "number of moves: " << moves.size() << '\n';
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        std::cout << "Game Time = " << (end - begin).count() << std::endl;
+        std::cout << "Game Time = " << (end - begin).count() << '\n';
         saveToFile(std::to_string(i), moves);
 
         std::string result = game.getGameStatus();
@@ -332,12 +349,12 @@ void AiTester::runGameSimulation()
             draws++;
     }
 
-    std::cout << "AI 1 Wins: " << ai1Wins << std::endl;
-    std::cout << "AI 2 Wins: " << ai2Wins << std::endl;
-    std::cout << "Draws: " << draws << std::endl;
+    std::cout << "AI 1 Wins: " << ai1Wins << '\n';
+    std::cout << "AI 2 Wins: " << ai2Wins << '\n';
+    std::cout << "Draws: " << draws << '\n';
 }
 
-Action hive::AiTester::getNextMove(std::string aiType)
+Action hive::AiTester::getNextMove(const std::string &aiType)
 {
     Action action;
     if (aiType == "random")
@@ -367,7 +384,7 @@ void AiTester::performRandomMoves(int iterations, int epochs)
         {
             if (game.isGameOver())
             {
-                std::cerr << "Game Over" << std::endl;
+                std::cerr << "Game Over" << '\n';
                 break;
             }
 
@@ -390,7 +407,7 @@ void AiTester::performRandomMoves(int iterations, int epochs)
         {
             std::cout << branchingFactorSum[j][i] << " ";
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 }
 
@@ -415,8 +432,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-        std::cerr << "Usage: " << argv[0] << " <AI1> <AI2> | optimize" << std::endl;
-        std::cerr << "Implemented AIs: random, alphabeta" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <AI1> <AI2> | optimize" << '\n';
+        std::cerr << "Implemented AIs: random, alphabeta" << '\n';
         return 1;
     }
 

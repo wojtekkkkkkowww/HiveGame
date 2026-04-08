@@ -1,18 +1,18 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <string>
-#include <iostream>
 #include "ResourceManager.hpp"
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
 /*
- * @brief The PieceSelector class is responsible for displaying pool of pieces that player can choose from.
+ * @brief The PieceSelector class is responsible for displaying pool of pieces that player can
+ * choose from.
  */
 class PieceSelector : public sf::Drawable
 {
-public:
-    PieceSelector(float windowWidth, float windowHeight)
-        : windowHeight(windowHeight)
+  public:
+    PieceSelector(float windowWidth, float windowHeight) : windowHeight(windowHeight)
     {
         stackRect = sf::RectangleShape(sf::Vector2f(windowWidth, 150));
         stackRect.setFillColor(sf::Color::White);
@@ -20,6 +20,7 @@ public:
         stackRect.setOutlineThickness(2);
         stackRect.setPosition(0, windowHeight - 150);
 
+        std::cerr << "Loading pieces into PieceSelector " << this->windowHeight << std::endl;
         loadPieces();
     }
 
@@ -47,7 +48,8 @@ public:
         {
             return;
         }
-        sprite.setPosition(stackRect.getPosition().x + xOffset, stackRect.getPosition().y + yOffset);
+        sprite.setPosition(stackRect.getPosition().x + xOffset,
+                           stackRect.getPosition().y + yOffset);
         pieces.push_back({pieceType, sprite});
     }
 
@@ -62,14 +64,11 @@ public:
         }
     }
 
-    bool contains(sf::Vector2f mousePos)
-    {
-        return stackRect.getGlobalBounds().contains(mousePos);
-    }
+    bool contains(sf::Vector2f mousePos) { return stackRect.getGlobalBounds().contains(mousePos); }
 
     char selectedPiece;
 
-private:
+  private:
     sf::RectangleShape stackRect;
     std::vector<std::pair<char, sf::Sprite>> pieces;
     float windowHeight;

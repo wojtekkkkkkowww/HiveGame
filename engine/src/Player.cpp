@@ -2,16 +2,9 @@
 #include <sstream>
 
 std::map<char, int> hive::Player::initialPieceCounts = {
-    {'Q', 1},
-    {'S', 2},
-    {'B', 2},
-    {'G', 3},
-    {'A', 3}};
+    {'Q', 1}, {'S', 2}, {'B', 2}, {'G', 3}, {'A', 3}};
 
-hive::Player::Player(char color) : color(color)
-{
-    reset();
-}
+hive::Player::Player(char color) : color(color) { reset(); }
 
 hive::Tile hive::Player::takeTile(char type)
 {
@@ -21,17 +14,16 @@ hive::Tile hive::Player::takeTile(char type)
     }
     pieceCounters[type]--;
 
-    std::ostringstream os;
+    std::ostringstream stream;
     if (type == 'Q')
     {
-        os << color << type;
+        stream << color << type;
     }
     else
     {
-        os << color << type << getUnplacedPieceNumber(type);
+        stream << color << type << getUnplacedPieceNumber(type);
     }
-    std::string notation = os.str();
-    return Tile(notation);
+    return {stream.str()};
 }
 
 void hive::Player::returnTile(char type)

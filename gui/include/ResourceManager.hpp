@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <unordered_map>
-#include <string>
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 /*
 Pictures of tiles are collected from website:
@@ -15,7 +15,7 @@ https://www.instructables.com/Hive-game-with-box/
  */
 class ResourceManager
 {
-public:
+  public:
     static ResourceManager &getInstance()
     {
         static ResourceManager instance;
@@ -33,7 +33,7 @@ public:
             }
             else
             {
-                textures[name] = std::move(texture);
+                textures[name] = texture;
                 std::cerr << "Loaded texture: " << name << std::endl;
             }
         }
@@ -50,13 +50,13 @@ public:
             }
             else
             {
-                fonts[name] = std::move(font);
+                fonts[name] = font;
             }
         }
         return fonts[name];
     }
 
-private:
+  private:
     ResourceManager() = default;
     std::unordered_map<char, sf::Texture> textures;
     std::unordered_map<std::string, sf::Font> fonts;

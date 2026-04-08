@@ -1,77 +1,77 @@
 #include "ArticulationPoints.hpp"
 #include <algorithm>
 #include <iostream>
-#include <set>
 #include <map>
+#include <set>
 #include <vector>
 
 namespace hive
 {
-    ArticulationPointFinder::ArticulationPointFinder(MoveValidator &val)
-        : val(val) {}
+ArticulationPointFinder::ArticulationPointFinder(MoveValidator &val) : val(val) {}
 
-    void ArticulationPointFinder::dfsAP(Position u, Position parent)
+void ArticulationPointFinder::dfsAP(Position u, Position parent)
+{
+    visited.insert(u);
+    disc[u] = low[u] = ++time;
+    int children = 0;
+
+    for (const auto &d : directions)
     {
-        visited.insert(u);
-        disc[u] = low[u] = ++time;
-        int children = 0;
+        Position v = u + d;
+        if (val.isEmpty(v))
+            continue;
 
-        for (const auto &d : directions)
+        if (visited.find(v) == visited.end())
         {
-            Position v = u + d;
-            if (val.isEmpty(v))
-                continue;
+            children++;
+            dfsAP(v, u);
 
-            if (visited.find(v) == visited.end())
-            {
-                children++;
-                dfsAP(v, u);
-
-                updateLowAndCheckAP(u, v, parent);
-            }
-            else if (v != parent)
-            {
-                updateLowForBackEdge(u, v);
-            }
+            updateLowAndCheckAP(u, v, parent);
         }
-
-        checkRootAP(u, parent, children);
-    }
-
-    void ArticulationPointFinder::findArticulationPoints()
-    {
-        prepareData();
-
-        if (tiles.size() == 0)
+        else if (v != parent)
         {
-            return;
-        }
-
-        dfsAP(tiles.at(0), invalidPosition);
-
-        for (auto &position : ap)
-        {
-            if (val.getLevel(position) > 1)
-                continue;
-
-            val.articulationPoints.insert(position);
+            updateLowForBackEdge(u, v);
         }
     }
 
-    void ArticulationPointFinder::prepareData()
-    {
-        tiles = val.getPositions();
-        val.articulationPoints.clear();
-        disc.clear();
-        low.clear();
-        ap.clear();
-        visited.clear();
+    checkRootAP(u, parent, children);
+}
 
-        for (const Position &tile : tiles)
+void ArticulationPointFinder::findArticulationPoints()
+{
+    prepareData();
+
+    if (tiles.size() == 0)
+    {
+        return;
+    }
+
+    dfsAP(tiles.at(0), invalidPosition);
+
+    for (const auto &position : ap)
+    {
+        if (val.getLevel(position) > 1)
         {
-            disc[tile] = 0;
-            low[tile] = 0;
+            continue;
         }
-        time = 0;
+        val.articulationPoints.insert(position);
     }
 }
+
+void ArticulationPointFinder::prepareData()
+{
+    tiles = val.getPositions();
+    val.articulationPoints.clear();
+    disc.clear();
+    low.clear();
+    ap.clear();
+    visited.clear();
+
+    for (const Position &tile : tiles)
+    {
+        disc[tile] = 0;
+        low[tile] = 0;
+    }
+    time = 0;
+}
+} // namespace hive

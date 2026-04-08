@@ -1,7 +1,7 @@
 #pragma once
+#include "Game.hpp"
 #include <SFML/Network.hpp>
 #include <string>
-#include "Game.hpp"
 
 /**
  * @brief A class for managing a TCP client connection.
@@ -11,7 +11,7 @@
  */
 class Client
 {
-public:
+  public:
     Client(const std::string &serverIP, unsigned short port, char player);
 
     /**
@@ -22,18 +22,18 @@ public:
      */
     void run();
 
-protected:
+  protected:
     virtual void handleMyAction() = 0;
     virtual void handleOpponentAction() = 0;
     virtual void prepare() = 0;
     bool sendMessage(const std::string &message);
     bool receiveMessage(std::string &message);
 
-    std::string message; 
+    std::string message;
     char player;
     bool gameStarted = false;
 
-private:
+  private:
     void handleGameStart();
     bool startConnection();
     bool isConnected() const;

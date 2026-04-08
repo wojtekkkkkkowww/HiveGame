@@ -1,12 +1,11 @@
 #include "BaseInterface.hpp"
+#include "ResourceManager.hpp"
 
 BaseInterface::BaseInterface(sf::RenderWindow &window)
-    : window(window),
-      game(std::make_unique<Game>()),
+    : window(window), boardView(window.getDefaultView()), game(std::make_unique<Game>()),
       boardDrawable(game->board, 32.0f)
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    boardView = window.getDefaultView();
 
     turnText.setFont(resourceManager.getFont("arial.ttf"));
     turnText.setCharacterSize(24);
@@ -65,14 +64,12 @@ void BaseInterface::handleMouseWheelScroll(float delta)
     change = true;
 }
 
-void BaseInterface::handleWindowClose()
-{
-    window.close();
-}
+void BaseInterface::handleWindowClose() { window.close(); }
 
 void BaseInterface::updateTurnText()
 {
-    if (game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" || game->gameStatus == "DRAW")
+    if (game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" ||
+        game->gameStatus == "DRAW")
     {
         turnText.setString("Game over! " + game->gameStatus);
         return;
