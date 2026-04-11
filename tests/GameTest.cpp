@@ -11,20 +11,19 @@ using namespace hive;
 class GameTest : public BaseTest
 {
   public:
-    GameTest() : BaseTest()
-    {}
+    GameTest() : BaseTest() {}
 
     bool checkCounters(char tileType, int expectedCount)
     {
-        bool result = applyAction(Action::makePlaceAction({0, 0}, tileType));
+        bool result = applyAction(makePlaceAction({.x = 0, .y = 0}, tileType));
         for (int i = 1; i <= expectedCount; i++)
         {
-            result = applyAction(Action::makePlaceAction({i, 0}, tileType));
+            result = applyAction(makePlaceAction({.x = i, .y = 0}, tileType));
             if (!result)
             {
                 break;
             }
-            result = applyAction(Action::makePlaceAction({-i, 0}, tileType));
+            result = applyAction(makePlaceAction({.x = -i, .y = 0}, tileType));
         }
         return result;
     }
@@ -33,58 +32,58 @@ class GameTest : public BaseTest
 namespace
 {
 std::vector<Action> blackWins = {
-    Action::makePlaceAction({0, 0}, 'Q'),   Action::makePlaceAction({1, 0}, 'Q'),   Action::makePlaceAction({-1, 0}, 'A'),
-    Action::makePlaceAction({1, 1}, 'A'),   Action::makePlaceAction({0, -1}, 'A'),  Action::makePlaceAction({2, 0}, 'A'),
-    Action::makePlaceAction({-1, 1}, 'G'),  Action::makeMoveAction({1, 1}, {0, 1}), Action::makePlaceAction({-1, -1}, 'G'),
-    Action::makeMoveAction({2, 0}, {1, -1})
+    makePlaceAction({0, 0}, 'Q'),   makePlaceAction({1, 0}, 'Q'),   makePlaceAction({-1, 0}, 'A'),
+    makePlaceAction({1, 1}, 'A'),   makePlaceAction({0, -1}, 'A'),  makePlaceAction({2, 0}, 'A'),
+    makePlaceAction({-1, 1}, 'G'),  makeMoveAction({1, 1}, {0, 1}), makePlaceAction({-1, -1}, 'G'),
+    makeMoveAction({2, 0}, {1, -1})
 
 };
 
-std::vector<Action> whiteWins = {Action::makePlaceAction({0, 0}, 'Q'),    Action::makePlaceAction({1, 0}, 'Q'),
-                                 Action::makePlaceAction({0, -1}, 'A'),   Action::makePlaceAction({1, 1}, 'A'),
-                                 Action::makePlaceAction({-1, 0}, 'A'),   Action::makePlaceAction({2, 0}, 'A'),
-                                 Action::makeMoveAction({0, -1}, {0, 1}), Action::makePlaceAction({2, -1}, 'B'),
-                                 Action::makeMoveAction({-1, 0}, {1, -1})
+std::vector<Action> whiteWins = {makePlaceAction({0, 0}, 'Q'),    makePlaceAction({1, 0}, 'Q'),
+                                 makePlaceAction({0, -1}, 'A'),   makePlaceAction({1, 1}, 'A'),
+                                 makePlaceAction({-1, 0}, 'A'),   makePlaceAction({2, 0}, 'A'),
+                                 makeMoveAction({0, -1}, {0, 1}), makePlaceAction({2, -1}, 'B'),
+                                 makeMoveAction({-1, 0}, {1, -1})
 
 };
 
-std::vector<Action> draw = {Action::makePlaceAction({0, 0}, 'Q'),
-                            Action::makePlaceAction({1, 0}, 'Q'),
-                            Action::makePlaceAction({-1, 1}, 'A'),
-                            Action::makePlaceAction({1, 1}, 'A'),
-                            Action::makePlaceAction({-1, 0}, 'A'),
-                            Action::makePlaceAction({2, 0}, 'A'),
-                            Action::makePlaceAction({0, -1}, 'A'),
-                            Action::makePlaceAction({2, -1}, 'A'),
-                            Action::makePlaceAction({-1, -1}, 'G'),
-                            Action::makePlaceAction({2, 1}, 'G'),
-                            Action::makeMoveAction({-1, -1}, {1, -1}),
-                            Action::makeMoveAction({2, 1}, {0, 1})
+std::vector<Action> draw = {makePlaceAction({0, 0}, 'Q'),
+                            makePlaceAction({1, 0}, 'Q'),
+                            makePlaceAction({-1, 1}, 'A'),
+                            makePlaceAction({1, 1}, 'A'),
+                            makePlaceAction({-1, 0}, 'A'),
+                            makePlaceAction({2, 0}, 'A'),
+                            makePlaceAction({0, -1}, 'A'),
+                            makePlaceAction({2, -1}, 'A'),
+                            makePlaceAction({-1, -1}, 'G'),
+                            makePlaceAction({2, 1}, 'G'),
+                            makeMoveAction({-1, -1}, {1, -1}),
+                            makeMoveAction({2, 1}, {0, 1})
 
 };
 } // namespace
 
 TEST_F(GameTest, PlaceNewTile)
 {
-    applyAction(Action::makePlaceAction({.x=0, .y=0}, 'A'));
+    applyAction(makePlaceAction({.x = 0, .y = 0}, 'A'));
 
-    const auto &tile = board.getTile({.x=0, .y=0});
+    const auto &tile = board.getTile({.x = 0, .y = 0});
     ASSERT_EQ(tile.type, 'A');
     ASSERT_EQ(tile.color, 'W');
-    Position position = {.x=0, .y=0};
+    Position position = {.x = 0, .y = 0};
     ASSERT_EQ(tile.position, position);
 }
 
 TEST_F(GameTest, MoveExistingTile)
 {
     ASSERT_EQ(getCurrentTurn(), 'W');
-    ASSERT_TRUE(applyAction(Action::makePlaceAction({0, 0}, 'Q')));
+    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, 'Q')));
     ASSERT_EQ(getCurrentTurn(), 'B');
 
-    ASSERT_FALSE(applyAction(Action::makeMoveAction({0, 0}, {0, 1})));
-    ASSERT_TRUE(applyAction(Action::makePlaceAction({1, 0}, 'Q')));
+    ASSERT_FALSE(applyAction(makeMoveAction({0, 0}, {0, 1})));
+    ASSERT_TRUE(applyAction(makePlaceAction({1, 0}, 'Q')));
     ASSERT_EQ(getCurrentTurn(), 'W');
-    ASSERT_TRUE(applyAction(Action::makeMoveAction({0, 0}, {0, 1})));
+    ASSERT_TRUE(applyAction(makeMoveAction({0, 0}, {0, 1})));
 
     const auto &tile = board.getTile({0, 1});
     ASSERT_EQ(tile.type, 'Q');

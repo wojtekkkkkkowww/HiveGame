@@ -1,13 +1,12 @@
 #include "ArticulationPoints.hpp"
-#include <algorithm>
-#include <iostream>
+#include "Board.hpp"
 #include <map>
 #include <set>
 #include <vector>
 
 namespace hive
 {
-ArticulationPointFinder::ArticulationPointFinder(MoveValidator &val) : val(val) {}
+ArticulationPointFinder::ArticulationPointFinder(Board &val) : val(val) {}
 
 void ArticulationPointFinder::dfsAP(Position u, Position parent)
 {

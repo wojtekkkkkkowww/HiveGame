@@ -90,7 +90,8 @@ void GameController::render()
     window.draw(turnText);
     window.draw(pieceSelector);
 
-    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == ActionType::WAIT)
+    if (game->avaliableActions.size() == 1 &&
+        game->avaliableActions.begin()->type == ActionType::WAIT)
     {
         window.draw(waitButton);
     }
@@ -138,9 +139,10 @@ void GameController::handleMouseClick()
 
 void GameController::handleWaitButtonClick()
 {
-    if (game->avaliableActions.size() == 1 && game->avaliableActions.begin()->type == ActionType::WAIT)
+    if (game->avaliableActions.size() == 1 &&
+        game->avaliableActions.begin()->type == ActionType::WAIT)
     {
-        game->applyAction(Action::makeWaitAction());
+        game->applyAction(makeWaitAction());
         message = game->getLastAction();
     }
 }
@@ -174,7 +176,7 @@ void GameController::handlePiecePlacement(const Position &boardPos)
 {
     if (boardPos != invalidPosition)
     {
-        if (game->applyAction(Action::makePlaceAction(boardPos, pieceSelector.selectedPiece)))
+        if (game->applyAction(makePlaceAction(boardPos, pieceSelector.selectedPiece)))
         {
             message = game->getLastAction();
         }
@@ -195,7 +197,7 @@ void GameController::handlePieceMovement(const Position &boardPos)
     {
         if (boardPos != invalidPosition)
         {
-            auto action = Action::makeMoveAction(boardDrawable.selectedPosition, boardPos);
+            auto action = makeMoveAction(boardDrawable.selectedPosition, boardPos);
             if (game->applyAction(action))
             {
                 message = game->getLastAction();

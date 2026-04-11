@@ -1,6 +1,5 @@
 #pragma once
 
-#include "MoveValidator.hpp"
 #include "Position.hpp"
 #include <map>
 #include <set>
@@ -8,6 +7,8 @@
 
 namespace hive
 {
+class Board;
+
 /**
  * @brief The ArticulationPointFinder class is responsible for finding articulation points in the
  * Hive game. This means points that, if removed, would split the hive into two or more separate
@@ -16,13 +17,13 @@ namespace hive
 class ArticulationPointFinder
 {
   public:
-    ArticulationPointFinder(MoveValidator &val);
+    ArticulationPointFinder(Board &val);
 
     void findArticulationPoints();
     void prepareData();
 
   private:
-    MoveValidator &val;
+    Board &val;
 
     std::vector<Position> tiles;
     std::map<Position, int> disc;

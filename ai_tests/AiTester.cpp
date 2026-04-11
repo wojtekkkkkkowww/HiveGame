@@ -1,11 +1,11 @@
 #include "AiTester.hpp"
+#include "FileOperations.hpp"
 #include <chrono>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <random>
-#include <future>
-#include "FileOperations.hpp"
 
 /*
 Depth & Time (ms) & Nodes & Nodes/s \\

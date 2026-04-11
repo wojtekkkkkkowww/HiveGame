@@ -65,9 +65,9 @@ bool Game::applyAction(const Action &action)
 
 bool Game::applyAction(const std::string &actionString)
 {
-    Action action;
+
     actionStrings.push_back(actionString);
-    action = actionParser.stringToAction(actionString);
+    Action action = actionParser.stringToAction(actionString);
 
     if (actionHandler.applyAction(action))
     {

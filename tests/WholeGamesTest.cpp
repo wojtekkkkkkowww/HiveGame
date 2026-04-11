@@ -8,7 +8,7 @@ using namespace hive;
 class WholeGamesTest : public BaseTest
 {
   public:
-    WholeGamesTest() : BaseTest(){}
+    WholeGamesTest() : BaseTest() {}
 };
 
 namespace

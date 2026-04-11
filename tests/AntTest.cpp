@@ -11,16 +11,16 @@ class AntTest : public BaseTest
 
 TEST_F(AntTest, AntMove)
 {
-    ASSERT_TRUE(applyAction(Action::makePlaceAction({0, 0}, 'Q')));
-    ASSERT_TRUE(applyAction(Action::makePlaceAction({0, -1}, 'Q')));
-    Position antPosition = {0, 1};
-    ASSERT_TRUE(applyAction(Action::makePlaceAction(antPosition, 'A')));
-    ASSERT_TRUE(applyAction(Action::makeMoveAction({0, -1}, {-1, 0})));
+    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, 'Q')));
+    ASSERT_TRUE(applyAction(makePlaceAction({0, -1}, 'Q')));
+    Position antPosition = {.x = 0, .y = 1};
+    ASSERT_TRUE(applyAction(makePlaceAction(antPosition, 'A')));
+    ASSERT_TRUE(applyAction(makeMoveAction({0, -1}, {-1, 0})));
 
     std::set<Position> expectedMoves = {{-1, 1}, {1, 0},  {1, -1}, {-2, 1},
                                         {-2, 0}, {0, -1}, {-1, -1}};
     checkMoves(antPosition, expectedMoves);
-    ASSERT_TRUE(applyAction(Action::makeMoveAction(antPosition, {-2, 0})));
+    ASSERT_TRUE(applyAction(makeMoveAction(antPosition, {-2, 0})));
 }
 
 TEST_F(AntTest, FredomToMove)
@@ -31,6 +31,6 @@ TEST_F(AntTest, FredomToMove)
         {{0, 1}, {Tile("BA2")}},  {{1, 0}, {Tile("BA3")}},  {{2, -2}, {Tile("WG2")}}};
 
     startGameFromState(tiles, 'B');
-    Action wrongMove = Action::makeMoveAction({0, -1}, {0, -2});
+    Action wrongMove = makeMoveAction({0, -1}, {0, -2});
     ASSERT_FALSE(applyAction(wrongMove));
 }

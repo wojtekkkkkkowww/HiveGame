@@ -90,7 +90,7 @@ void ActionHandler::genAvailableActions()
         generateMoveActions();
         if (availableActions.empty())
         {
-            availableActions.push_back(Action::makeWaitAction());
+            availableActions.push_back(makeWaitAction());
         }
     }
 }
@@ -127,7 +127,6 @@ void ActionHandler::generateMoveActions()
     }
 
     articulationPointFinder.findArticulationPoints();
-    board.antMoves.clear();
 
     std::set<Action> moves;
     for (const auto &position : board.getPlayerTiles(currentTurn))
@@ -143,7 +142,7 @@ void ActionHandler::generateMoveActions()
         board.getAvailableMoves(tile.type, position, availablePositions);
         for (const auto &newPosition : availablePositions)
         {
-            Action action = Action::makeMoveAction(position, newPosition);
+            Action action = makeMoveAction(position, newPosition);
 
             if (isMoveActionValid(action))
             {
@@ -211,7 +210,7 @@ void ActionHandler::generatePlaceActions()
     {
         for (const auto &position : avaliablePositions)
         {
-            availableActions.push_back(Action::makePlaceAction(position, type));
+            availableActions.push_back(makePlaceAction(position, type));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace hive
 class BaseTest : public ::testing::Test, public Game
 {
   public:
-    BaseTest() : Game() { }
+    BaseTest() : Game() {}
 
     void SetUp() override
     {
@@ -90,7 +90,6 @@ class BaseTest : public ::testing::Test, public Game
 
         std::string filePath = testName + "/" + std::to_string(turnCounter) + ".png";
         saveToFile(filePath, actionStrings);
-
     }
 
   protected:

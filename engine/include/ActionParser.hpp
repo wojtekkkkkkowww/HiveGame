@@ -1,14 +1,17 @@
 #pragma once
+
 #include "Action.hpp"
-#include "BaseBoard.hpp"
+#include "Board.hpp"
 #include "Player.hpp"
 #include "Position.hpp"
 #include "Tile.hpp"
+
 #include <regex>
 #include <sstream>
 
 namespace hive
 {
+
 /**
  * @brief The ActionParser class is responsible for converting between string notations and Action
  * objects.
@@ -16,7 +19,7 @@ namespace hive
 class ActionParser
 {
   public:
-    ActionParser(const BaseBoard &board, const char &currentTurn,
+    ActionParser(const Board &board, const char &currentTurn,
                  const std::map<char, Player *> &players)
         : board(board), currentTurn(currentTurn), players(players)
     {
@@ -52,7 +55,7 @@ class ActionParser
             return parseFirstAction(matches);
         }
 
-        return Action::makeWaitAction();
+        return makeWaitAction();
     }
 
     /**
@@ -88,7 +91,7 @@ class ActionParser
     }
 
   private:
-    const BaseBoard &board;
+    const Board &board;
     const char &currentTurn;
     const std::map<char, Player *> &players;
 
@@ -114,7 +117,7 @@ class ActionParser
     {
         std::string tileNotation = matches[0].str();
 
-        return Action::makePlaceAction({0, 0}, tileNotation[1]);
+        return makePlaceAction({0, 0}, tileNotation[1]);
     }
 
     Action parseBeetleMove(const std::smatch &matches) const
@@ -126,7 +129,7 @@ class ActionParser
         Tile destinationTile = board.getTileByNotation(destinationNotation);
         Position position = destinationTile.position;
 
-        return Action::makeAction(tile, position);
+        return makeAction(tile, position);
     }
 
     std::string getMoveTileNotation(const Action &action) const
@@ -214,7 +217,7 @@ class ActionParser
             }
         }
         Position position = calculatePosition(destinationTile.position, direction, side);
-        return Action::makeAction(tile, position);
+        return makeAction(tile, position);
     }
 
     Position calculatePosition(const Position &neighborPosition, const std::string &direction,

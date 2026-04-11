@@ -54,22 +54,22 @@ const std::vector<std::string> whitegame = []
 }();
 
 const std::set<Position> whiteQueenMoves = {{4, -4}, {3, -2}};
-const Position whiteQueen = {4, -3};
+const Position whiteQueen = {.x = 4, .y = -3};
 
 const std::set<Position> whiteAntMoves = {{2, -4},  {3, -4},  {4, -4}, {5, -4}, {5, -3}, {4, -2},
                                           {3, -2},  {2, -1},  {1, 0},  {0, 1},  {-1, 2}, {-2, 3},
                                           {-3, 4},  {-4, 3},  {-5, 3}, {-5, 2}, {-4, 1}, {-3, 0},
                                           {-2, -1}, {-1, -2}, {0, -2}, {0, -1}, {1, -2}, {1, -3}};
 
-const Position whiteAnt = {-4, 4};
+const Position whiteAnt = {.x = -4, .y = 4};
 
-const Position whiteSpider = {-2, 0};
+const Position whiteSpider = {.x = -2, .y = 0};
 const std::set<Position> whiteSpiderMoves = {{0, -2}, {-5, 2}};
 
-const Position whiteGrasshopper1 = {-1, 0};
+const Position whiteGrasshopper1 = {.x = -1, .y = 0};
 const std::set<Position> whiteGrasshopper1moves = {{-1, 2}, {-1, -2}, {-3, 2}, {-3, 0}, {1, 0}};
 
-const Position whiteGrasshopper2 = {0, 0};
+const Position whiteGrasshopper2 = {.x = 0, .y = 0};
 const std::set<Position> whiteGrasshopper2moves = {};
 
 const Position whiteGrasshopper3 = {-1, 1};
