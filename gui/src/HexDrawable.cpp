@@ -1,5 +1,6 @@
 #include "HexDrawable.hpp"
 #include "PieceAtlas.hpp"
+#include <algorithm>
 
 HexDrawable::HexDrawable(float size) : size(size)
 {
@@ -34,8 +35,10 @@ void HexDrawable::setTile(const hive::Tile &tile, const sf::Texture &atlas)
     sprite.setOrigin(static_cast<float>(textureRect.width) / 2.0f,
                      static_cast<float>(textureRect.height) / 2.0f);
     const float targetSize = size * 1.75f;
-    sprite.setScale(targetSize / static_cast<float>(textureRect.width),
-                    targetSize / static_cast<float>(textureRect.height));
+    const float scaleX = targetSize / static_cast<float>(textureRect.width);
+    const float scaleY = targetSize / static_cast<float>(textureRect.height);
+    const float uniformScale = std::min(scaleX, scaleY);
+    sprite.setScale(uniformScale, uniformScale);
 }
 
 void HexDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) const

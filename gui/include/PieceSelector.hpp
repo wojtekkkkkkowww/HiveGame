@@ -31,8 +31,8 @@ class PieceSelector : public sf::Drawable
         const sf::Texture &atlas = resourceManager.getPieceAtlas();
         float xOffset = 10.0f;
         float yOffset = 10.0f;
-        constexpr float selectorScale = 0.16f;
         constexpr float pieceSpacing = 20.0f;
+        constexpr float targetHeight = 105.0f;
 
         for (const auto &definition : hive::pieceCatalog)
         {
@@ -40,11 +40,12 @@ class PieceSelector : public sf::Drawable
             sf::Sprite sprite(atlas);
             const auto textureRect = PieceAtlas::textureRect(atlas, type);
             sprite.setTextureRect(textureRect);
-            sprite.setScale(selectorScale, selectorScale);
+            const float uniformScale = targetHeight / static_cast<float>(textureRect.height);
+            sprite.setScale(uniformScale, uniformScale);
             sprite.setPosition(stackRect.getPosition().x + xOffset,
                                stackRect.getPosition().y + yOffset);
             pieces.push_back({type, sprite});
-            xOffset += static_cast<float>(textureRect.width) * selectorScale + pieceSpacing;
+            xOffset += static_cast<float>(textureRect.width) * uniformScale + pieceSpacing;
         }
     }
 
