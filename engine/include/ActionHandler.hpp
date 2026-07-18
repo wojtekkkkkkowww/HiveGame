@@ -4,6 +4,7 @@
 #include "ArticulationPoints.hpp"
 #include "Board.hpp"
 #include "Player.hpp"
+#include "PieceCatalog.hpp"
 #include <set>
 #include <stack>
 
@@ -43,7 +44,6 @@ class ActionHandler
     std::stack<Action> &actions;
     std::vector<Action> &availableActions;
     ArticulationPointFinder articulationPointFinder;
-    constexpr static std::array<char, 5> types = {'A', 'B', 'G', 'S', 'Q'};
 };
 
 inline bool ActionHandler::isPlaceActionValid(const Position &position) const

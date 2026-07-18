@@ -1,5 +1,6 @@
 #pragma once
 #include "ResourceManager.hpp"
+#include "PieceCatalog.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
@@ -26,13 +27,13 @@ class PieceSelector : public sf::Drawable
     void loadPieces()
     {
         ResourceManager &resourceManager = ResourceManager::getInstance();
-        std::vector<char> pieceTypes = {'A', 'B', 'G', 'Q', 'S'};
         float xOffset = 10.0f;
         float yOffset = 10.0f;
         float pieceSpacing = 60.0f;
 
-        for (const auto &type : pieceTypes)
+        for (const auto &definition : hive::pieceCatalog)
         {
+            const auto type = definition.code;
             const sf::Texture &texture = resourceManager.getTexture(type);
             addPiece(type, texture, xOffset, (type == 'Q') ? yOffset + 20.0f : yOffset);
             xOffset += texture.getSize().x + pieceSpacing;

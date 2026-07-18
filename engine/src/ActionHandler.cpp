@@ -226,8 +226,9 @@ void ActionHandler::getAvailableTypes(std::set<char> &availableTypes) const
     }
     else
     {
-        for (const auto &type : types)
+        for (const auto &definition : pieceCatalog)
         {
+            const auto type = definition.code;
             if (players[currentTurn].getTileCount(type) > 0)
             {
                 availableTypes.insert(type);

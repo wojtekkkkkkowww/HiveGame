@@ -3,6 +3,7 @@
 #include <array>
 #include <cstddef>
 
+#include "PieceCatalog.hpp"
 #include "Tile.hpp"
 
 namespace hive
@@ -30,20 +31,8 @@ class Player
     int turnCounter = 0;
 
   private:
-    struct PieceDefinition
-    {
-        char type;
-        int initialCount;
-    };
-
-    static constexpr std::array<PieceDefinition, 5> pieceDefinitions = {
-        PieceDefinition{'Q', 1}, PieceDefinition{'S', 2}, PieceDefinition{'B', 2},
-        PieceDefinition{'G', 3}, PieceDefinition{'A', 3}};
-
-    static std::size_t pieceIndex(char type);
-
     char color;
-    std::array<int, pieceDefinitions.size()> pieceCounters{};
+    std::array<int, pieceCatalog.size()> pieceCounters{};
 };
 
 class Players

@@ -1,4 +1,5 @@
 #include "BoardDrawable.hpp"
+#include "PieceCatalog.hpp"
 #include "ResourceManager.hpp"
 #include <numbers>
 
@@ -13,10 +14,9 @@ BoardDrawable::~BoardDrawable() {}
 void BoardDrawable::loadResources()
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    std::vector<char> tileNames = {'A', 'B', 'G', 'Q', 'S'};
-    for (const auto &name : tileNames)
+    for (const auto &definition : hive::pieceCatalog)
     {
-        textures[name] = resourceManager.getTexture(name);
+        textures[definition.code] = resourceManager.getTexture(definition.code);
     }
     font = resourceManager.getFont("arial.ttf");
 }

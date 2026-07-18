@@ -5,7 +5,7 @@ hive::Player::Player(char color) : color(color) { reset(); }
 
 hive::Tile hive::Player::takeTile(char type)
 {
-    auto &count = pieceCounters[pieceIndex(type)];
+    auto &count = pieceCounters[hive::pieceIndex(type)];
     if (count == 0)
     {
         throw std::invalid_argument("No more pieces of this type available");
@@ -30,14 +30,14 @@ void hive::Player::returnTile(char type)
     {
         queenPlaced = false;
     }
-    ++pieceCounters[pieceIndex(type)];
+    ++pieceCounters[hive::pieceIndex(type)];
 }
 
 void hive::Player::reset()
 {
-    for (std::size_t index = 0; index < pieceDefinitions.size(); ++index)
+    for (std::size_t index = 0; index < pieceCatalog.size(); ++index)
     {
-        pieceCounters[index] = pieceDefinitions[index].initialCount;
+        pieceCounters[index] = pieceCatalog[index].initialCount;
     }
     queenPlaced = false;
     firstMove = true;
@@ -46,22 +46,13 @@ void hive::Player::reset()
 
 int hive::Player::getUnplacedPieceNumber(char type) const
 {
-    const auto index = pieceIndex(type);
-    return pieceDefinitions[index].initialCount - pieceCounters[index];
+    const auto index = hive::pieceIndex(type);
+    return pieceCatalog[index].initialCount - pieceCounters[index];
 }
 
-int hive::Player::getTileCount(char type) const { return pieceCounters[pieceIndex(type)]; }
-
-std::size_t hive::Player::pieceIndex(char type)
+int hive::Player::getTileCount(char type) const
 {
-    for (std::size_t index = 0; index < pieceDefinitions.size(); ++index)
-    {
-        if (pieceDefinitions[index].type == type)
-        {
-            return index;
-        }
-    }
-    throw std::invalid_argument("Invalid piece type");
+    return pieceCounters[hive::pieceIndex(type)];
 }
 
 hive::Player &hive::Players::operator[](char color)
