@@ -86,6 +86,8 @@ void GameController::handleMouseButtonPressed(sf::Mouse::Button button)
 
 void GameController::render()
 {
+    pieceSelector.updateCounts(game->players[game->currentTurn]);
+
     window.clear(sf::Color(82, 78, 72));
 
     window.setView(boardView);

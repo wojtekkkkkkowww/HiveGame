@@ -1,10 +1,11 @@
 #pragma once
-#include "ResourceManager.hpp"
-#include "PieceCatalog.hpp"
 #include "PieceAtlas.hpp"
+#include "PieceCatalog.hpp"
+#include "Player.hpp"
+#include "ResourceManager.hpp"
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 /*
@@ -29,23 +30,66 @@ class PieceSelector : public sf::Drawable
     {
         ResourceManager &resourceManager = ResourceManager::getInstance();
         const sf::Texture &atlas = resourceManager.getPieceAtlas();
-        float xOffset = 10.0f;
-        float yOffset = 10.0f;
-        constexpr float pieceSpacing = 20.0f;
-        constexpr float targetHeight = 105.0f;
+        const sf::Font &font = resourceManager.getFont("arial.ttf");
+        const sf::Vector2f cellSize{112.0f, 132.0f};
+        constexpr float cellSpacing = 14.0f;
+        constexpr float targetHeight = 88.0f;
+        float xOffset = 12.0f;
 
         for (const auto &definition : hive::pieceCatalog)
         {
-            const auto type = definition.code;
-            sf::Sprite sprite(atlas);
-            const auto textureRect = PieceAtlas::textureRect(atlas, type);
-            sprite.setTextureRect(textureRect);
+            PieceEntry entry;
+            entry.type = definition.code;
+            entry.sprite.setTexture(atlas);
+            const auto textureRect = PieceAtlas::textureRect(atlas, entry.type);
+            entry.sprite.setTextureRect(textureRect);
             const float uniformScale = targetHeight / static_cast<float>(textureRect.height);
-            sprite.setScale(uniformScale, uniformScale);
-            sprite.setPosition(stackRect.getPosition().x + xOffset,
-                               stackRect.getPosition().y + yOffset);
-            pieces.push_back({type, sprite});
-            xOffset += static_cast<float>(textureRect.width) * uniformScale + pieceSpacing;
+            entry.sprite.setScale(uniformScale, uniformScale);
+
+            entry.background.setSize(cellSize);
+            entry.background.setPosition(stackRect.getPosition().x + xOffset,
+                                         stackRect.getPosition().y + 8.0f);
+            entry.background.setFillColor(idleFillColor);
+            entry.background.setOutlineColor(idleOutlineColor);
+            entry.background.setOutlineThickness(outlineThickness);
+
+            const auto cellBounds = entry.background.getGlobalBounds();
+            const auto spriteBounds = entry.sprite.getLocalBounds();
+            entry.sprite.setOrigin(spriteBounds.left + spriteBounds.width / 2.0f,
+                                   spriteBounds.top + spriteBounds.height / 2.0f);
+            entry.sprite.setPosition(cellBounds.left + cellBounds.width / 2.0f,
+                                     cellBounds.top + 51.0f);
+
+            entry.countText.setFont(font);
+            entry.countText.setCharacterSize(20);
+            entry.countText.setFillColor(sf::Color(238, 230, 211));
+            entry.countText.setOutlineColor(sf::Color(20, 19, 18));
+            entry.countText.setOutlineThickness(1.0f);
+
+            pieces.push_back(std::move(entry));
+            xOffset += cellSize.x + cellSpacing;
+        }
+    }
+
+    void updateCounts(const hive::Player &player)
+    {
+        for (auto &piece : pieces)
+        {
+            piece.availableCount = player.getTileCount(piece.type);
+            piece.countText.setString(std::to_string(piece.availableCount));
+            const auto textBounds = piece.countText.getLocalBounds();
+            const auto cellBounds = piece.background.getGlobalBounds();
+            piece.countText.setOrigin(textBounds.left + textBounds.width / 2.0f,
+                                      textBounds.top + textBounds.height / 2.0f);
+            piece.countText.setPosition(cellBounds.left + cellBounds.width / 2.0f,
+                                        cellBounds.top + 116.0f);
+            piece.sprite.setColor(piece.availableCount > 0 ? sf::Color::White
+                                                           : sf::Color(120, 120, 120, 110));
+        }
+
+        if (selectedPiece != '\0' && countFor(selectedPiece) == 0)
+        {
+            selectedPiece = '\0';
         }
     }
 
@@ -53,40 +97,60 @@ class PieceSelector : public sf::Drawable
     {
         for (auto &piece : pieces)
         {
-            if (piece.second.getGlobalBounds().contains(mousePos))
+            if (piece.availableCount > 0 && piece.background.getGlobalBounds().contains(mousePos))
             {
-                selectedPiece = piece.first;
+                selectedPiece = piece.type;
+                return;
             }
         }
     }
 
     bool contains(sf::Vector2f mousePos) { return stackRect.getGlobalBounds().contains(mousePos); }
 
-    char selectedPiece;
+    char selectedPiece = '\0';
 
   private:
+    struct PieceEntry
+    {
+        char type = '\0';
+        int availableCount = 0;
+        sf::Sprite sprite;
+        sf::Text countText;
+        sf::RectangleShape background;
+    };
+
+    int countFor(char type) const
+    {
+        for (const auto &piece : pieces)
+        {
+            if (piece.type == type)
+            {
+                return piece.availableCount;
+            }
+        }
+        return 0;
+    }
+
+    inline static const sf::Color idleFillColor{246, 184, 66, 18};
+    inline static const sf::Color idleOutlineColor{142, 110, 54};
+    inline static const sf::Color selectedFillColor{54, 235, 207, 36};
+    inline static const sf::Color selectedOutlineColor{54, 235, 207};
+    static constexpr float outlineThickness = 2.0f;
+
     sf::RectangleShape stackRect;
-    std::vector<std::pair<char, sf::Sprite>> pieces;
+    std::vector<PieceEntry> pieces;
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override
     {
         target.draw(stackRect, states);
         for (const auto &piece : pieces)
         {
-            if (piece.first == selectedPiece)
-            {
-                const auto bounds = piece.second.getGlobalBounds();
-                const sf::Vector2f selectionSize{92.0f, 122.0f};
-                const sf::Vector2f spriteCenter{bounds.left + bounds.width / 2.0f,
-                                                bounds.top + bounds.height / 2.0f};
-                sf::RectangleShape selection(selectionSize);
-                selection.setPosition(spriteCenter.x - selectionSize.x / 2.0f,
-                                      spriteCenter.y - selectionSize.y / 2.0f);
-                selection.setFillColor(sf::Color(246, 184, 66, 42));
-                selection.setOutlineColor(sf::Color(54, 235, 207));
-                selection.setOutlineThickness(3.0f);
-                target.draw(selection, states);
-            }
-            target.draw(piece.second, states);
+            auto background = piece.background;
+            const bool selected = piece.type == selectedPiece;
+            background.setFillColor(selected ? selectedFillColor : idleFillColor);
+            background.setOutlineColor(selected ? selectedOutlineColor : idleOutlineColor);
+            target.draw(background, states);
+            target.draw(piece.sprite, states);
+            target.draw(piece.countText, states);
         }
     }
 };
