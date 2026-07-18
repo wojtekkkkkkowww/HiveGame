@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -40,6 +41,21 @@ class ResourceManager
         return textures[name];
     }
 
+    const sf::Texture &getPieceAtlas()
+    {
+        if (!pieceAtlas)
+        {
+            pieceAtlas = std::make_unique<sf::Texture>();
+            const auto path =
+                std::string(SOURCE_DIR) + "/res/generated/hive-pieces-sheet.png";
+            if (!pieceAtlas->loadFromFile(path))
+            {
+                throw std::runtime_error("Failed to load generated piece atlas: " + path);
+            }
+        }
+        return *pieceAtlas;
+    }
+
     const sf::Font &getFont(const std::string &name)
     {
         if (fonts.find(name) == fonts.end())
@@ -60,4 +76,5 @@ class ResourceManager
     ResourceManager() = default;
     std::unordered_map<char, sf::Texture> textures;
     std::unordered_map<std::string, sf::Font> fonts;
+    std::unique_ptr<sf::Texture> pieceAtlas;
 };

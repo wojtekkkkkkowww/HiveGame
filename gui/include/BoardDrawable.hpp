@@ -35,7 +35,7 @@ class BoardDrawable : public sf::Drawable
     float hexSize;
     sf::Vector2f viewportSize{800.0f, 600.0f};
     sf::Font font;
-    std::map<char, sf::Texture> textures;
+    const sf::Texture *pieceAtlas = nullptr;
     sf::Text getPositionText(int x, int y) const;
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
     static constexpr float sqrt_3 = 1.73205080757f;

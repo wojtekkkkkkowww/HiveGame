@@ -16,7 +16,7 @@ class HexDrawable : public sf::Drawable
 
     sf::Vector2f getPosition() const { return hex.getPosition(); }
 
-    void setTile(const hive::Tile &tile, const std::map<char, sf::Texture> &textures);
+    void setTile(const hive::Tile &tile, const sf::Texture &atlas);
     bool contains(const sf::Vector2f &point) const;
     hive::Position tilePosition;
 

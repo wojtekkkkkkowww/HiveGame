@@ -14,10 +14,7 @@ BoardDrawable::~BoardDrawable() {}
 void BoardDrawable::loadResources()
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
-    for (const auto &definition : hive::pieceCatalog)
-    {
-        textures[definition.code] = resourceManager.getTexture(definition.code);
-    }
+    pieceAtlas = &resourceManager.getPieceAtlas();
     font = resourceManager.getFont("arial.ttf");
 }
 
@@ -54,7 +51,7 @@ void BoardDrawable::addHex(hive::Position &lastPosition, const hive::Tile &tile,
     HexDrawable hex(0.95f * hexSize);
     hex.tilePosition = lastPosition;
     hex.setOffset(offset);
-    hex.setTile(tile, textures);
+    hex.setTile(tile, *pieceAtlas);
 
     if (lastPosition == selectedPosition && tile.color == player)
     {

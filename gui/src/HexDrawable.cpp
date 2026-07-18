@@ -1,4 +1,5 @@
 #include "HexDrawable.hpp"
+#include "PieceCatalog.hpp"
 
 HexDrawable::HexDrawable(float size) : size(size)
 {
@@ -16,7 +17,7 @@ void HexDrawable::setPosition(float x, float y)
     sprite.setPosition(x, y);
 }
 
-void HexDrawable::setTile(const hive::Tile &tile, const std::map<char, sf::Texture> &textures)
+void HexDrawable::setTile(const hive::Tile &tile, const sf::Texture &atlas)
 {
     if (tile.color == 'W')
     {
@@ -27,9 +28,17 @@ void HexDrawable::setTile(const hive::Tile &tile, const std::map<char, sf::Textu
         hex.setFillColor(sf::Color::Black);
     }
 
-    sprite.setTexture(textures.at(tile.type));
-    sprite.setOrigin(sprite.getTexture()->getSize().x / 2, sprite.getTexture()->getSize().y / 2);
-    sprite.setScale(0.3f, 0.3f);
+    const auto &definition = hive::pieceCatalog[hive::pieceIndex(tile.type)];
+    const auto cellWidth = static_cast<int>(atlas.getSize().x / hive::pieceCatalog.size());
+    const auto cellHeight = static_cast<int>(atlas.getSize().y);
+    sprite.setTexture(atlas);
+    sprite.setTextureRect(
+        {static_cast<int>(definition.atlasColumn) * cellWidth, 0, cellWidth, cellHeight});
+    sprite.setOrigin(static_cast<float>(cellWidth) / 2.0f,
+                     static_cast<float>(cellHeight) / 2.0f);
+    const float targetSize = size * 1.75f;
+    sprite.setScale(targetSize / static_cast<float>(cellWidth),
+                    targetSize / static_cast<float>(cellHeight));
 }
 
 void HexDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) const

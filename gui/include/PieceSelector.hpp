@@ -27,30 +27,27 @@ class PieceSelector : public sf::Drawable
     void loadPieces()
     {
         ResourceManager &resourceManager = ResourceManager::getInstance();
+        const sf::Texture &atlas = resourceManager.getPieceAtlas();
+        const auto cellWidth =
+            static_cast<int>(atlas.getSize().x / hive::pieceCatalog.size());
+        const auto cellHeight = static_cast<int>(atlas.getSize().y);
         float xOffset = 10.0f;
         float yOffset = 10.0f;
-        float pieceSpacing = 60.0f;
+        constexpr float selectorScale = 0.16f;
+        constexpr float pieceSpacing = 20.0f;
 
         for (const auto &definition : hive::pieceCatalog)
         {
             const auto type = definition.code;
-            const sf::Texture &texture = resourceManager.getTexture(type);
-            addPiece(type, texture, xOffset, (type == 'Q') ? yOffset + 20.0f : yOffset);
-            xOffset += texture.getSize().x + pieceSpacing;
+            sf::Sprite sprite(atlas);
+            sprite.setTextureRect({static_cast<int>(definition.atlasColumn) * cellWidth, 0,
+                                   cellWidth, cellHeight});
+            sprite.setScale(selectorScale, selectorScale);
+            sprite.setPosition(stackRect.getPosition().x + xOffset,
+                               stackRect.getPosition().y + yOffset);
+            pieces.push_back({type, sprite});
+            xOffset += static_cast<float>(cellWidth) * selectorScale + pieceSpacing;
         }
-    }
-
-    void addPiece(char pieceType, const sf::Texture &texture, float xOffset, float yOffset)
-    {
-        sf::Sprite sprite;
-        sprite.setTexture(texture);
-        if (!sprite.getTexture())
-        {
-            return;
-        }
-        sprite.setPosition(stackRect.getPosition().x + xOffset,
-                           stackRect.getPosition().y + yOffset);
-        pieces.push_back({pieceType, sprite});
     }
 
     void selectPiece(sf::Vector2f mousePos)
