@@ -21,7 +21,7 @@ namespace hive
 class Game
 {
   public:
-    Game();
+    explicit Game(std::size_t maxPly = 200);
     ~Game();
 
     void startNewGame();
@@ -36,6 +36,8 @@ class Game
     char getCurrentTurn() const;
     std::string getGameStatus() const;
     std::string getLastAction() const;
+    std::size_t getPlyCount() const { return plyCount; }
+    std::size_t getMaxPly() const { return maxPly; }
 
     std::vector<Action> avaliableActions;
     Board board;
@@ -44,6 +46,8 @@ class Game
     std::string gameStatus = "PLAYING";
 
   protected:
+    std::size_t plyCount = 0;
+    std::size_t maxPly;
     ActionHandler actionHandler;
     TurnManager turnManager;
     ActionParser actionParser;

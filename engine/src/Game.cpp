@@ -1,17 +1,20 @@
 // Game.cpp
 #include <deque>
-#include <iostream>
 
 #include "Game.hpp"
 
 namespace hive
 {
-Game::Game()
-    : currentTurn('W'),
+Game::Game(std::size_t maxPly)
+    : currentTurn('W'), maxPly(maxPly),
       actionHandler(board, players, currentTurn, gameStatus, actions, avaliableActions),
-      turnManager(board, players, currentTurn, gameStatus),
+      turnManager(board, players, currentTurn, gameStatus, plyCount, this->maxPly),
       actionParser(board, currentTurn, players)
 {
+    if (maxPly == 0)
+    {
+        throw std::invalid_argument("Move limit must be greater than zero");
+    }
     players['W'] = new Player('W');
     players['B'] = new Player('B');
     startNewGame();
@@ -50,11 +53,11 @@ void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char c
 
 bool Game::applyAction(const Action &action)
 {
-    actionStrings.push_back(actionParser.actionToString(action));
-    std::vector<char> tile_types = {'Q', 'S', 'B', 'G', 'A'};
+    const std::string actionString = actionParser.actionToString(action);
 
     if (actionHandler.applyAction(action))
     {
+        actionStrings.push_back(actionString);
         turnManager.nextTurn();
         actionHandler.genAvailableActions();
 
@@ -66,11 +69,11 @@ bool Game::applyAction(const Action &action)
 bool Game::applyAction(const std::string &actionString)
 {
 
-    actionStrings.push_back(actionString);
     Action action = actionParser.stringToAction(actionString);
 
     if (actionHandler.applyAction(action))
     {
+        actionStrings.push_back(actionString);
         turnManager.nextTurn();
         actionHandler.genAvailableActions();
 
@@ -118,6 +121,7 @@ std::string Game::getLastAction() const { return actionStrings.back(); }
 void Game::startNewGame()
 {
     currentTurn = 'W';
+    plyCount = 0;
     gameStatus = "PLAYING";
     board.resetBoard();
     players['W']->reset();

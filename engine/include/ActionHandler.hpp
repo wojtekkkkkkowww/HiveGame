@@ -26,7 +26,7 @@ class ActionHandler
     Action getLastAction() const;
 
   private:
-    void revertPacedQueen(char tile_type);
+    void revertPlacedQueen(const Tile &tile);
     void generateMoveActions();
     bool isMoveActionValid(const Action &action) const;
     void moveTile(Position position, Position newPosition);

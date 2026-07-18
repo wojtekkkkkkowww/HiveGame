@@ -117,3 +117,50 @@ TEST_F(GameTest, Draw)
 
     ASSERT_EQ(getGameStatus(), "DRAW");
 }
+
+TEST_F(GameTest, RejectedActionDoesNotChangeHistory)
+{
+    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, 'Q')));
+    const std::string lastValidAction = getLastAction();
+
+    ASSERT_FALSE(applyAction(makeMoveAction({0, 0}, {0, 1})));
+    EXPECT_EQ(getLastAction(), lastValidAction);
+    EXPECT_EQ(getPlyCount(), 1U);
+}
+
+TEST_F(GameTest, RevertingPlacedQueenRestoresQueenState)
+{
+    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, 'Q')));
+    ASSERT_EQ(board.whiteQueen, (Position{0, 0}));
+
+    revertAction();
+
+    EXPECT_EQ(board.whiteQueen, invalidPosition);
+    EXPECT_EQ(board.blackQueen, invalidPosition);
+    EXPECT_FALSE(players['W']->queenPlaced);
+    EXPECT_EQ(getCurrentTurn(), 'W');
+    EXPECT_EQ(getPlyCount(), 0U);
+}
+
+TEST(GameMoveLimitTest, DrawsAtConfiguredPlyLimitAndCanBeReverted)
+{
+    Game game(2);
+
+    ASSERT_TRUE(game.applyAction(makePlaceAction({0, 0}, 'Q')));
+    EXPECT_FALSE(game.isGameOver());
+    ASSERT_TRUE(game.applyAction(makePlaceAction({1, 0}, 'Q')));
+
+    EXPECT_TRUE(game.isGameOver());
+    EXPECT_EQ(game.getGameStatus(), "DRAW");
+    EXPECT_EQ(game.getPlyCount(), 2U);
+
+    game.revertAction();
+    EXPECT_FALSE(game.isGameOver());
+    EXPECT_EQ(game.getGameStatus(), "PLAYING");
+    EXPECT_EQ(game.getPlyCount(), 1U);
+}
+
+TEST(GameMoveLimitTest, RejectsZeroLimit)
+{
+    EXPECT_THROW(Game(0), std::invalid_argument);
+}

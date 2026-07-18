@@ -50,25 +50,28 @@ void ActionHandler::revertAction()
     }
     else if (action.type == ActionType::PLACE)
     {
-        revertPacedQueen(action.tile_type);
+        const Tile tile = board.getTile(action.newPosition);
+        revertPlacedQueen(tile);
         board.removeTile(action.newPosition);
         char lastTurn = (currentTurn == 'W') ? 'B' : 'W';
         players[lastTurn]->returnTile(action.tile_type);
     }
 }
 
-void ActionHandler::revertPacedQueen(char tile_type)
+void ActionHandler::revertPlacedQueen(const Tile &tile)
 {
-    if (tile_type == 'Q')
+    if (tile.type != 'Q')
     {
-        if (currentTurn == 'W')
-        {
-            board.whiteQueen = invalidPosition;
-        }
-        else
-        {
-            board.blackQueen = invalidPosition;
-        }
+        return;
+    }
+
+    if (tile.color == 'W')
+    {
+        board.whiteQueen = invalidPosition;
+    }
+    else
+    {
+        board.blackQueen = invalidPosition;
     }
 }
 
