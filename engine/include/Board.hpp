@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Position.hpp"
+#include "StaticMap.hpp"
 #include "Tile.hpp"
 #include <array>
 #include <cstdint>
@@ -20,11 +21,39 @@ class Board
   public:
     static constexpr std::size_t maxPieceCount = 22;
 
-    struct PieceState
+    struct PieceStack
     {
-        Tile tile{};
-        std::uint8_t level = 0;
-        bool active = false;
+        [[nodiscard]] bool empty() const noexcept { return count == 0; }
+        [[nodiscard]] std::size_t size() const noexcept { return count; }
+        Tile &back() { return values.at(count - 1); }
+        const Tile &back() const { return values.at(count - 1); }
+        auto begin() noexcept { return values.begin(); }
+        auto begin() const noexcept { return values.begin(); }
+        auto end() noexcept { return values.begin() + static_cast<std::ptrdiff_t>(count); }
+        auto end() const noexcept
+        {
+            return values.begin() + static_cast<std::ptrdiff_t>(count);
+        }
+        void push_back(Tile tile)
+        {
+            if (count >= values.size())
+            {
+                throw std::length_error("Piece stack is full");
+            }
+            values[count++] = std::move(tile);
+        }
+        void pop_back()
+        {
+            if (count == 0)
+            {
+                throw std::out_of_range("Piece stack is empty");
+            }
+            values[--count] = Tile{};
+        }
+
+      private:
+        std::array<Tile, maxPieceCount> values{};
+        std::size_t count = 0;
     };
 
     Board() { resetBoard(); }
@@ -57,8 +86,6 @@ class Board
 
     int getTileCount() const;
     std::size_t getPieceCount() const;
-    const std::array<PieceState, maxPieceCount> &getPieceStates() const { return pieces; }
-
     bool isEmpty(Position position) const { return getLevel(position) == 0; }
 
     // movement manager
@@ -83,11 +110,6 @@ class Board
     std::set<Position> articulationPoints;
 
   private:
-    std::array<PieceState, maxPieceCount> pieces{};
-
-    PieceState *findTopPiece(Position position);
-    const PieceState *findTopPiece(Position position) const;
-    PieceState *findPieceByNotation(const std::string &notation);
-    const PieceState *findPieceByNotation(const std::string &notation) const;
+    StaticMap<Position, PieceStack, maxPieceCount> boardTiles;
 };
 } // namespace hive

@@ -11,7 +11,7 @@ namespace hive
 
 void Board::resetBoard()
 {
-    pieces = {};
+    boardTiles.clear();
     emptyTiles.clear();
     emptyTiles.insert({0, 0});
     blackQueen = invalidPosition;
@@ -35,21 +35,21 @@ void Board::setBoardTiles(const std::map<Position, std::deque<Tile>> &tiles)
 std::vector<std::list<Tile>> Board::getTiles() const
 {
     size_t maxLevel = 0;
-    for (const auto &piece : pieces)
+    for (const auto &[position, stack] : boardTiles)
     {
-        if (piece.active)
-        {
-            maxLevel = std::max(static_cast<std::size_t>(piece.level) + 1, maxLevel);
-        }
+        static_cast<void>(position);
+        maxLevel = std::max(stack.size(), maxLevel);
     }
 
     std::vector<std::list<Tile>> tiles(maxLevel);
 
-    for (const auto &piece : pieces)
+    for (const auto &[position, stack] : boardTiles)
     {
-        if (piece.active)
+        static_cast<void>(position);
+        std::size_t level = 0;
+        for (const auto &tile : stack)
         {
-            tiles[piece.level].push_back(piece.tile);
+            tiles[level++].push_back(tile);
         }
     }
 
@@ -59,12 +59,12 @@ std::vector<std::list<Tile>> Board::getTiles() const
 std::set<Position> Board::getPlayerTiles(char color) const
 {
     std::set<Position> playerTiles;
-    for (const auto &position : getPositions())
+    for (const auto &[position, stack] : boardTiles)
     {
-        const auto tile = getTile(position);
+        const auto &tile = stack.back();
         if (tile.color == color)
         {
-            playerTiles.insert(tile.position);
+            playerTiles.insert(position);
         }
     }
     return playerTiles;
@@ -73,14 +73,11 @@ std::set<Position> Board::getPlayerTiles(char color) const
 std::vector<Position> Board::getPositions() const
 {
     std::vector<Position> positions;
-    positions.reserve(getPieceCount());
-    for (const auto &piece : pieces)
+    positions.reserve(boardTiles.size());
+    for (const auto &[position, stack] : boardTiles)
     {
-        if (piece.active &&
-            std::find(positions.begin(), positions.end(), piece.tile.position) == positions.end())
-        {
-            positions.push_back(piece.tile.position);
-        }
+        static_cast<void>(stack);
+        positions.push_back(position);
     }
     return positions;
 }
@@ -115,38 +112,31 @@ std::set<Position> Board::getNeighbours(Position position)
 
 Tile Board::getTileByNotation(const std::string &notation) const
 {
-    const auto *piece = findPieceByNotation(notation);
-    if (piece == nullptr)
+    for (const auto &[position, stack] : boardTiles)
     {
-        return Tile(notation);
+        static_cast<void>(position);
+        for (const auto &tile : stack)
+        {
+            if (tile.notation == notation)
+            {
+                return tile;
+            }
+        }
     }
-    return piece->tile;
+    return Tile(notation);
 }
 
 int Board::getLevel(Position position) const
 {
-    int level = 0;
-    for (const auto &piece : pieces)
-    {
-        if (piece.active && piece.tile.position == position)
-        {
-            ++level;
-        }
-    }
-    return level;
+    const auto iterator = boardTiles.find(position);
+    return iterator == boardTiles.end() ? 0 : static_cast<int>(iterator->second.size());
 }
 
 void Board::moveTile(Position position, Position newPosition)
 {
-    auto *piece = findTopPiece(position);
-    if (piece == nullptr)
-    {
-        throw std::out_of_range("No tile at position");
-    }
-
-    const auto destinationLevel = getLevel(newPosition);
-    piece->tile.setPosition(newPosition);
-    piece->level = static_cast<std::uint8_t>(destinationLevel);
+    Tile tile = getTile(position);
+    removeTile(position);
+    addTile(newPosition, std::move(tile));
 }
 
 int Board::calculateColoredNeighbours(Position position, char color) const
@@ -181,19 +171,19 @@ int Board::calculateNeighbours(const Position &position) const
 
 Tile Board::getTile(Position position) const
 {
-    const auto *piece = findTopPiece(position);
-    if (piece == nullptr)
-    {
-        throw std::out_of_range("No tile at position");
-    }
-    return piece->tile;
+    return boardTiles.at(position).back();
 }
 
 void Board::removeTile(Position position)
 {
-    if (auto *piece = findTopPiece(position))
+    const auto iterator = boardTiles.find(position);
+    if (iterator != boardTiles.end())
     {
-        *piece = {};
+        iterator->second.pop_back();
+        if (iterator->second.empty())
+        {
+            boardTiles.erase(position);
+        }
     }
 }
 
@@ -210,84 +200,20 @@ void Board::addTile(Position position, Tile tile)
         blackQueen = position;
     }
 
-    auto emptyPiece = std::find_if(pieces.begin(), pieces.end(),
-                                   [](const PieceState &piece) { return !piece.active; });
-    if (emptyPiece == pieces.end())
-    {
-        throw std::length_error("Board cannot contain more than 22 pieces");
-    }
-
-    *emptyPiece = PieceState{.tile = std::move(tile),
-                             .level = static_cast<std::uint8_t>(getLevel(position)),
-                             .active = true};
+    boardTiles[position].push_back(std::move(tile));
 }
 
-int Board::getTileCount() const
-{
-    int occupiedPositions = 0;
-    for (std::size_t index = 0; index < pieces.size(); ++index)
-    {
-        if (!pieces[index].active)
-        {
-            continue;
-        }
-
-        bool seenEarlier = false;
-        for (std::size_t previous = 0; previous < index; ++previous)
-        {
-            if (pieces[previous].active &&
-                pieces[previous].tile.position == pieces[index].tile.position)
-            {
-                seenEarlier = true;
-                break;
-            }
-        }
-        if (!seenEarlier)
-        {
-            ++occupiedPositions;
-        }
-    }
-    return occupiedPositions;
-}
+int Board::getTileCount() const { return static_cast<int>(boardTiles.size()); }
 
 std::size_t Board::getPieceCount() const
 {
-    return static_cast<std::size_t>(
-        std::count_if(pieces.begin(), pieces.end(), [](const PieceState &piece) {
-            return piece.active;
-        }));
-}
-
-Board::PieceState *Board::findTopPiece(Position position)
-{
-    return const_cast<PieceState *>(std::as_const(*this).findTopPiece(position));
-}
-
-const Board::PieceState *Board::findTopPiece(Position position) const
-{
-    const PieceState *top = nullptr;
-    for (const auto &piece : pieces)
+    std::size_t count = 0;
+    for (const auto &[position, stack] : boardTiles)
     {
-        if (piece.active && piece.tile.position == position &&
-            (top == nullptr || piece.level > top->level))
-        {
-            top = &piece;
-        }
+        static_cast<void>(position);
+        count += stack.size();
     }
-    return top;
-}
-
-Board::PieceState *Board::findPieceByNotation(const std::string &notation)
-{
-    return const_cast<PieceState *>(std::as_const(*this).findPieceByNotation(notation));
-}
-
-const Board::PieceState *Board::findPieceByNotation(const std::string &notation) const
-{
-    const auto piece = std::find_if(pieces.begin(), pieces.end(), [&](const PieceState &state) {
-        return state.active && state.tile.notation == notation;
-    });
-    return piece == pieces.end() ? nullptr : &*piece;
+    return count;
 }
 
 // movement manager
