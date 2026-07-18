@@ -92,7 +92,7 @@ void GameViewer::handleMouseButtonPressed(sf::Mouse::Button button)
 
 void GameViewer::render()
 {
-    window.clear(sf::Color::White);
+    window.clear(sf::Color(54, 52, 49));
 
     window.setView(boardView);
     window.draw(boardDrawable);

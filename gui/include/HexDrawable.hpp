@@ -25,6 +25,7 @@ class HexDrawable : public sf::Drawable
     float getOffset() const { return offset; }
 
     void highlight(sf::Color color) { hex.setOutlineColor(color); }
+    void setFillColor(sf::Color color) { hex.setFillColor(color); }
 
   private:
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;

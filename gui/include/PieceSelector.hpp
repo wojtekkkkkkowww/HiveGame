@@ -17,8 +17,8 @@ class PieceSelector : public sf::Drawable
     PieceSelector(float windowWidth, float windowHeight)
     {
         stackRect = sf::RectangleShape(sf::Vector2f(windowWidth, 150));
-        stackRect.setFillColor(sf::Color::White);
-        stackRect.setOutlineColor(sf::Color::Black);
+        stackRect.setFillColor(sf::Color(31, 29, 27, 245));
+        stackRect.setOutlineColor(sf::Color(246, 184, 66));
         stackRect.setOutlineThickness(2);
         stackRect.setPosition(0, windowHeight - 150);
 

@@ -8,8 +8,8 @@ HexDrawable::HexDrawable(float size) : size(size)
     hex.setPointCount(6);
     hex.setOrigin(size, size);
     hex.setFillColor(sf::Color::White);
-    hex.setOutlineThickness(1.f);
-    hex.setOutlineColor(sf::Color::Red);
+    hex.setOutlineThickness(2.0f);
+    hex.setOutlineColor(sf::Color(246, 184, 66));
 }
 
 void HexDrawable::setPosition(float x, float y)
@@ -22,11 +22,11 @@ void HexDrawable::setTile(const hive::Tile &tile, const sf::Texture &atlas)
 {
     if (tile.color == 'W')
     {
-        hex.setFillColor(sf::Color::White);
+        hex.setFillColor(sf::Color(236, 232, 220));
     }
     else
     {
-        hex.setFillColor(sf::Color::Black);
+        hex.setFillColor(sf::Color(28, 27, 26));
     }
 
     const auto textureRect = PieceAtlas::textureRect(atlas, tile.type);
@@ -34,7 +34,7 @@ void HexDrawable::setTile(const hive::Tile &tile, const sf::Texture &atlas)
     sprite.setTextureRect(textureRect);
     sprite.setOrigin(static_cast<float>(textureRect.width) / 2.0f,
                      static_cast<float>(textureRect.height) / 2.0f);
-    const float targetSize = size * 1.75f;
+    const float targetSize = size * 2.0f;
     const float scaleX = targetSize / static_cast<float>(textureRect.width);
     const float scaleY = targetSize / static_cast<float>(textureRect.height);
     const float uniformScale = std::min(scaleX, scaleY);

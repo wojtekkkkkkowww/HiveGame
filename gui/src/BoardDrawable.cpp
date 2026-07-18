@@ -57,7 +57,7 @@ void BoardDrawable::addHex(hive::Position &lastPosition, const hive::Tile &tile,
     {
         if (board.getLevel(lastPosition) == static_cast<int>(level) + 1)
         {
-            hex.highlight(sf::Color::Cyan);
+            hex.highlight(sf::Color(255, 213, 105));
         }
     }
 
@@ -76,7 +76,8 @@ void BoardDrawable::updateEmptyTiles()
 
         auto [posX, posY] = calculateHexPosition(emptyPosition.x, emptyPosition.y);
         hex.setPosition(posX, posY);
-        hex.highlight(sf::Color(192, 192, 192));
+        hex.setFillColor(sf::Color(43, 41, 38));
+        hex.highlight(sf::Color(246, 184, 66, 105));
         hexDrawables.push_back(hex);
     }
 }

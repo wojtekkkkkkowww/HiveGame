@@ -9,7 +9,9 @@ BaseInterface::BaseInterface(sf::RenderWindow &window)
 
     turnText.setFont(resourceManager.getFont("arial.ttf"));
     turnText.setCharacterSize(24);
-    turnText.setFillColor(sf::Color::Black);
+    turnText.setFillColor(sf::Color(238, 230, 211));
+    turnText.setOutlineColor(sf::Color(20, 19, 18));
+    turnText.setOutlineThickness(1.0f);
     turnText.setPosition(10, 10);
 }
 

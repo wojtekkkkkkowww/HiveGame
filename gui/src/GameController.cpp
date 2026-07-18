@@ -8,6 +8,8 @@ GameController::GameController(sf::RenderWindow &window)
     ResourceManager &resourceManager = ResourceManager::getInstance();
     waitButton = Button(sf::Vector2f(100, 50), sf::Vector2f(700, 10), "Wait",
                         resourceManager.getFont("arial.ttf"));
+    waitButton.setFillColor(sf::Color(246, 184, 66));
+    waitButton.setTextColor(sf::Color(28, 27, 26));
 }
 
 void GameController::processEvents()
@@ -84,7 +86,7 @@ void GameController::handleMouseButtonPressed(sf::Mouse::Button button)
 
 void GameController::render()
 {
-    window.clear(sf::Color::White);
+    window.clear(sf::Color(54, 52, 49));
 
     window.setView(boardView);
     window.draw(boardDrawable);
