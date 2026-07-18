@@ -1,8 +1,7 @@
 add_executable(GameViewer GameViewer.cpp main.cpp)
-target_link_libraries(GameViewer GameEngine GUI sfml-graphics)
+target_link_libraries(GameViewer PRIVATE GUI global_compile_options)
 
-target_include_directories(HumanClient PRIVATE
+target_include_directories(GameViewer PRIVATE
     ${CMAKE_SOURCE_DIR}/engine/include
     ${CMAKE_SOURCE_DIR}/gui/include
 )
-target_link_libraries(GameViewer global_compile_options)

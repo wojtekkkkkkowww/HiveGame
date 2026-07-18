@@ -423,6 +423,10 @@ int main(int argc, char *argv[])
         if (std::string(argv[1]) == "test")
             tester.testAI();
     }
+    else if (argc == 3 && std::string(argv[1]) == "perft")
+    {
+        tester.performPerftTest(std::stoi(argv[2]));
+    }
     else if (argc == 3)
     {
         tester.setAi(argv[1], argv[2]);

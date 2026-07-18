@@ -9,11 +9,9 @@ target_include_directories(AiClient PRIVATE
  
 add_executable(HumanClient HumanClient.cpp Client.cpp)
 
-target_link_libraries(HumanClient GameEngine GUI sfml-graphics sfml-network)
-target_link_libraries(HumanClient global_compile_options)
+target_link_libraries(HumanClient GUI sfml-network global_compile_options)
 
 target_include_directories(HumanClient PRIVATE
     ${CMAKE_SOURCE_DIR}/engine/include
     ${CMAKE_SOURCE_DIR}/gui/include
 )
-

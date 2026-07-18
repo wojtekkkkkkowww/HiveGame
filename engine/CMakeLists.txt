@@ -1,12 +1,12 @@
-file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp")
-file(GLOB_RECURSE ENGINE_HEADERS "include/*.hpp")
-
-add_library(GameEngine ${ENGINE_SOURCES} ${ENGINE_HEADERS})
+add_library(GameEngine
+    src/ActionHandler.cpp
+    src/ArticulationPoints.cpp
+    src/Board.cpp
+    src/FileOperations.cpp
+    src/Game.cpp
+    src/Player.cpp
+)
 
 target_include_directories(GameEngine PUBLIC ${CMAKE_SOURCE_DIR}/engine/include)
 
-find_package(OpenSSL REQUIRED)
-target_link_libraries(GameEngine PUBLIC OpenSSL::SSL OpenSSL::Crypto)
-
 target_link_libraries(GameEngine PUBLIC global_compile_options)
-#target_compile_options(GameEngine PRIVATE -O3)
