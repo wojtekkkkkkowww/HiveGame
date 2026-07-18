@@ -14,17 +14,17 @@ struct Position
 
     auto operator<=>(const Position &) const = default;
 
-    Position operator+(const Position &other) const
+    constexpr Position operator+(const Position &other) const
     {
         return {.x = (x + other.x), .y = (y + other.y)};
     }
 
-    Position operator-(const Position &other) const
+    constexpr Position operator-(const Position &other) const
     {
         return {.x = (x - other.x), .y = (y - other.y)};
     }
 
-    Position &operator+=(const Position &other)
+    constexpr Position &operator+=(const Position &other)
     {
         x += other.x;
         y += other.y;

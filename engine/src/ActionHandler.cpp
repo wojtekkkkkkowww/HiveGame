@@ -131,7 +131,6 @@ void ActionHandler::generateMoveActions()
 
     articulationPointFinder.findArticulationPoints();
 
-    std::set<Action> moves;
     for (const auto &position : board.getPlayerTiles(currentTurn))
     {
         const auto &tile = board.getTile(position);
@@ -150,7 +149,6 @@ void ActionHandler::generateMoveActions()
             if (isMoveActionValid(action))
             {
                 availableActions.push_back(action);
-                moves.insert(action);
             }
         }
     }
@@ -196,42 +194,21 @@ void ActionHandler::updateQueenPosition(const hive::Tile &tile, const hive::Posi
 
 void ActionHandler::generatePlaceActions()
 {
-    std::set<char> availableTypes;
-    getAvailableTypes(availableTypes);
-
-    std::set<Position> avaliablePositions;
-
-    for (const auto &position : board.emptyTiles)
+    const bool queenMustBePlaced =
+        !players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 3;
+    for (const auto &definition : pieceCatalog)
     {
-        if (isPlaceActionValid(position))
+        const auto type = definition.code;
+        if ((queenMustBePlaced && type != 'Q') || players[currentTurn].getTileCount(type) == 0)
         {
-            avaliablePositions.insert(position);
+            continue;
         }
-    }
 
-    for (const auto &type : availableTypes)
-    {
-        for (const auto &position : avaliablePositions)
+        for (const auto &position : board.emptyTiles)
         {
-            availableActions.push_back(makePlaceAction(position, type));
-        }
-    }
-}
-
-void ActionHandler::getAvailableTypes(std::set<char> &availableTypes) const
-{
-    if (!players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 3)
-    {
-        availableTypes.insert('Q');
-    }
-    else
-    {
-        for (const auto &definition : pieceCatalog)
-        {
-            const auto type = definition.code;
-            if (players[currentTurn].getTileCount(type) > 0)
+            if (isPlaceActionValid(position))
             {
-                availableTypes.insert(type);
+                availableActions.push_back(makePlaceAction(position, type));
             }
         }
     }

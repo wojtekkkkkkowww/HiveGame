@@ -35,8 +35,6 @@ class ActionHandler
     void updateQueenPosition(const Tile &tile, const Position &newPosition);
     void generatePlaceActions();
     inline bool isPlaceActionValid(const Position &position) const;
-    void getAvailableTypes(std::set<char> &availableTypes) const;
-
     Board &board;
     Players &players;
     char &currentTurn;

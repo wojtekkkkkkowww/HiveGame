@@ -78,7 +78,12 @@ class Board
     int calculateColoredNeighbours(Position position, char color) const;
     int calculateNeighbours(const Position &position) const;
 
-    static std::set<Position> getNeighbours(Position position);
+    static constexpr std::array<Position, 6> getNeighbours(Position position)
+    {
+        // Keep the former std::set lexicographic order so serialized replays stay stable.
+        return {position + W, position + SW, position + NW,
+                position + SE, position + NE, position + E};
+    }
 
     Position whiteQueen = invalidPosition;
     Position blackQueen = invalidPosition;

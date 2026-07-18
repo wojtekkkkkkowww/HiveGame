@@ -13,14 +13,16 @@ TEST_F(BoardTest, GetNeighboursAtOrigin)
 {
     std::set<hive::Position> expectedNeighbours = {{1, -1}, {1, 0},  {0, 1},
                                                    {-1, 1}, {-1, 0}, {0, -1}};
-    ASSERT_EQ(hive::Board::getNeighbours({0, 0}), expectedNeighbours);
+    const auto neighbours = hive::Board::getNeighbours({0, 0});
+    ASSERT_EQ((std::set<hive::Position>(neighbours.begin(), neighbours.end())), expectedNeighbours);
 }
 
 TEST_F(BoardTest, GetNeighboursAtPosition)
 {
     std::set<hive::Position> expectedNeighbours = {{3, -1}, {3, 0}, {2, 1},
                                                    {1, 1},  {1, 0}, {2, -1}};
-    ASSERT_EQ(hive::Board::getNeighbours({2, 0}), expectedNeighbours);
+    const auto neighbours = hive::Board::getNeighbours({2, 0});
+    ASSERT_EQ((std::set<hive::Position>(neighbours.begin(), neighbours.end())), expectedNeighbours);
 }
 
 TEST_F(BoardTest, GetTileAtPosition)

@@ -19,11 +19,11 @@ struct PieceDefinition
 };
 
 inline constexpr std::array pieceCatalog = {
-    PieceDefinition{PieceType::Queen, 'Q', 1, "Q.png", 0},
     PieceDefinition{PieceType::Ant, 'A', 3, "A.png", 1},
-    PieceDefinition{PieceType::Spider, 'S', 2, "S.png", 2},
-    PieceDefinition{PieceType::Grasshopper, 'G', 3, "G.png", 3},
     PieceDefinition{PieceType::Beetle, 'B', 2, "B.png", 4},
+    PieceDefinition{PieceType::Grasshopper, 'G', 3, "G.png", 3},
+    PieceDefinition{PieceType::Queen, 'Q', 1, "Q.png", 0},
+    PieceDefinition{PieceType::Spider, 'S', 2, "S.png", 2},
 };
 
 constexpr std::size_t pieceIndex(char code)

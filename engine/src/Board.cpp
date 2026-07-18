@@ -98,18 +98,6 @@ void Board::addEmptyTilesAroundBoard()
     }
 }
 
-std::set<Position> Board::getNeighbours(Position position)
-{
-    std::set<Position> neighbours;
-
-    for (const auto &dir : directions)
-    {
-        neighbours.insert(position + dir);
-    }
-
-    return neighbours;
-}
-
 Tile Board::getTileByNotation(const std::string &notation) const
 {
     for (const auto &[position, stack] : boardTiles)
@@ -326,7 +314,7 @@ void Board::getSpiderMoves(const Position &position, std::set<Position> &outMove
 
     std::set<Position> visited;
     std::queue<std::pair<Position, int>> q;
-    std::set<Position> spiderNeighbours = getNeighbours(position);
+    const auto spiderNeighbours = getNeighbours(position);
 
     q.push({position, 0});
     visited.insert(position);
@@ -349,7 +337,10 @@ void Board::getSpiderMoves(const Position &position, std::set<Position> &outMove
                 emptyTiles.find(neighbor) != emptyTiles.end())
             {
                 int isSpiderNeighbour =
-                    (spiderNeighbours.find(neighbor) != spiderNeighbours.end()) ? 1 : 0;
+                    (std::find(spiderNeighbours.begin(), spiderNeighbours.end(), neighbor) !=
+                     spiderNeighbours.end())
+                        ? 1
+                        : 0;
                 if (calculateNeighbours(neighbor) - isSpiderNeighbour > 0)
                 {
                     if (isDirectionBlocked(currentPos, neighbor - currentPos, 1))

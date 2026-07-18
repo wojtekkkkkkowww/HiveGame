@@ -32,6 +32,11 @@ Pomiar wykonano 2026-07-18 na tej samej maszynie i w buildzie zoptymalizowanym.
 Mediana nowej wersji dla depth 8 wynosi 3340 ms. Względem wcześniejszego pomiaru 4402 ms jest to
 około 24% krótszy czas. Identyczna liczba węzłów potwierdza, że porównano ten sam przebieg searchu.
 
+Po zastąpieniu alokowanego `set` sąsiadów przez `array<Position, 6>` oraz usunięciu tymczasowych
+zbiorów z generatora rozmieszczeń ten sam perft depth 8 trwał 2976 ms. To kolejne około 11%
+względem mediany 3340 ms i około 32% względem pierwotnego pomiaru 4402 ms. Liczba węzłów nadal
+wynosiła 1 665 980.
+
 Wynik bazowy pochodzi z jednego uruchomienia, więc 24% należy traktować jako wynik wstępny, a nie
 precyzyjny benchmark statystyczny. Kolejne pomiary powinny:
 
