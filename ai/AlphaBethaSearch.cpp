@@ -61,7 +61,6 @@ std::pair<double, Action> AlphaBetaAI::alphabetha(double alpha, double beta, int
 
     game.genAvailableActions();
     auto actions = game.avaliableActions;
-    auto emptyTiles = game.board.emptyTiles;
 
     std::pair<double, Action> best = std::make_pair(negative_infinity, actions.front());
 
@@ -71,7 +70,7 @@ std::pair<double, Action> AlphaBetaAI::alphabetha(double alpha, double beta, int
     {
         game.applyValidAction(action);
         double v2 = -alphabetha(-beta, -alpha, depth - 1, -color).first;
-        game.revertAction(actions, emptyTiles);
+        game.revertValidAction();
 
         if (v2 > best.first)
         {

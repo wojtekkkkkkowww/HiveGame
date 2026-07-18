@@ -33,8 +33,8 @@ class Game
     bool applyAction(const Action &action);
     void applyValidAction(const Action &action);
     bool applyAction(const std::string &actionString);
-    void revertAction(std::vector<Action> &actions, std::set<Position> &emptyTiles);
     void revertAction();
+    void revertValidAction();
     void genAvailableActions();
     bool isGameOver() const;
     char getCurrentTurn() const;

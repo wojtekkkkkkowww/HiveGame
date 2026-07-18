@@ -164,3 +164,19 @@ TEST(GameMoveLimitTest, RejectsZeroLimit)
 {
     EXPECT_THROW(Game(0), std::invalid_argument);
 }
+
+TEST_F(GameTest, SearchApplyAndUndoPreserveRecordedHistory)
+{
+    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, 'Q')));
+    const auto lastRecordedAction = getLastAction();
+    const auto turnBeforeSearch = getCurrentTurn();
+    const auto plyBeforeSearch = getPlyCount();
+    const auto searchAction = avaliableActions.front();
+
+    applyValidAction(searchAction);
+    revertValidAction();
+
+    EXPECT_EQ(getLastAction(), lastRecordedAction);
+    EXPECT_EQ(getCurrentTurn(), turnBeforeSearch);
+    EXPECT_EQ(getPlyCount(), plyBeforeSearch);
+}

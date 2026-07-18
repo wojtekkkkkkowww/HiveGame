@@ -11,14 +11,12 @@ RandomAIAlgorithm::RandomAIAlgorithm(Game &game) : AIAlgorithm(game)
 
 Action RandomAIAlgorithm::getNextMove()
 {
-    auto availableActions = game.avaliableActions;
-    auto emptyTiles = game.board.emptyTiles;
-
     if (auto action = winInOneMove(game.getCurrentTurn()))
     {
         return action.value();
     }
 
+    const auto &availableActions = game.avaliableActions;
     if (!availableActions.empty())
     {
         std::uniform_int_distribution<size_t> dist(0, availableActions.size() - 1);
@@ -33,18 +31,17 @@ Action RandomAIAlgorithm::getNextMove()
 std::optional<Action> RandomAIAlgorithm::winInOneMove(char player)
 {
     auto availableActions = game.avaliableActions;
-    auto emptyTiles = game.board.emptyTiles;
     for (const auto &action : availableActions)
     {
         game.applyValidAction(action);
         std::string playerString = player == 'W' ? "WHITE" : "BLACK";
         if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
         {
-            game.revertAction(availableActions, emptyTiles);
+            game.revertValidAction();
 
             return action;
         }
-        game.revertAction(availableActions, emptyTiles);
+        game.revertValidAction();
     }
 
     return std::nullopt;

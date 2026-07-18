@@ -39,8 +39,6 @@ void AiTester::perft(int depth, long long &nodes)
     game.genAvailableActions();
     auto actions = game.avaliableActions;
 
-    auto emptyTiles = game.board.emptyTiles;
-
     int i = 0;
     for (const auto &action : actions)
     {
@@ -50,7 +48,7 @@ void AiTester::perft(int depth, long long &nodes)
         }
         game.applyValidAction(action);
         perft(depth - 1, nodes);
-        game.revertAction(actions, emptyTiles);
+        game.revertValidAction();
         i++;
     }
 }

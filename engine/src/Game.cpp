@@ -89,17 +89,11 @@ void Game::revertAction()
 
 void Game::genAvailableActions() { actionHandler.genAvailableActions(); }
 
-void Game::revertAction(std::vector<Action> &actions, std::set<Position> &emptyTiles)
+void Game::revertValidAction()
 {
-    if (!actionStrings.empty())
-    {
-        actionStrings.pop_back();
-    }
-
-    board.emptyTiles = emptyTiles;
     actionHandler.revertAction();
     turnManager.revertTurn();
-    avaliableActions = actions;
+    actionHandler.genAvailableActions();
 }
 
 bool Game::isGameOver() const { return gameStatus != "PLAYING"; }
