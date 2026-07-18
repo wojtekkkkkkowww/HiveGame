@@ -26,6 +26,7 @@ class Client
     virtual void handleMyAction() = 0;
     virtual void handleOpponentAction() = 0;
     virtual void prepare() = 0;
+    virtual bool shouldStop() const { return false; }
     bool sendMessage(const std::string &message);
     bool receiveMessage(std::string &message);
 

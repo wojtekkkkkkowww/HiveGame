@@ -17,6 +17,7 @@ class HumanClient : public Client
     GameController gameController;
 
     void prepare() override { gameController.setPlayer(player); }
+    bool shouldStop() const override { return !window.isOpen(); }
 
     void handleMyAction() override
     {

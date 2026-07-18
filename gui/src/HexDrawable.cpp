@@ -34,7 +34,7 @@ void HexDrawable::setTile(const hive::Tile &tile, const sf::Texture &atlas)
     sprite.setTextureRect(textureRect);
     sprite.setOrigin(static_cast<float>(textureRect.width) / 2.0f,
                      static_cast<float>(textureRect.height) / 2.0f);
-    const float targetSize = size * 2.0f;
+    const float targetSize = size * 1.6f;
     const float scaleX = targetSize / static_cast<float>(textureRect.width);
     const float scaleY = targetSize / static_cast<float>(textureRect.height);
     const float uniformScale = std::min(scaleX, scaleY);

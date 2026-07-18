@@ -75,8 +75,12 @@ class PieceSelector : public sf::Drawable
             if (piece.first == selectedPiece)
             {
                 const auto bounds = piece.second.getGlobalBounds();
-                sf::RectangleShape selection({bounds.width + 16.0f, bounds.height + 12.0f});
-                selection.setPosition(bounds.left - 8.0f, bounds.top - 6.0f);
+                const sf::Vector2f selectionSize{92.0f, 122.0f};
+                const sf::Vector2f spriteCenter{bounds.left + bounds.width / 2.0f,
+                                                bounds.top + bounds.height / 2.0f};
+                sf::RectangleShape selection(selectionSize);
+                selection.setPosition(spriteCenter.x - selectionSize.x / 2.0f,
+                                      spriteCenter.y - selectionSize.y / 2.0f);
                 selection.setFillColor(sf::Color(246, 184, 66, 42));
                 selection.setOutlineColor(sf::Color(54, 235, 207));
                 selection.setOutlineThickness(3.0f);

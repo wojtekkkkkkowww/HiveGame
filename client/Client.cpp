@@ -50,13 +50,19 @@ void Client::run()
     startConnection();
     prepare();
 
-    while (!gameStarted)
+    while (!gameStarted && !shouldStop())
     {
         handleGameStart();
     }
+
+    if (shouldStop())
+    {
+        return;
+    }
+
     std::cout << "Game started!\n";
 
-    while (true)
+    while (!shouldStop())
     {
         sf::Time elapsed = clock.restart();
 

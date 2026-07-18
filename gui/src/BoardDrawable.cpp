@@ -48,7 +48,7 @@ void BoardDrawable::addHex(hive::Position &lastPosition, const hive::Tile &tile,
                            size_t level)
 {
     lastPosition = tile.position;
-    HexDrawable hex(0.95f * hexSize);
+    HexDrawable hex(0.88f * hexSize);
     hex.tilePosition = lastPosition;
     hex.setOffset(offset);
     hex.setTile(tile, *pieceAtlas);
@@ -72,7 +72,7 @@ void BoardDrawable::updateEmptyTiles()
 {
     for (const auto &emptyPosition : board.emptyTiles)
     {
-        HexDrawable hex(0.95f * hexSize);
+        HexDrawable hex(0.88f * hexSize);
         hex.tilePosition = emptyPosition;
 
         auto [posX, posY] = calculateHexPosition(emptyPosition.x, emptyPosition.y);

@@ -18,6 +18,11 @@ BaseInterface::BaseInterface(sf::RenderWindow &window)
 void BaseInterface::handleGameControl()
 {
     processEvents();
+    if (!window.isOpen())
+    {
+        return;
+    }
+
     if (change)
     {
         update();
