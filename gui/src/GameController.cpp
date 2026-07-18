@@ -97,8 +97,6 @@ void GameController::render()
     }
 
     window.display();
-    std::cout << game->board.emptyTiles.size() << std::endl;
-    std ::cerr << "Game window rendered" << std::endl;
 }
 
 void GameController::apllyOpponentAction(const std::string &action)

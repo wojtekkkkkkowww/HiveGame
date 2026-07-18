@@ -118,7 +118,7 @@ Tile Board::getTileByNotation(const std::string &notation) const
     const auto *piece = findPieceByNotation(notation);
     if (piece == nullptr)
     {
-        return {notation};
+        return Tile(notation);
     }
     return piece->tile;
 }

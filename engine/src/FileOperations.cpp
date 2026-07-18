@@ -27,10 +27,6 @@ std::vector<std::string> hive::loadFromFile(const std::string &path)
     {
         data.push_back(line);
     }
-    for (const auto &move : data)
-    {
-        std::cerr << move << '\n';
-    }
     return data;
 }
 

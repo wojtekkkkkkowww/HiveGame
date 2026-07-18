@@ -21,7 +21,7 @@ hive::Tile hive::Player::takeTile(char type)
     {
         stream << color << type << getUnplacedPieceNumber(type);
     }
-    return {stream.str()};
+    return Tile(stream.str());
 }
 
 void hive::Player::returnTile(char type)

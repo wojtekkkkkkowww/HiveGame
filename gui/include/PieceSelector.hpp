@@ -12,7 +12,7 @@
 class PieceSelector : public sf::Drawable
 {
   public:
-    PieceSelector(float windowWidth, float windowHeight) : windowHeight(windowHeight)
+    PieceSelector(float windowWidth, float windowHeight)
     {
         stackRect = sf::RectangleShape(sf::Vector2f(windowWidth, 150));
         stackRect.setFillColor(sf::Color::White);
@@ -20,7 +20,6 @@ class PieceSelector : public sf::Drawable
         stackRect.setOutlineThickness(2);
         stackRect.setPosition(0, windowHeight - 150);
 
-        std::cerr << "Loading pieces into PieceSelector " << this->windowHeight << std::endl;
         loadPieces();
     }
 
@@ -71,8 +70,6 @@ class PieceSelector : public sf::Drawable
   private:
     sf::RectangleShape stackRect;
     std::vector<std::pair<char, sf::Sprite>> pieces;
-    float windowHeight;
-
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override
     {
         target.draw(stackRect, states);
