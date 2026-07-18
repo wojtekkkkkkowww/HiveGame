@@ -23,24 +23,6 @@ class ResourceManager
         return instance;
     }
 
-    const sf::Texture &getTexture(char name)
-    {
-        if (textures.find(name) == textures.end())
-        {
-            sf::Texture texture;
-            if (!texture.loadFromFile(std::string(SOURCE_DIR) + "/res/" + name + ".png"))
-            {
-                std::cerr << "Error loading texture: " << name << std::endl;
-            }
-            else
-            {
-                textures[name] = texture;
-                std::cerr << "Loaded texture: " << name << std::endl;
-            }
-        }
-        return textures[name];
-    }
-
     const sf::Texture &getPieceAtlas()
     {
         if (!pieceAtlas)
@@ -74,7 +56,6 @@ class ResourceManager
 
   private:
     ResourceManager() = default;
-    std::unordered_map<char, sf::Texture> textures;
     std::unordered_map<std::string, sf::Font> fonts;
     std::unique_ptr<sf::Texture> pieceAtlas;
 };

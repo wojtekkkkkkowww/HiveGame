@@ -1,6 +1,7 @@
 #pragma once
 #include "ResourceManager.hpp"
 #include "PieceCatalog.hpp"
+#include "PieceAtlas.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
@@ -28,9 +29,6 @@ class PieceSelector : public sf::Drawable
     {
         ResourceManager &resourceManager = ResourceManager::getInstance();
         const sf::Texture &atlas = resourceManager.getPieceAtlas();
-        const auto cellWidth =
-            static_cast<int>(atlas.getSize().x / hive::pieceCatalog.size());
-        const auto cellHeight = static_cast<int>(atlas.getSize().y);
         float xOffset = 10.0f;
         float yOffset = 10.0f;
         constexpr float selectorScale = 0.16f;
@@ -40,13 +38,13 @@ class PieceSelector : public sf::Drawable
         {
             const auto type = definition.code;
             sf::Sprite sprite(atlas);
-            sprite.setTextureRect({static_cast<int>(definition.atlasColumn) * cellWidth, 0,
-                                   cellWidth, cellHeight});
+            const auto textureRect = PieceAtlas::textureRect(atlas, type);
+            sprite.setTextureRect(textureRect);
             sprite.setScale(selectorScale, selectorScale);
             sprite.setPosition(stackRect.getPosition().x + xOffset,
                                stackRect.getPosition().y + yOffset);
             pieces.push_back({type, sprite});
-            xOffset += static_cast<float>(cellWidth) * selectorScale + pieceSpacing;
+            xOffset += static_cast<float>(textureRect.width) * selectorScale + pieceSpacing;
         }
     }
 
