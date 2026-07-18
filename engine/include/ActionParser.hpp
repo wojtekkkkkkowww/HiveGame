@@ -8,6 +8,7 @@
 
 #include <regex>
 #include <sstream>
+#include <optional>
 
 namespace hive
 {
@@ -29,32 +30,38 @@ class ActionParser
      * @param notation The string notation, e.g., "WG2-bQ".
      * @return The corresponding Action object.
      */
-    Action stringToAction(const std::string &notation) const
+    std::optional<Action> stringToAction(const std::string &notation) const
     {
-        std::regex rightDirectionRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)([-\\/]))");
-        std::regex beetleMoveRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)\.)");
-        std::regex leftDirectionRegex(R"(([WB][A-Z]\d?) ([-\\/])([WB][A-Z]\d?))");
-        std::regex firstActionRegex(R"([WB][A-Z]\d?)");
+        static const std::regex rightDirectionRegex(
+            R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)([-\\/]))");
+        static const std::regex beetleMoveRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)\.)");
+        static const std::regex leftDirectionRegex(
+            R"(([WB][A-Z]\d?) ([-\\/])([WB][A-Z]\d?))");
+        static const std::regex firstActionRegex(R"([WB][A-Z]\d?)");
         std::smatch matches;
 
-        if (std::regex_search(notation, matches, leftDirectionRegex))
+        if (std::regex_match(notation, matches, leftDirectionRegex))
         {
             return parseLeftDirection(matches);
         }
-        if (std::regex_search(notation, matches, rightDirectionRegex))
+        if (std::regex_match(notation, matches, rightDirectionRegex))
         {
             return parseRightDirection(matches);
         }
-        if (std::regex_search(notation, matches, beetleMoveRegex))
+        if (std::regex_match(notation, matches, beetleMoveRegex))
         {
             return parseBeetleMove(matches);
         }
-        if (std::regex_search(notation, matches, firstActionRegex))
+        if (std::regex_match(notation, matches, firstActionRegex))
         {
             return parseFirstAction(matches);
         }
 
-        return makeWaitAction();
+        if (notation == "Wait")
+        {
+            return makeWaitAction();
+        }
+        return std::nullopt;
     }
 
     /**

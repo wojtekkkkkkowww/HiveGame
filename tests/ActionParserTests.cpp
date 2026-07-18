@@ -40,4 +40,12 @@ TEST_F(ActionParserTests, simpleGame)
 
     playGame(game);
 }
+
+TEST_F(ActionParserTests, RejectsPartialAndUnknownNotation)
+{
+    EXPECT_FALSE(applyAction("prefix WQ suffix"));
+    EXPECT_FALSE(applyAction("not a move"));
+    EXPECT_EQ(getPlyCount(), 0U);
+    EXPECT_TRUE(board.isEmpty({0, 0}));
+}
 } // namespace hive

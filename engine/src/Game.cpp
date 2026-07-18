@@ -61,9 +61,13 @@ bool Game::applyAction(const Action &action)
 bool Game::applyAction(const std::string &actionString)
 {
 
-    Action action = actionParser.stringToAction(actionString);
+    const auto action = actionParser.stringToAction(actionString);
+    if (!action)
+    {
+        return false;
+    }
 
-    if (actionHandler.applyAction(action))
+    if (actionHandler.applyAction(*action))
     {
         actionStrings.push_back(actionString);
         turnManager.nextTurn();
