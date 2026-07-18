@@ -20,12 +20,23 @@ Game::Game(std::size_t maxPly)
 
 void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn)
 {
+    players['W'].reset();
+    players['B'].reset();
+    actionStrings.clear();
+    plyCount = 0;
+    gameStatus = "PLAYING";
     board.setBoardTiles(tiles);
     this->currentTurn = currentTurn;
+    std::array<int, 2> placedPieces{};
+
     for (auto &[position, tiles] : tiles)
     {
         for (const auto &t : tiles)
         {
+            players[t.color].takeTile(t.type);
+            const auto playerIndex = t.color == 'W' ? 0U : 1U;
+            ++placedPieces[playerIndex];
+
             if (t.color == 'W' && t.type == 'Q')
             {
                 board.whiteQueen = position;
@@ -39,7 +50,12 @@ void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char c
         }
     }
 
-    gameStatus = "PLAYING";
+    players['W'].firstMove = placedPieces[0] == 0;
+    players['B'].firstMove = placedPieces[1] == 0;
+    players['W'].turnCounter = placedPieces[0];
+    players['B'].turnCounter = placedPieces[1];
+    actionHandler.reset();
+    turnManager.updateGameStatus();
     actionHandler.genAvailableActions();
 }
 
