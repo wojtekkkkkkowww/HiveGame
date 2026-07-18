@@ -5,7 +5,7 @@
 
 namespace hive
 {
-ActionHandler::ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn,
+ActionHandler::ActionHandler(Board &board, Players &players, char &currentTurn,
                              std::string &status, std::stack<Action> &actions,
                              std::vector<Action> &availableActions)
     : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions),
@@ -54,7 +54,7 @@ void ActionHandler::revertAction()
         revertPlacedQueen(tile);
         board.removeTile(action.newPosition);
         char lastTurn = (currentTurn == 'W') ? 'B' : 'W';
-        players[lastTurn]->returnTile(action.tile_type);
+        players[lastTurn].returnTile(action.tile_type);
     }
 }
 
@@ -77,7 +77,7 @@ void ActionHandler::revertPlacedQueen(const Tile &tile)
 
 void ActionHandler::genAvailableActions()
 {
-    if (!players['W']->firstMove)
+    if (!players['W'].firstMove)
     {
         board.addEmptyTilesAroundBoard();
     }
@@ -124,7 +124,7 @@ Action ActionHandler::getLastAction() const
 
 void ActionHandler::generateMoveActions()
 {
-    if (!players[currentTurn]->queenPlaced)
+    if (!players[currentTurn].queenPlaced)
     {
         return;
     }
@@ -170,12 +170,12 @@ void ActionHandler::moveTile(Position position, Position newPosition)
 
 void ActionHandler::placeTile(Position position, char type)
 {
-    auto tile = players[currentTurn]->takeTile(type);
+    auto tile = players[currentTurn].takeTile(type);
     tile.placed = true;
     board.addTile(position, tile);
     if (type == 'Q')
     {
-        players[currentTurn]->queenPlaced = true;
+        players[currentTurn].queenPlaced = true;
         updateQueenPosition(tile, position);
     }
     // board.addEmptyTilesAroundBoard();
@@ -220,7 +220,7 @@ void ActionHandler::generatePlaceActions()
 
 void ActionHandler::getAvailableTypes(std::set<char> &availableTypes) const
 {
-    if (!players[currentTurn]->queenPlaced && players[currentTurn]->turnCounter >= 3)
+    if (!players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 3)
     {
         availableTypes.insert('Q');
     }
@@ -228,7 +228,7 @@ void ActionHandler::getAvailableTypes(std::set<char> &availableTypes) const
     {
         for (const auto &type : types)
         {
-            if (players[currentTurn]->getTileCount(type) > 0)
+            if (players[currentTurn].getTileCount(type) > 0)
             {
                 availableTypes.insert(type);
             }

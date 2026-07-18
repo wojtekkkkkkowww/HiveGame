@@ -15,7 +15,7 @@ namespace hive
 class ActionHandler
 {
   public:
-    ActionHandler(Board &board, std::map<char, Player *> &players, char &currentTurn,
+    ActionHandler(Board &board, Players &players, char &currentTurn,
                   std::string &status, std::stack<Action> &actions,
                   std::vector<Action> &availableActions);
     bool applyAction(const Action &action);
@@ -37,7 +37,7 @@ class ActionHandler
     void getAvailableTypes(std::set<char> &availableTypes) const;
 
     Board &board;
-    std::map<char, Player *> &players;
+    Players &players;
     char &currentTurn;
     std::string &status;
     std::stack<Action> &actions;
@@ -48,6 +48,6 @@ class ActionHandler
 
 inline bool ActionHandler::isPlaceActionValid(const Position &position) const
 {
-    return !board.isOccupiedByOpponent(position, currentTurn) || players[currentTurn]->firstMove;
+    return !board.isOccupiedByOpponent(position, currentTurn) || players[currentTurn].firstMove;
 }
 } // namespace hive

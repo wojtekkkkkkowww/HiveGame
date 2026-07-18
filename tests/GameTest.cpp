@@ -137,7 +137,7 @@ TEST_F(GameTest, RevertingPlacedQueenRestoresQueenState)
 
     EXPECT_EQ(board.whiteQueen, invalidPosition);
     EXPECT_EQ(board.blackQueen, invalidPosition);
-    EXPECT_FALSE(players['W']->queenPlaced);
+    EXPECT_FALSE(players['W'].queenPlaced);
     EXPECT_EQ(getCurrentTurn(), 'W');
     EXPECT_EQ(getPlyCount(), 0U);
 }

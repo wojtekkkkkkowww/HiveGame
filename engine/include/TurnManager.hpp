@@ -15,7 +15,7 @@ namespace hive
 class TurnManager
 {
   public:
-    TurnManager(Board &board, std::map<char, Player *> &players, char &currentTurn,
+    TurnManager(Board &board, Players &players, char &currentTurn,
                 std::string &status, std::size_t &plyCount, const std::size_t &maxPly)
         : board(board), players(players), currentTurn(currentTurn), gameStatus(status),
           plyCount(plyCount), maxPly(maxPly)
@@ -28,7 +28,7 @@ class TurnManager
 
   private:
     Board &board;
-    std::map<char, Player *> &players;
+    Players &players;
     char &currentTurn;
     std::string &gameStatus;
     std::size_t &plyCount;
@@ -37,8 +37,8 @@ class TurnManager
 
 inline void TurnManager::nextTurn()
 {
-    players[currentTurn]->firstMove = false;
-    players[currentTurn]->turnCounter++;
+    players[currentTurn].firstMove = false;
+    players[currentTurn].turnCounter++;
     ++plyCount;
     currentTurn = (currentTurn == 'W') ? 'B' : 'W';
     updateGameStatus();
@@ -47,15 +47,15 @@ inline void TurnManager::nextTurn()
 inline void TurnManager::revertTurn()
 {
     currentTurn = (currentTurn == 'W') ? 'B' : 'W';
-    players[currentTurn]->turnCounter--;
+    players[currentTurn].turnCounter--;
     if (plyCount > 0)
     {
         --plyCount;
     }
 
-    if (players[currentTurn]->turnCounter == 0)
+    if (players[currentTurn].turnCounter == 0)
     {
-        players[currentTurn]->firstMove = true;
+        players[currentTurn].firstMove = true;
     }
     updateGameStatus();
 }

@@ -15,15 +15,7 @@ Game::Game(std::size_t maxPly)
     {
         throw std::invalid_argument("Move limit must be greater than zero");
     }
-    players['W'] = new Player('W');
-    players['B'] = new Player('B');
     startNewGame();
-}
-
-Game::~Game()
-{
-    delete players['W'];
-    delete players['B'];
 }
 
 void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn)
@@ -37,12 +29,12 @@ void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char c
             if (t.color == 'W' && t.type == 'Q')
             {
                 board.whiteQueen = position;
-                players['W']->queenPlaced = true;
+                players['W'].queenPlaced = true;
             }
             if (t.color == 'B' && t.type == 'Q')
             {
                 board.blackQueen = position;
-                players['B']->queenPlaced = true;
+                players['B'].queenPlaced = true;
             }
         }
     }
@@ -124,8 +116,8 @@ void Game::startNewGame()
     plyCount = 0;
     gameStatus = "PLAYING";
     board.resetBoard();
-    players['W']->reset();
-    players['B']->reset();
+    players['W'].reset();
+    players['B'].reset();
     actionHandler.reset();
 }
 } // namespace hive

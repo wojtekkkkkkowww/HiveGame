@@ -1,6 +1,7 @@
 #pragma once
 
-#include <map>
+#include <array>
+#include <cstddef>
 
 #include "Tile.hpp"
 
@@ -14,15 +15,13 @@ namespace hive
 class Player
 {
   public:
-    Player() : color('W') {}
-
-    Player(char color);
+    explicit Player(char color);
     Tile takeTile(char type);
 
     void returnTile(char type);
     void reset();
 
-    int getTileCount(char type) { return pieceCounters[type]; } // ilość pozoostałych pionków
+    int getTileCount(char type) const;
 
     int getUnplacedPieceNumber(char type) const;
 
@@ -31,8 +30,29 @@ class Player
     int turnCounter = 0;
 
   private:
-    const char color;
-    std::map<char, int> pieceCounters;
-    static std::map<char, int> initialPieceCounts;
+    struct PieceDefinition
+    {
+        char type;
+        int initialCount;
+    };
+
+    static constexpr std::array<PieceDefinition, 5> pieceDefinitions = {
+        PieceDefinition{'Q', 1}, PieceDefinition{'S', 2}, PieceDefinition{'B', 2},
+        PieceDefinition{'G', 3}, PieceDefinition{'A', 3}};
+
+    static std::size_t pieceIndex(char type);
+
+    char color;
+    std::array<int, pieceDefinitions.size()> pieceCounters{};
+};
+
+class Players
+{
+  public:
+    Player &operator[](char color);
+    const Player &operator[](char color) const;
+
+  private:
+    std::array<Player, 2> values{Player{'W'}, Player{'B'}};
 };
 } // namespace hive

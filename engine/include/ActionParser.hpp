@@ -19,8 +19,7 @@ namespace hive
 class ActionParser
 {
   public:
-    ActionParser(const Board &board, const char &currentTurn,
-                 const std::map<char, Player *> &players)
+    ActionParser(const Board &board, const char &currentTurn, const Players &players)
         : board(board), currentTurn(currentTurn), players(players)
     {
     }
@@ -93,7 +92,7 @@ class ActionParser
   private:
     const Board &board;
     const char &currentTurn;
-    const std::map<char, Player *> &players;
+    const Players &players;
 
     Action parseLeftDirection(const std::smatch &matches) const
     {
@@ -146,7 +145,7 @@ class ActionParser
             return color + action.tile_type;
         }
 
-        int count = players.at(currentTurn)->getUnplacedPieceNumber(action.tile_type) + 1;
+        int count = players[currentTurn].getUnplacedPieceNumber(action.tile_type) + 1;
 
         std::stringstream tileNotation;
         tileNotation << color << action.tile_type << count;

@@ -1,18 +1,16 @@
 #include "Player.hpp"
 #include <sstream>
 
-std::map<char, int> hive::Player::initialPieceCounts = {
-    {'Q', 1}, {'S', 2}, {'B', 2}, {'G', 3}, {'A', 3}};
-
 hive::Player::Player(char color) : color(color) { reset(); }
 
 hive::Tile hive::Player::takeTile(char type)
 {
-    if (pieceCounters[type] == 0)
+    auto &count = pieceCounters[pieceIndex(type)];
+    if (count == 0)
     {
         throw std::invalid_argument("No more pieces of this type available");
     }
-    pieceCounters[type]--;
+    --count;
 
     std::ostringstream stream;
     if (type == 'Q')
@@ -32,14 +30,14 @@ void hive::Player::returnTile(char type)
     {
         queenPlaced = false;
     }
-    pieceCounters[type]++;
+    ++pieceCounters[pieceIndex(type)];
 }
 
 void hive::Player::reset()
 {
-    for (const auto &[type, count] : initialPieceCounts)
+    for (std::size_t index = 0; index < pieceDefinitions.size(); ++index)
     {
-        pieceCounters[type] = count;
+        pieceCounters[index] = pieceDefinitions[index].initialCount;
     }
     queenPlaced = false;
     firstMove = true;
@@ -48,5 +46,46 @@ void hive::Player::reset()
 
 int hive::Player::getUnplacedPieceNumber(char type) const
 {
-    return initialPieceCounts.at(type) - pieceCounters.at(type);
+    const auto index = pieceIndex(type);
+    return pieceDefinitions[index].initialCount - pieceCounters[index];
+}
+
+int hive::Player::getTileCount(char type) const { return pieceCounters[pieceIndex(type)]; }
+
+std::size_t hive::Player::pieceIndex(char type)
+{
+    for (std::size_t index = 0; index < pieceDefinitions.size(); ++index)
+    {
+        if (pieceDefinitions[index].type == type)
+        {
+            return index;
+        }
+    }
+    throw std::invalid_argument("Invalid piece type");
+}
+
+hive::Player &hive::Players::operator[](char color)
+{
+    if (color == 'W')
+    {
+        return values[0];
+    }
+    if (color == 'B')
+    {
+        return values[1];
+    }
+    throw std::invalid_argument("Invalid player color");
+}
+
+const hive::Player &hive::Players::operator[](char color) const
+{
+    if (color == 'W')
+    {
+        return values[0];
+    }
+    if (color == 'B')
+    {
+        return values[1];
+    }
+    throw std::invalid_argument("Invalid player color");
 }

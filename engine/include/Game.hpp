@@ -22,7 +22,11 @@ class Game
 {
   public:
     explicit Game(std::size_t maxPly = 200);
-    ~Game();
+    ~Game() = default;
+    Game(const Game &) = delete;
+    Game &operator=(const Game &) = delete;
+    Game(Game &&) = delete;
+    Game &operator=(Game &&) = delete;
 
     void startNewGame();
     void startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn);
@@ -42,7 +46,7 @@ class Game
     std::vector<Action> avaliableActions;
     Board board;
     char currentTurn;
-    std::map<char, Player *> players; // bez sensu
+    Players players;
     std::string gameStatus = "PLAYING";
 
   protected:
