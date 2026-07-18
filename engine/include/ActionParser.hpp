@@ -210,9 +210,12 @@ class ActionParser
         catch (...)
         {
             std::cerr << "Error in createAction" << std::endl;
-            for (const auto &[key, position] : board.positions)
+            for (const auto &piece : board.getPieceStates())
             {
-                std::cout << key << std::endl;
+                if (piece.active)
+                {
+                    std::cout << piece.tile.notation << std::endl;
+                }
             }
         }
         Position position = calculatePosition(destinationTile.position, direction, side);

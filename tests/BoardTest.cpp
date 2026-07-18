@@ -31,3 +31,22 @@ TEST_F(BoardTest, GetTileAtPosition)
 
     ASSERT_TRUE(retrievedTile.type == tile.type && retrievedTile.color == tile.color);
 }
+
+TEST_F(BoardTest, UsesFixedCapacityAndReusesReleasedSlot)
+{
+    static_assert(hive::Board::maxPieceCount == 22);
+
+    for (std::size_t index = 0; index < hive::Board::maxPieceCount; ++index)
+    {
+        hive::Tile tile("WA" + std::to_string(index));
+        board.addTile({static_cast<int>(index), 0}, tile);
+    }
+
+    EXPECT_EQ(board.getPieceCount(), hive::Board::maxPieceCount);
+    EXPECT_THROW(board.addTile({22, 0}, hive::Tile("overflow")), std::length_error);
+
+    board.removeTile({0, 0});
+    EXPECT_EQ(board.getPieceCount(), hive::Board::maxPieceCount - 1);
+    EXPECT_NO_THROW(board.addTile({22, 0}, hive::Tile("WA22")));
+    EXPECT_EQ(board.getPieceCount(), hive::Board::maxPieceCount);
+}

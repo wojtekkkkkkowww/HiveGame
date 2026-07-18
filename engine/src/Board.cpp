@@ -1,16 +1,18 @@
 #include "Board.hpp"
+#include <algorithm>
 #include <array>
 #include <queue>
 #include <stack>
+#include <stdexcept>
+#include <utility>
 
 namespace hive
 {
 
 void Board::resetBoard()
 {
-    boardTiles.clear();
+    pieces = {};
     emptyTiles.clear();
-    positions.clear();
     emptyTiles.insert({0, 0});
     blackQueen = invalidPosition;
     whiteQueen = invalidPosition;
@@ -18,6 +20,7 @@ void Board::resetBoard()
 
 void Board::setBoardTiles(const std::map<Position, std::deque<Tile>> &tiles)
 {
+    resetBoard();
     for (const auto &[position, tile] : tiles)
     {
         for (const auto &t : tile)
@@ -32,20 +35,21 @@ void Board::setBoardTiles(const std::map<Position, std::deque<Tile>> &tiles)
 std::vector<std::list<Tile>> Board::getTiles() const
 {
     size_t maxLevel = 0;
-    for (const auto &[key, value] : boardTiles)
+    for (const auto &piece : pieces)
     {
-        maxLevel = std::max(value.size(), maxLevel);
+        if (piece.active)
+        {
+            maxLevel = std::max(static_cast<std::size_t>(piece.level) + 1, maxLevel);
+        }
     }
 
     std::vector<std::list<Tile>> tiles(maxLevel);
 
-    for (const auto &[key, value] : boardTiles)
+    for (const auto &piece : pieces)
     {
-        int level = 0;
-        for (const auto &tile : value)
+        if (piece.active)
         {
-            tiles[level].push_back(tile);
-            level++;
+            tiles[piece.level].push_back(piece.tile);
         }
     }
 
@@ -55,9 +59,9 @@ std::vector<std::list<Tile>> Board::getTiles() const
 std::set<Position> Board::getPlayerTiles(char color) const
 {
     std::set<Position> playerTiles;
-    for (const auto &[key, tiles] : boardTiles)
+    for (const auto &position : getPositions())
     {
-        const auto &tile = tiles.back();
+        const auto tile = getTile(position);
         if (tile.color == color)
         {
             playerTiles.insert(tile.position);
@@ -69,10 +73,14 @@ std::set<Position> Board::getPlayerTiles(char color) const
 std::vector<Position> Board::getPositions() const
 {
     std::vector<Position> positions;
-    positions.reserve(boardTiles.size());
-    for (const auto &[p, _] : boardTiles)
+    positions.reserve(getPieceCount());
+    for (const auto &piece : pieces)
     {
-        positions.push_back(p);
+        if (piece.active &&
+            std::find(positions.begin(), positions.end(), piece.tile.position) == positions.end())
+        {
+            positions.push_back(piece.tile.position);
+        }
     }
     return positions;
 }
@@ -80,11 +88,11 @@ std::vector<Position> Board::getPositions() const
 void Board::addEmptyTilesAroundBoard()
 {
     emptyTiles.clear();
-    for (const auto &[key, tiles] : boardTiles)
+    for (const auto &position : getPositions())
     {
         for (const auto &dir : directions)
         {
-            Position neighbour = key + dir;
+            Position neighbour = position + dir;
             if (isEmpty(neighbour))
             {
                 emptyTiles.insert(neighbour);
@@ -107,30 +115,38 @@ std::set<Position> Board::getNeighbours(Position position)
 
 Tile Board::getTileByNotation(const std::string &notation) const
 {
-    if (positions.find(notation) == positions.end())
+    const auto *piece = findPieceByNotation(notation);
+    if (piece == nullptr)
     {
         return {notation};
     }
-
-    Position position = positions.at(notation);
-
-    return boardTiles.at(position).back();
+    return piece->tile;
 }
 
 int Board::getLevel(Position position) const
 {
-    if (isEmpty(position))
+    int level = 0;
+    for (const auto &piece : pieces)
     {
-        return 0;
+        if (piece.active && piece.tile.position == position)
+        {
+            ++level;
+        }
     }
-    return static_cast<int>(boardTiles.at(position).size());
+    return level;
 }
 
 void Board::moveTile(Position position, Position newPosition)
 {
-    auto tile = boardTiles.at(position).back();
-    removeTile(position);
-    addTile(newPosition, tile);
+    auto *piece = findTopPiece(position);
+    if (piece == nullptr)
+    {
+        throw std::out_of_range("No tile at position");
+    }
+
+    const auto destinationLevel = getLevel(newPosition);
+    piece->tile.setPosition(newPosition);
+    piece->level = static_cast<std::uint8_t>(destinationLevel);
 }
 
 int Board::calculateColoredNeighbours(Position position, char color) const
@@ -163,28 +179,21 @@ int Board::calculateNeighbours(const Position &position) const
     return count;
 }
 
-// int Board::getTileCount() const { return static_cast<int>(boardTiles.size()); }
-
-// bool Board::isEmpty(Position position) const { return boardTiles.find(position) ==
-// boardTiles.end(); }
-
 Tile Board::getTile(Position position) const
 {
-    const auto &tiles = boardTiles.at(position);
-    return tiles.back();
+    const auto *piece = findTopPiece(position);
+    if (piece == nullptr)
+    {
+        throw std::out_of_range("No tile at position");
+    }
+    return piece->tile;
 }
 
 void Board::removeTile(Position position)
 {
-    if (!isEmpty(position))
+    if (auto *piece = findTopPiece(position))
     {
-        const Tile tile = boardTiles[position].back();
-        boardTiles[position].pop_back();
-        if (boardTiles[position].empty())
-        {
-            boardTiles.erase(position);
-        }
-        positions.erase(tile.notation);
+        *piece = {};
     }
 }
 
@@ -201,13 +210,84 @@ void Board::addTile(Position position, Tile tile)
         blackQueen = position;
     }
 
-    if (isEmpty(position))
+    auto emptyPiece = std::find_if(pieces.begin(), pieces.end(),
+                                   [](const PieceState &piece) { return !piece.active; });
+    if (emptyPiece == pieces.end())
     {
-        boardTiles[position] = std::deque<Tile>();
+        throw std::length_error("Board cannot contain more than 22 pieces");
     }
 
-    boardTiles[position].push_back(tile);
-    positions[tile.notation] = position;
+    *emptyPiece = PieceState{.tile = std::move(tile),
+                             .level = static_cast<std::uint8_t>(getLevel(position)),
+                             .active = true};
+}
+
+int Board::getTileCount() const
+{
+    int occupiedPositions = 0;
+    for (std::size_t index = 0; index < pieces.size(); ++index)
+    {
+        if (!pieces[index].active)
+        {
+            continue;
+        }
+
+        bool seenEarlier = false;
+        for (std::size_t previous = 0; previous < index; ++previous)
+        {
+            if (pieces[previous].active &&
+                pieces[previous].tile.position == pieces[index].tile.position)
+            {
+                seenEarlier = true;
+                break;
+            }
+        }
+        if (!seenEarlier)
+        {
+            ++occupiedPositions;
+        }
+    }
+    return occupiedPositions;
+}
+
+std::size_t Board::getPieceCount() const
+{
+    return static_cast<std::size_t>(
+        std::count_if(pieces.begin(), pieces.end(), [](const PieceState &piece) {
+            return piece.active;
+        }));
+}
+
+Board::PieceState *Board::findTopPiece(Position position)
+{
+    return const_cast<PieceState *>(std::as_const(*this).findTopPiece(position));
+}
+
+const Board::PieceState *Board::findTopPiece(Position position) const
+{
+    const PieceState *top = nullptr;
+    for (const auto &piece : pieces)
+    {
+        if (piece.active && piece.tile.position == position &&
+            (top == nullptr || piece.level > top->level))
+        {
+            top = &piece;
+        }
+    }
+    return top;
+}
+
+Board::PieceState *Board::findPieceByNotation(const std::string &notation)
+{
+    return const_cast<PieceState *>(std::as_const(*this).findPieceByNotation(notation));
+}
+
+const Board::PieceState *Board::findPieceByNotation(const std::string &notation) const
+{
+    const auto piece = std::find_if(pieces.begin(), pieces.end(), [&](const PieceState &state) {
+        return state.active && state.tile.notation == notation;
+    });
+    return piece == pieces.end() ? nullptr : &*piece;
 }
 
 // movement manager
@@ -437,7 +517,7 @@ bool Board::isDirectionBlocked(Position position, Position direction, int level)
         return true;
     }
 
-    if (boardTiles.size() == 1 || level != 1)
+    if (getTileCount() == 1 || level != 1)
     {
         return false;
     }

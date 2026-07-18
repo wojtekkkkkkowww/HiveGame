@@ -2,6 +2,8 @@
 
 #include "Position.hpp"
 #include "Tile.hpp"
+#include <array>
+#include <cstdint>
 #include <deque>
 #include <list>
 #include <map>
@@ -16,6 +18,15 @@ namespace hive
 class Board
 {
   public:
+    static constexpr std::size_t maxPieceCount = 22;
+
+    struct PieceState
+    {
+        Tile tile{};
+        std::uint8_t level = 0;
+        bool active = false;
+    };
+
     Board() { resetBoard(); }
 
     // base Board
@@ -42,13 +53,13 @@ class Board
 
     Position whiteQueen = invalidPosition;
     Position blackQueen = invalidPosition;
-    std::map<Position, std::deque<Tile>> boardTiles;
     std::set<Position> emptyTiles;
-    std::map<std::string, Position> positions;
 
-    int getTileCount() const { return static_cast<int>(boardTiles.size()); }
+    int getTileCount() const;
+    std::size_t getPieceCount() const;
+    const std::array<PieceState, maxPieceCount> &getPieceStates() const { return pieces; }
 
-    bool isEmpty(Position position) const { return boardTiles.find(position) == boardTiles.end(); }
+    bool isEmpty(Position position) const { return getLevel(position) == 0; }
 
     // movement manager
     void getAvailableMoves(char type, const Position &position, std::set<Position> &outMoves);
@@ -70,5 +81,13 @@ class Board
     bool isMoveBlocked(Position position, Position newPosition) const;
 
     std::set<Position> articulationPoints;
+
+  private:
+    std::array<PieceState, maxPieceCount> pieces{};
+
+    PieceState *findTopPiece(Position position);
+    const PieceState *findTopPiece(Position position) const;
+    PieceState *findPieceByNotation(const std::string &notation);
+    const PieceState *findPieceByNotation(const std::string &notation) const;
 };
 } // namespace hive
