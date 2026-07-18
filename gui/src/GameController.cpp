@@ -37,6 +37,10 @@ void GameController::processEvents()
             handleMouseMoved();
             break;
 
+        case sf::Event::Resized:
+            handleWindowResized(event.size.width, event.size.height);
+            break;
+
         default:
             break;
         }
@@ -108,13 +112,23 @@ void GameController::apllyOpponentAction(const std::string &action)
     change = true;
 }
 
+bool GameController::applyLocalAction(const Action &action)
+{
+    const bool applied = game->applyAction(action);
+    if (applied)
+    {
+        change = true;
+    }
+    return applied;
+}
+
 void GameController::setPlayer(char player)
 {
     this->player = player;
     boardDrawable.setPlayer(player);
 }
 
-bool GameController::isMyTurn() { return game->currentTurn == player; }
+bool GameController::isMyTurn() { return localHotseat || game->currentTurn == player; }
 
 void GameController::handleMouseClick()
 {

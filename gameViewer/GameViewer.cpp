@@ -47,6 +47,10 @@ void GameViewer::processEvents()
             handleMouseMoved();
             break;
 
+        case sf::Event::Resized:
+            handleWindowResized(event.size.width, event.size.height);
+            break;
+
         case sf::Event::KeyPressed:
             if (event.key.code == sf::Keyboard::Right)
             {

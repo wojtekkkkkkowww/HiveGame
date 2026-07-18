@@ -1,12 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <chrono>
-#include <memory>
 
 #include "BaseInterface.hpp"
-#include "BoardDrawable.hpp"
 #include "Button.hpp"
-#include "Game.hpp"
 #include "PieceSelector.hpp"
 
 using namespace hive;
@@ -16,7 +12,10 @@ class GameController : public BaseInterface
   public:
     GameController(sf::RenderWindow &window);
     void apllyOpponentAction(const std::string &action);
+    bool applyLocalAction(const Action &action);
     void setPlayer(char player);
+    void setLocalHotseat(bool enabled) { localHotseat = enabled; }
+    Game &getGame() { return *game; }
     std::string message = "";
 
     void processEvents() override;
@@ -37,4 +36,5 @@ class GameController : public BaseInterface
     sf::Vector2f dragStartPos;
     char player = 'W';
     Button waitButton;
+    bool localHotseat = false;
 };

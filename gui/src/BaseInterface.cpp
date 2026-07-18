@@ -66,6 +66,14 @@ void BaseInterface::handleMouseWheelScroll(float delta)
 
 void BaseInterface::handleWindowClose() { window.close(); }
 
+void BaseInterface::handleWindowResized(unsigned int width, unsigned int height)
+{
+    boardView.setSize(static_cast<float>(width), static_cast<float>(height));
+    boardView.setCenter(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f);
+    boardDrawable.setViewportSize({static_cast<float>(width), static_cast<float>(height)});
+    change = true;
+}
+
 void BaseInterface::updateTurnText()
 {
     if (game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" ||

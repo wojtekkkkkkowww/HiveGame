@@ -1,6 +1,6 @@
 #include "BoardDrawable.hpp"
 #include "ResourceManager.hpp"
-#include <iostream>
+#include <numbers>
 
 BoardDrawable::BoardDrawable(hive::Board &board, float hexSize) : board(board), hexSize(hexSize)
 {
@@ -89,7 +89,6 @@ void BoardDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) cons
     for (const auto &hex : hexDrawables)
     {
         target.draw(hex, states);
-
         sf::Text text = getPositionText(hex.tilePosition.x, hex.tilePosition.y);
         sf::Vector2f pos = hex.getPosition();
         text.setPosition(pos.x - 10, pos.y - 10);
@@ -97,13 +96,11 @@ void BoardDrawable::draw(sf::RenderTarget &target, sf::RenderStates states) cons
     }
 }
 
-// trudne
 std::pair<float, float> BoardDrawable::calculateHexPosition(int x, int y)
 {
-    float sqrt_3 = std::sqrt(3.0f);
-    float centerX = 800.f / 2.0f;
-    float centerY = 600.f / 2.0f;
-    float height = sqrt_3 * hexSize / 2;
+    float centerX = viewportSize.x / 2.0f;
+    float centerY = viewportSize.y / 2.0f;
+    float height = std::numbers::sqrt3_v<float> * hexSize / 2;
 
     float posX = centerX + height * (2 * x + y) + x;
     float posY = centerY + hexSize * 1.5f * y + y;

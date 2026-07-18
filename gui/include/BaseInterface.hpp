@@ -25,6 +25,7 @@ class BaseInterface
     void handleMouseMoved();
     void handleMouseWheelScroll(float delta);
     void handleWindowClose();
+    void handleWindowResized(unsigned int width, unsigned int height);
     void updateTurnText();
 
     Position convertMouseToBoardPos(sf::Vector2f mousePos);

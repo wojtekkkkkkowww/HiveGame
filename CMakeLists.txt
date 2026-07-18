@@ -23,6 +23,7 @@ add_subdirectory(tests)
 add_subdirectory(ai) 
 add_subdirectory(ai_tests)
 add_subdirectory(gameViewer)
+add_subdirectory(app)
 
 
 add_library(global_compile_options INTERFACE)

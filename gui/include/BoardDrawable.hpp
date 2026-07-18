@@ -1,10 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <cmath>
 #include <list>
-#include <memory>
 
-#include "Game.hpp"
 #include "HexDrawable.hpp"
 #include "Position.hpp"
 
@@ -22,6 +19,11 @@ class BoardDrawable : public sf::Drawable
     void updateEmptyTiles();
     void updateBoardTiles();
     void addHex(hive::Position &lastPosition, const hive::Tile &tile, float offset, size_t level);
+    void setViewportSize(sf::Vector2f size)
+    {
+        viewportSize = size;
+        update();
+    }
 
     void setPlayer(char player) { this->player = player; }
 
@@ -31,6 +33,7 @@ class BoardDrawable : public sf::Drawable
   private:
     hive::Board &board;
     float hexSize;
+    sf::Vector2f viewportSize{800.0f, 600.0f};
     sf::Font font;
     std::map<char, sf::Texture> textures;
     sf::Text getPositionText(int x, int y) const;
