@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(HiveGame LANGUAGES CXX)
 
+option(HIVE_USE_STATIC_MAP "Use fixed-capacity board storage" OFF)
+
 if(APPLE)
     list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/sfml@2")
     execute_process(COMMAND xcrun --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)

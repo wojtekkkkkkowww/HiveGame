@@ -25,6 +25,7 @@ class HexDrawable : public sf::Drawable
     float getOffset() const { return offset; }
 
     void highlight(sf::Color color) { hex.setOutlineColor(color); }
+    void setOutlineThickness(float thickness) { hex.setOutlineThickness(thickness); }
     void setFillColor(sf::Color color) { hex.setFillColor(color); }
 
   private:

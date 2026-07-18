@@ -61,7 +61,7 @@ class Game
 
 inline void Game::applyValidAction(const Action &action)
 {
-    actionHandler.applyAction(action);
+    actionHandler.applyValidAction(action);
     turnManager.nextTurn();
 }
 

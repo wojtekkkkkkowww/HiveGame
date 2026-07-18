@@ -21,40 +21,7 @@ class Board
   public:
     static constexpr std::size_t maxPieceCount = 22;
 
-    struct PieceStack
-    {
-        [[nodiscard]] bool empty() const noexcept { return count == 0; }
-        [[nodiscard]] std::size_t size() const noexcept { return count; }
-        Tile &back() { return values.at(count - 1); }
-        const Tile &back() const { return values.at(count - 1); }
-        auto begin() noexcept { return values.begin(); }
-        auto begin() const noexcept { return values.begin(); }
-        auto end() noexcept { return values.begin() + static_cast<std::ptrdiff_t>(count); }
-        auto end() const noexcept
-        {
-            return values.begin() + static_cast<std::ptrdiff_t>(count);
-        }
-        void push_back(Tile tile)
-        {
-            if (count >= values.size())
-            {
-                throw std::length_error("Piece stack is full");
-            }
-            values[count++] = std::move(tile);
-        }
-        void pop_back()
-        {
-            if (count == 0)
-            {
-                throw std::out_of_range("Piece stack is empty");
-            }
-            values[--count] = Tile{};
-        }
-
-      private:
-        std::array<Tile, maxPieceCount> values{};
-        std::size_t count = 0;
-    };
+    using PieceStack = std::deque<Tile>;
 
     Board() { resetBoard(); }
 
@@ -115,6 +82,12 @@ class Board
     std::set<Position> articulationPoints;
 
   private:
-    StaticMap<Position, PieceStack, maxPieceCount> boardTiles;
+#if HIVE_USE_STATIC_MAP
+    using BoardStorage = StaticMap<Position, PieceStack, maxPieceCount>;
+#else
+    using BoardStorage = std::map<Position, PieceStack>;
+#endif
+
+    BoardStorage boardTiles;
 };
 } // namespace hive

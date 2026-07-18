@@ -86,7 +86,7 @@ void GameController::handleMouseButtonPressed(sf::Mouse::Button button)
 
 void GameController::render()
 {
-    window.clear(sf::Color(54, 52, 49));
+    window.clear(sf::Color(82, 78, 72));
 
     window.setView(boardView);
     window.draw(boardDrawable);

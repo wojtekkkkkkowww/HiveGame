@@ -23,6 +23,7 @@ Action AlphaBetaAI::getNextMove()
     double beta = infinity;
 
     Action bestMove = alphabetha(alpha, beta, maxDepth, 1).second;
+    game.genAvailableActions();
 
     return bestMove;
 }

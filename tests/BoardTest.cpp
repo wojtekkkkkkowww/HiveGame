@@ -52,3 +52,18 @@ TEST_F(BoardTest, UsesFixedCapacityAndReusesReleasedSlot)
     EXPECT_NO_THROW(board.addTile({22, 0}, hive::Tile("WA22")));
     EXPECT_EQ(board.getPieceCount(), hive::Board::maxPieceCount);
 }
+
+TEST_F(BoardTest, MovingTopOfStackCanExpandToAllTwentyTwoOccupiedPositions)
+{
+    for (int index = 0; index < 21; ++index)
+    {
+        board.addTile({index, 0}, hive::Tile("WA" + std::to_string(index)));
+    }
+    board.addTile({0, 0}, hive::Tile("WB-stack"));
+
+    ASSERT_EQ(board.getPieceCount(), 22U);
+    ASSERT_EQ(board.getTileCount(), 21);
+    EXPECT_NO_THROW(board.moveTile({0, 0}, {21, 0}));
+    EXPECT_EQ(board.getTileCount(), 22);
+    EXPECT_EQ(board.getPieceCount(), 22U);
+}

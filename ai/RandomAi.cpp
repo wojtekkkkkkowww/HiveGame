@@ -38,12 +38,13 @@ std::optional<Action> RandomAIAlgorithm::winInOneMove(char player)
         if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
         {
             game.revertValidAction();
-
+            game.genAvailableActions();
             return action;
         }
         game.revertValidAction();
     }
 
+    game.genAvailableActions();
     return std::nullopt;
 }
 } // namespace hive

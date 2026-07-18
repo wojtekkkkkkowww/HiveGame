@@ -74,14 +74,15 @@ class PieceSelector : public sf::Drawable
         {
             if (piece.first == selectedPiece)
             {
-                sf::Sprite highlightedSprite = piece.second;
-                highlightedSprite.setColor(sf::Color(255, 100, 100)); // Change color to red
-                target.draw(highlightedSprite, states);
+                const auto bounds = piece.second.getGlobalBounds();
+                sf::RectangleShape selection({bounds.width + 16.0f, bounds.height + 12.0f});
+                selection.setPosition(bounds.left - 8.0f, bounds.top - 6.0f);
+                selection.setFillColor(sf::Color(246, 184, 66, 42));
+                selection.setOutlineColor(sf::Color(54, 235, 207));
+                selection.setOutlineThickness(3.0f);
+                target.draw(selection, states);
             }
-            else
-            {
-                target.draw(piece.second, states);
-            }
+            target.draw(piece.second, states);
         }
     }
 };

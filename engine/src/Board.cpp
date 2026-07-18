@@ -177,6 +177,11 @@ void Board::removeTile(Position position)
 
 void Board::addTile(Position position, Tile tile)
 {
+    if (getPieceCount() >= maxPieceCount)
+    {
+        throw std::length_error("Board cannot contain more than 22 pieces");
+    }
+
     tile.setPosition(position);
 
     if (tile.type == 'Q' && tile.color == 'W')

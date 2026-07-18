@@ -18,36 +18,53 @@ build/ai_tests/AiTester perft 8
 Perft ogranicza każdą pozycję do pierwszych sześciu akcji, dlatego wyniki służą do porównywania
 wersji tego repo, a nie do porównania z innymi silnikami Hive.
 
-## `array<PieceState, 22>` kontra `StaticMap<Position, PieceStack, 22>`
+## Wynik końcowy: `main`, `std::map` i `StaticMap`
 
-Pomiar wykonano 2026-07-18 na tej samej maszynie i w buildzie zoptymalizowanym.
+Pomiar wykonano 2026-07-18 na tej samej maszynie, w buildzie Release. Każdy wariant uruchomiono
+pięć razy. Warianty obecnego kodu były uruchamiane naprzemiennie, żeby ograniczyć wpływ chwilowego
+obciążenia komputera.
 
-| Reprezentacja | Depth 7 | Depth 8 | Węzły depth 8 |
-|---|---:|---:|---:|
-| `array<PieceState, 22>` | 1007 ms | 4402 ms | 1 665 980 |
-| `StaticMap`, pomiar 1 | 776 ms | 3330 ms | 1 665 980 |
-| `StaticMap`, pomiar 2 | 775 ms | 3389 ms | 1 665 980 |
-| `StaticMap`, pomiar 3 | 779 ms | 3340 ms | 1 665 980 |
+| Wersja | Próby depth 8 [ms] | Mediana | Węzły |
+|---|---|---:|---:|
+| czysty branch `main` | 1275, 1265, 1265, 1273, 1264 | 1265 ms | 1 665 980 |
+| refaktor z `std::map` | 804, 807, 802, 807, 805 | 805 ms | 1 665 980 |
+| refaktor z `StaticMap` | 770, 771, 775, 775, 777 | 775 ms | 1 665 980 |
 
-Mediana nowej wersji dla depth 8 wynosi 3340 ms. Względem wcześniejszego pomiaru 4402 ms jest to
-około 24% krótszy czas. Identyczna liczba węzłów potwierdza, że porównano ten sam przebieg searchu.
+Wnioski:
 
-Po zastąpieniu alokowanego `set` sąsiadów przez `array<Position, 6>` oraz usunięciu tymczasowych
-zbiorów z generatora rozmieszczeń ten sam perft depth 8 trwał 2976 ms. To kolejne około 11%
-względem mediany 3340 ms i około 32% względem pierwotnego pomiaru 4402 ms. Liczba węzłów nadal
-wynosiła 1 665 980.
+- `StaticMap` jest około 3,7% szybszy od `std::map` w tym benchmarku.
+- Obecny refaktor ze `StaticMap` jest około 38,7% szybszy od czystego `main`.
+- Identyczna liczba węzłów potwierdza ten sam przebieg perft.
+- Największy zysk nie pochodzi z kontenera. Daje go usunięcie ponownej generacji ruchów po każdym
+  `undo`, zbędnych zbiorów, kopii `emptyTiles` i logowania w hot pathach.
 
-Wynik bazowy pochodzi z jednego uruchomienia, więc 24% należy traktować jako wynik wstępny, a nie
-precyzyjny benchmark statystyczny. Kolejne pomiary powinny:
+### Przełączanie backendu planszy
 
-- wykonywać rozgrzewkę,
-- uruchamiać obie wersje naprzemiennie,
-- raportować medianę z co najmniej 5 prób,
-- mierzyć alokacje oraz osobno `generate`, `apply` i `undo`.
+```sh
+# StaticMap
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DHIVE_USE_STATIC_MAP=ON
+
+# std::map (tymczasowo domyślnie podczas diagnozy exception)
+cmake -S . -B build-stdmap -DCMAKE_BUILD_TYPE=Release -DHIVE_USE_STATIC_MAP=OFF
+```
+
+Oba backendy korzystają z tego samego API `Board`. Limit 22 figur jest egzekwowany przez `Board`,
+a nie przez przypadkową pojemność kontenera.
+
+## Znaleziona i usunięta regresja
+
+Jedna wersja pośrednia używała `array<Tile, 22>` jako wartości każdego z 22 wpisów `StaticMap`.
+Powodowało to utworzenie miejsca na 484 obiekty `Tile` oraz kosztowne czyszczenie/przenoszenie
+całych stosów. Jeszcze większym kosztem było ponowne generowanie legalnych ruchów po każdym
+cofnięciu searchu. Wersja pośrednia osiągała około 2800 ms i była ponad dwa razy wolniejsza od
+`main`.
+
+Aktualnie wartością wpisu jest lekki `deque<Tile>`, a search wykonuje zaufaną akcję z wcześniej
+wygenerowanej listy i cofa wyłącznie zmieniony stan. Legalne ruchy są generowane raz na węzeł.
 
 ## Już usunięte koszty
 
-- drzewiasta `std::map` zajętych pól i jej alokacje,
+- opcjonalnie drzewiasta `std::map` zajętych pól i jej alokacje,
 - mapa notacji pionków,
 - kopiowanie `emptyTiles` w każdym węźle AI,
 - własnościowe alokacje dwóch graczy,

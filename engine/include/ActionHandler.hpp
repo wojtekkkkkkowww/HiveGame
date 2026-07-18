@@ -20,6 +20,7 @@ class ActionHandler
                   std::string &status, std::stack<Action> &actions,
                   std::vector<Action> &availableActions);
     bool applyAction(const Action &action);
+    void applyValidAction(const Action &action);
     void revertAction();
     void genAvailableActions();
     bool isActionValid(const Action &action) const;

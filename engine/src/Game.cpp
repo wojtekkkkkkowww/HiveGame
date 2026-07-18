@@ -113,7 +113,6 @@ void Game::revertValidAction()
 {
     actionHandler.revertAction();
     turnManager.revertTurn();
-    actionHandler.genAvailableActions();
 }
 
 bool Game::isGameOver() const { return gameStatus != "PLAYING"; }

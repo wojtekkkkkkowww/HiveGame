@@ -20,8 +20,13 @@ bool ActionHandler::applyAction(const Action &action)
         return false;
     }
 
-    actions.push(action);
+    applyValidAction(action);
+    return true;
+}
 
+void ActionHandler::applyValidAction(const Action &action)
+{
+    actions.push(action);
     if (action.type == ActionType::PLACE)
     {
         placeTile(action.newPosition, action.tile_type);
@@ -31,7 +36,6 @@ bool ActionHandler::applyAction(const Action &action)
         moveTile(action.position, action.newPosition);
     }
 
-    return true;
 }
 
 void ActionHandler::revertAction()
