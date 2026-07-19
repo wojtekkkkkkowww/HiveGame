@@ -12,6 +12,6 @@ class RandomAIAlgorithm : public AIAlgorithm
     std::mt19937 randomEngine;
 
   private:
-    std::optional<Action> winInOneMove(char player);
+    std::optional<Action> winInOneMove(PlayerColor player);
 };
 } // namespace hive

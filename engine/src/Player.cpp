@@ -1,9 +1,9 @@
 #include "Player.hpp"
 #include <sstream>
 
-hive::Player::Player(char color) : color(color) { reset(); }
+hive::Player::Player(PlayerColor color) : color(color) { reset(); }
 
-hive::Tile hive::Player::takeTile(char type)
+hive::Tile hive::Player::takeTile(PieceType type)
 {
     auto &count = pieceCounters[hive::pieceIndex(type)];
     if (count == 0)
@@ -13,20 +13,17 @@ hive::Tile hive::Player::takeTile(char type)
     --count;
 
     std::ostringstream stream;
-    if (type == 'Q')
+    stream << toChar(color) << toChar(type);
+    if (type != PieceType::Queen)
     {
-        stream << color << type;
-    }
-    else
-    {
-        stream << color << type << getUnplacedPieceNumber(type);
+        stream << getPlacedPieceCount(type);
     }
     return Tile(stream.str());
 }
 
-void hive::Player::returnTile(char type)
+void hive::Player::returnTile(PieceType type)
 {
-    if (type == 'Q')
+    if (type == PieceType::Queen)
     {
         queenPlaced = false;
     }
@@ -44,39 +41,23 @@ void hive::Player::reset()
     turnCounter = 0;
 }
 
-int hive::Player::getUnplacedPieceNumber(char type) const
+int hive::Player::getPlacedPieceCount(PieceType type) const
 {
     const auto index = hive::pieceIndex(type);
     return pieceCatalog[index].initialCount - pieceCounters[index];
 }
 
-int hive::Player::getTileCount(char type) const
+int hive::Player::getTileCount(PieceType type) const
 {
     return pieceCounters[hive::pieceIndex(type)];
 }
 
-hive::Player &hive::Players::operator[](char color)
+hive::Player &hive::Players::operator[](PlayerColor color)
 {
-    if (color == 'W')
-    {
-        return values[0];
-    }
-    if (color == 'B')
-    {
-        return values[1];
-    }
-    throw std::invalid_argument("Invalid player color");
+    return values[color == PlayerColor::White ? 0U : 1U];
 }
 
-const hive::Player &hive::Players::operator[](char color) const
+const hive::Player &hive::Players::operator[](PlayerColor color) const
 {
-    if (color == 'W')
-    {
-        return values[0];
-    }
-    if (color == 'B')
-    {
-        return values[1];
-    }
-    throw std::invalid_argument("Invalid player color");
+    return values[color == PlayerColor::White ? 0U : 1U];
 }

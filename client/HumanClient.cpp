@@ -5,7 +5,7 @@
 class HumanClient : public Client
 {
   public:
-    HumanClient(const std::string &serverIP, unsigned short port, char player)
+    HumanClient(const std::string &serverIP, unsigned short port, hive::PlayerColor player)
         : Client(serverIP, port, player), window(sf::VideoMode(800, 600), "Hive Game",
                                                  sf::Style::Default, sf::ContextSettings(0, 0, 8)),
           gameController(window)
@@ -17,6 +17,7 @@ class HumanClient : public Client
     GameController gameController;
 
     void prepare() override { gameController.setPlayer(player); }
+
     bool shouldStop() const override { return !window.isOpen(); }
 
     void handleMyAction() override
@@ -46,7 +47,7 @@ class HumanClient : public Client
 
 int main(int argc, char *argv[])
 {
-    char player;
+    hive::PlayerColor player;
     int port;
 
     if (argc > 2)

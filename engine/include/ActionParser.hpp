@@ -6,9 +6,9 @@
 #include "Position.hpp"
 #include "Tile.hpp"
 
+#include <optional>
 #include <regex>
 #include <sstream>
-#include <optional>
 
 namespace hive
 {
@@ -20,7 +20,7 @@ namespace hive
 class ActionParser
 {
   public:
-    ActionParser(const Board &board, const char &currentTurn, const Players &players)
+    ActionParser(const Board &board, const PlayerColor &currentTurn, const Players &players)
         : board(board), currentTurn(currentTurn), players(players)
     {
     }
@@ -32,11 +32,9 @@ class ActionParser
      */
     std::optional<Action> stringToAction(const std::string &notation) const
     {
-        static const std::regex rightDirectionRegex(
-            R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)([-\\/]))");
+        static const std::regex rightDirectionRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)([-\\/]))");
         static const std::regex beetleMoveRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)\.)");
-        static const std::regex leftDirectionRegex(
-            R"(([WB][A-Z]\d?) ([-\\/])([WB][A-Z]\d?))");
+        static const std::regex leftDirectionRegex(R"(([WB][A-Z]\d?) ([-\\/])([WB][A-Z]\d?))");
         static const std::regex firstActionRegex(R"([WB][A-Z]\d?)");
         std::smatch matches;
 
@@ -98,7 +96,7 @@ class ActionParser
 
   private:
     const Board &board;
-    const char &currentTurn;
+    const PlayerColor &currentTurn;
     const Players &players;
 
     Action parseLeftDirection(const std::smatch &matches) const
@@ -123,7 +121,7 @@ class ActionParser
     {
         std::string tileNotation = matches[0].str();
 
-        return makePlaceAction({0, 0}, tileNotation[1]);
+        return makePlaceAction({0, 0}, pieceTypeFromChar(tileNotation[1]));
     }
 
     Action parseBeetleMove(const std::smatch &matches) const
@@ -146,16 +144,17 @@ class ActionParser
 
     std::string getPlaceTileNotation(const Action &action)
     {
-        std::string color = (currentTurn == 'W') ? "W" : "B";
-        if (action.tile_type == 'Q')
+        const char color = toChar(currentTurn);
+        const char pieceType = toChar(action.pieceType);
+        if (action.pieceType == PieceType::Queen)
         {
-            return color + action.tile_type;
+            return std::string{color, pieceType};
         }
 
-        int count = players[currentTurn].getUnplacedPieceNumber(action.tile_type) + 1;
+        const int count = players[currentTurn].getPlacedPieceCount(action.pieceType) + 1;
 
         std::stringstream tileNotation;
-        tileNotation << color << action.tile_type << count;
+        tileNotation << color << pieceType << count;
 
         return tileNotation.str();
     }

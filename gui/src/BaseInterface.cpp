@@ -83,13 +83,12 @@ void BaseInterface::handleWindowResized(unsigned int width, unsigned int height)
 
 void BaseInterface::updateTurnText()
 {
-    if (game->gameStatus == "WHITE_WINS" || game->gameStatus == "BLACK_WINS" ||
-        game->gameStatus == "DRAW")
+    if (game->gameStatus != GameStatus::Playing)
     {
-        turnText.setString("Game over! " + game->gameStatus);
+        turnText.setString("Game over! " + std::string(toString(game->gameStatus)));
         return;
     }
-    turnText.setString("Current turn: " + std::string(1, game->currentTurn));
+    turnText.setString("Current turn: " + std::string(1, toChar(game->currentTurn)));
 }
 
 Position BaseInterface::convertMouseToBoardPos(sf::Vector2f mousePos)

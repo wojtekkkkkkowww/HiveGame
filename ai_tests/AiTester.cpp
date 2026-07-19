@@ -88,7 +88,7 @@ void AiTester::randomWeights(std::vector<double> &weights)
     }
 }
 
-int AiTester::playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game) const
+int AiTester::playTestGame(PlayerColor player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game) const
 {
     game.startNewGame();
     int moves = 0;
@@ -104,15 +104,15 @@ int AiTester::playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game
         std::swap(currentAi, opponentAi);
     }
 
-    std::string result = game.getGameStatus();
+    const GameStatus result = game.getGameStatus();
 
-    if (result == "WHITE_WINS")
-        return player == 'W' ? 1 : -2;
-    else if (result == "BLACK_WINS")
-        return player == 'B' ? 1 : -2;
+    if (result == GameStatus::WhiteWins)
+        return player == PlayerColor::White ? 1 : -2;
+    else if (result == GameStatus::BlackWins)
+        return player == PlayerColor::Black ? 1 : -2;
     else
     {
-        if (result == "DRAW")
+        if (result == GameStatus::Draw)
             std::cout << "DRAW" << '\n';
         return 0;
     }
@@ -135,7 +135,7 @@ int AiTester::runParallelGames(std::vector<double> &weights1, std::vector<double
                                          game.startNewGame();
                                          int score = 0;
 
-                                         score += playTestGame('W', ai1, ai2, game);
+                                         score += playTestGame(PlayerColor::White, ai1, ai2, game);
                                          return score;
                                      }));
 
@@ -149,7 +149,7 @@ int AiTester::runParallelGames(std::vector<double> &weights1, std::vector<double
                                          ai2.setHeuristicWeights(weights2);
                                          game.startNewGame();
                                          int score = 0;
-                                         score += playTestGame('B', ai2, ai1, game);
+                                         score += playTestGame(PlayerColor::Black, ai2, ai1, game);
 
                                          return score;
                                      }));
@@ -181,9 +181,9 @@ int AiTester::runParallelGames(std::vector<double> &weights)
                                          game.startNewGame();
                                          int score = 0;
 
-                                         score += playTestGame('W', ai1, ai2, game);
+                                         score += playTestGame(PlayerColor::White, ai1, ai2, game);
                                          game.startNewGame();
-                                         score += playTestGame('B', ai2, ai1, game);
+                                         score += playTestGame(PlayerColor::Black, ai2, ai1, game);
 
                                          return score;
                                      }));
@@ -295,9 +295,9 @@ void hive::AiTester::testAI()
     for (int i = 0; i < 1000; i++)
     {
         game.startNewGame();
-        score += playTestGame('W', alphaBetaAi, randomAi, game);
+        score += playTestGame(PlayerColor::White, alphaBetaAi, randomAi, game);
         game.startNewGame();
-        score += playTestGame('B', randomAi, alphaBetaAi, game);
+        score += playTestGame(PlayerColor::Black, randomAi, alphaBetaAi, game);
         std::cout << "Score: " << score << '\n';
     }
     std::cout << "Total Score: " << score << '\n';
@@ -316,7 +316,7 @@ void AiTester::runGameSimulation()
         for (int j = 0; j < MAX_NUMBER_OF_MOVES && !game.isGameOver(); ++j)
         {
             Action action;
-            if (game.getCurrentTurn() == 'W')
+            if (game.getCurrentTurn() == PlayerColor::White)
             {
                 action = getNextMove(ai1Type);
                 std::cout << "AI 1: " << action << '\n';
@@ -338,10 +338,10 @@ void AiTester::runGameSimulation()
         std::cout << "Game Time = " << (end - begin).count() << '\n';
         saveToFile(std::to_string(i), moves);
 
-        std::string result = game.getGameStatus();
-        if (result == "WHITE_WINS")
+        const GameStatus result = game.getGameStatus();
+        if (result == GameStatus::WhiteWins)
             ai1Wins++;
-        else if (result == "BLACK_WINS")
+        else if (result == GameStatus::BlackWins)
             ai2Wins++;
         else
             draws++;

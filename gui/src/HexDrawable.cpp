@@ -20,7 +20,7 @@ void HexDrawable::setPosition(float x, float y)
 
 void HexDrawable::setTile(const hive::Tile &tile, const sf::Texture &atlas)
 {
-    if (tile.color == 'W')
+    if (tile.color == hive::PlayerColor::White)
     {
         hex.setFillColor(sf::Color(236, 232, 220));
     }

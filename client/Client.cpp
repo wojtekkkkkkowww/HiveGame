@@ -1,7 +1,7 @@
 #include "Client.hpp"
 #include <iostream>
 
-Client::Client(const std::string &serverIP, unsigned short port, char player)
+Client::Client(const std::string &serverIP, unsigned short port, hive::PlayerColor player)
     : player(player), serverIP(serverIP), port(port)
 {
 }
@@ -17,7 +17,7 @@ bool Client::startConnection()
 
     std::cout << "Connected to server!\n";
 
-    return sendMessage(std::string(1, player));
+    return sendMessage(std::string(1, hive::toChar(player)));
 }
 
 bool Client::sendMessage(const std::string &message)
@@ -87,14 +87,8 @@ void Client::handleGameStart()
     }
 }
 
-void parseArguments(char &player, int &port, char *argv[])
+void parseArguments(hive::PlayerColor &player, int &port, char *argv[])
 {
     port = std::stoi(argv[1]);
-    player = argv[2][0];
-
-    if (player != 'W' && player != 'B')
-    {
-        std::cerr << "Invalid player color\n";
-        throw std::invalid_argument("Invalid player color");
-    }
+    player = hive::playerColorFromChar(argv[2][0]);
 }

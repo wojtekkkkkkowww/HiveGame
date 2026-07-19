@@ -19,13 +19,14 @@ class BoardDrawable : public sf::Drawable
     void updateEmptyTiles();
     void updateBoardTiles();
     void addHex(hive::Position &lastPosition, const hive::Tile &tile, float offset, size_t level);
+
     void setViewportSize(sf::Vector2f size)
     {
         viewportSize = size;
         update();
     }
 
-    void setPlayer(char player) { this->player = player; }
+    void setPlayer(hive::PlayerColor player) { this->player = player; }
 
     std::list<HexDrawable> hexDrawables;
     hive::Position selectedPosition = hive::invalidPosition;
@@ -40,5 +41,5 @@ class BoardDrawable : public sf::Drawable
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
     static constexpr float sqrt_3 = 1.73205080757f;
     std::pair<float, float> calculateHexPosition(int x, int y);
-    char player = 'W';
+    hive::PlayerColor player = hive::PlayerColor::White;
 };

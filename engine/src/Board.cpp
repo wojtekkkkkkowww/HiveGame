@@ -56,7 +56,7 @@ std::vector<std::list<Tile>> Board::getTiles() const
     return tiles;
 }
 
-std::set<Position> Board::getPlayerTiles(char color) const
+std::set<Position> Board::getPlayerTiles(PlayerColor color) const
 {
     std::set<Position> playerTiles;
     for (const auto &[position, stack] : boardTiles)
@@ -127,7 +127,7 @@ void Board::moveTile(Position position, Position newPosition)
     addTile(newPosition, std::move(tile));
 }
 
-int Board::calculateColoredNeighbours(Position position, char color) const
+int Board::calculateColoredNeighbours(Position position, PlayerColor color) const
 {
     int count = 0;
     for (const auto &dir : directions)
@@ -157,10 +157,7 @@ int Board::calculateNeighbours(const Position &position) const
     return count;
 }
 
-Tile Board::getTile(Position position) const
-{
-    return boardTiles.at(position).back();
-}
+Tile Board::getTile(Position position) const { return boardTiles.at(position).back(); }
 
 void Board::removeTile(Position position)
 {
@@ -184,11 +181,11 @@ void Board::addTile(Position position, Tile tile)
 
     tile.setPosition(position);
 
-    if (tile.type == 'Q' && tile.color == 'W')
+    if (tile.type == PieceType::Queen && tile.color == PlayerColor::White)
     {
         whiteQueen = position;
     }
-    if (tile.type == 'Q' && tile.color == 'B')
+    if (tile.type == PieceType::Queen && tile.color == PlayerColor::Black)
     {
         blackQueen = position;
     }
@@ -210,24 +207,25 @@ std::size_t Board::getPieceCount() const
 }
 
 // movement manager
-void Board::getAvailableMoves(char type, const Position &position, std::set<Position> &outMoves)
+void Board::getAvailableMoves(PieceType type, const Position &position,
+                              std::set<Position> &outMoves)
 {
     outMoves.clear();
     switch (type)
     {
-    case 'G':
+    case PieceType::Grasshopper:
         getGrasshopperMoves(position, outMoves);
         break;
-    case 'Q':
+    case PieceType::Queen:
         getQueenMoves(position, outMoves);
         break;
-    case 'B':
+    case PieceType::Beetle:
         getBeetleMoves(position, outMoves);
         break;
-    case 'S':
+    case PieceType::Spider:
         getSpiderMoves(position, outMoves);
         break;
-    case 'A':
+    case PieceType::Ant:
         getAntMoves(position, outMoves);
         break;
     }
@@ -341,11 +339,10 @@ void Board::getSpiderMoves(const Position &position, std::set<Position> &outMove
             if (visited.find(neighbor) == visited.end() &&
                 emptyTiles.find(neighbor) != emptyTiles.end())
             {
-                int isSpiderNeighbour =
-                    (std::find(spiderNeighbours.begin(), spiderNeighbours.end(), neighbor) !=
-                     spiderNeighbours.end())
-                        ? 1
-                        : 0;
+                int isSpiderNeighbour = (std::find(spiderNeighbours.begin(), spiderNeighbours.end(),
+                                                   neighbor) != spiderNeighbours.end())
+                                            ? 1
+                                            : 0;
                 if (calculateNeighbours(neighbor) - isSpiderNeighbour > 0)
                 {
                     if (isDirectionBlocked(currentPos, neighbor - currentPos, 1))
@@ -409,15 +406,14 @@ bool Board::isMoveBlocked(Position position, Position newPosition) const
     return !isTouchingHiveAfterMove(position, newPosition);
 }
 
-bool Board::isOccupiedByOpponent(Position pos, char color) const
+bool Board::isOccupiedByOpponent(Position pos, PlayerColor color) const
 {
-    char opponent = color == 'W' ? 'B' : 'W';
-    return calculateColoredNeighbours(pos, opponent) > 0;
+    return calculateColoredNeighbours(pos, opposite(color)) > 0;
 }
 
-bool Board::isQueenSurrounded(char color) const
+bool Board::isQueenSurrounded(PlayerColor color) const
 {
-    Position position = (color == 'W') ? whiteQueen : blackQueen;
+    const Position position = color == PlayerColor::White ? whiteQueen : blackQueen;
     if (position == invalidPosition)
     {
         return false;

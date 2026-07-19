@@ -28,14 +28,15 @@ Action RandomAIAlgorithm::getNextMove()
     return {};
 }
 
-std::optional<Action> RandomAIAlgorithm::winInOneMove(char player)
+std::optional<Action> RandomAIAlgorithm::winInOneMove(PlayerColor player)
 {
     auto availableActions = game.avaliableActions;
     for (const auto &action : availableActions)
     {
         game.applyValidAction(action);
-        std::string playerString = player == 'W' ? "WHITE" : "BLACK";
-        if (game.isGameOver() && game.getGameStatus() == playerString + "_WINS")
+        const auto playerWin =
+            player == PlayerColor::White ? GameStatus::WhiteWins : GameStatus::BlackWins;
+        if (game.isGameOver() && game.getGameStatus() == playerWin)
         {
             game.revertValidAction();
             game.genAvailableActions();

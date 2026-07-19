@@ -27,7 +27,7 @@ TEST_F(BoardTest, GetNeighboursAtPosition)
 
 TEST_F(BoardTest, GetTileAtPosition)
 {
-    hive::Tile tile('Q', 'W');
+    hive::Tile tile(hive::PieceType::Queen, hive::PlayerColor::White);
     board.addTile({0, 0}, tile);
     const auto &retrievedTile = board.getTile({0, 0});
 
@@ -45,7 +45,7 @@ TEST_F(BoardTest, UsesFixedCapacityAndReusesReleasedSlot)
     }
 
     EXPECT_EQ(board.getPieceCount(), hive::Board::maxPieceCount);
-    EXPECT_THROW(board.addTile({22, 0}, hive::Tile("overflow")), std::length_error);
+    EXPECT_THROW(board.addTile({22, 0}, hive::Tile("WA22")), std::length_error);
 
     board.removeTile({0, 0});
     EXPECT_EQ(board.getPieceCount(), hive::Board::maxPieceCount - 1);

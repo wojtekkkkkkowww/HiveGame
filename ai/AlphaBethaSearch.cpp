@@ -18,7 +18,7 @@ Action AlphaBetaAI::getNextMove()
 {
 
     player = game.getCurrentTurn();
-    playerWins = (player == 'W' ? "WHITE_WINS" : "BLACK_WINS");
+    playerWins = player == PlayerColor::White ? GameStatus::WhiteWins : GameStatus::BlackWins;
     double alpha = negative_infinity;
     double beta = infinity;
 
@@ -44,7 +44,7 @@ double AlphaBetaAI::calculateScore(int color) const
     {
         if (game.getGameStatus() == playerWins)
             return (color == 1) ? infinity : negative_infinity;
-        else if (game.getGameStatus() == "DRAW")
+        else if (game.getGameStatus() == GameStatus::Draw)
             return 0.0;
         else
             return (color != 1) ? infinity : negative_infinity;

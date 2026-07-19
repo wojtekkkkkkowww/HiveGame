@@ -29,7 +29,7 @@ class Game
     Game &operator=(Game &&) = delete;
 
     void startNewGame();
-    void startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn);
+    void startGameFromState(std::map<Position, std::deque<Tile>> tiles, PlayerColor currentTurn);
     bool applyAction(const Action &action);
     void applyValidAction(const Action &action);
     bool applyAction(const std::string &actionString);
@@ -37,17 +37,22 @@ class Game
     void revertValidAction();
     void genAvailableActions();
     bool isGameOver() const;
-    char getCurrentTurn() const;
-    std::string getGameStatus() const;
+
+    PlayerColor getCurrentTurn() const noexcept { return currentTurn; }
+
+    GameStatus getGameStatus() const noexcept { return gameStatus; }
+
     std::string getLastAction() const;
+
     std::size_t getPlyCount() const { return plyCount; }
+
     std::size_t getMaxPly() const { return maxPly; }
 
     std::vector<Action> avaliableActions;
     Board board;
-    char currentTurn;
+    PlayerColor currentTurn;
     Players players;
-    std::string gameStatus = "PLAYING";
+    GameStatus gameStatus = GameStatus::Playing;
 
   protected:
     std::size_t plyCount = 0;

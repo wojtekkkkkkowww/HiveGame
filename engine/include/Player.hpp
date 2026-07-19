@@ -16,32 +16,32 @@ namespace hive
 class Player
 {
   public:
-    explicit Player(char color);
-    Tile takeTile(char type);
+    explicit Player(PlayerColor color);
+    Tile takeTile(PieceType type);
 
-    void returnTile(char type);
+    void returnTile(PieceType type);
     void reset();
 
-    int getTileCount(char type) const;
+    int getTileCount(PieceType type) const;
 
-    int getUnplacedPieceNumber(char type) const;
+    int getPlacedPieceCount(PieceType type) const;
 
     bool queenPlaced = false;
     bool firstMove = true;
     int turnCounter = 0;
 
   private:
-    char color;
+    PlayerColor color;
     std::array<int, pieceCatalog.size()> pieceCounters{};
 };
 
 class Players
 {
   public:
-    Player &operator[](char color);
-    const Player &operator[](char color) const;
+    Player &operator[](PlayerColor color);
+    const Player &operator[](PlayerColor color) const;
 
   private:
-    std::array<Player, 2> values{Player{'W'}, Player{'B'}};
+    std::array<Player, 2> values{Player{PlayerColor::White}, Player{PlayerColor::Black}};
 };
 } // namespace hive

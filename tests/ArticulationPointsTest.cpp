@@ -35,37 +35,47 @@ class ArticulationPointsTest : public BaseTest
 
 namespace
 {
-const std::map<Position, std::deque<Tile>> tiles1 = {{Position{0, 0}, {Tile('W', 'Q')}},
-                                                     {Position{1, 0}, {Tile('B', 'A')}},
-                                                     {Position{0, 1}, {Tile('W', 'A')}},
-                                                     {Position{-1, 0}, {Tile('B', 'G')}},
-                                                     {Position{0, -1}, {Tile('W', 'G')}}};
+const std::map<Position, std::deque<Tile>> tiles1 = {
+    {Position{0, 0}, {Tile(PieceType::Queen, PlayerColor::White)}},
+    {Position{1, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}},
+    {Position{0, 1}, {Tile(PieceType::Ant, PlayerColor::White)}},
+    {Position{-1, 0}, {Tile(PieceType::Grasshopper, PlayerColor::Black)}},
+    {Position{0, -1}, {Tile(PieceType::Grasshopper, PlayerColor::White)}}};
 const std::set<Position> expectedPositions1 = {{0, 0}};
 
 const std::map<Position, std::deque<Tile>> tiles2 = {
-    {Position{0, 0}, {Tile('W', 'Q')}},  {Position{1, 0}, {Tile('B', 'A')}},
-    {Position{0, 1}, {Tile('W', 'A')}},  {Position{-1, 0}, {Tile('B', 'G')}},
-    {Position{0, -1}, {Tile('W', 'G')}}, {Position{-1, 1}, {Tile('B', 'Q')}}};
+    {Position{0, 0}, {Tile(PieceType::Queen, PlayerColor::White)}},
+    {Position{1, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}},
+    {Position{0, 1}, {Tile(PieceType::Ant, PlayerColor::White)}},
+    {Position{-1, 0}, {Tile(PieceType::Grasshopper, PlayerColor::Black)}},
+    {Position{0, -1}, {Tile(PieceType::Grasshopper, PlayerColor::White)}},
+    {Position{-1, 1}, {Tile(PieceType::Queen, PlayerColor::Black)}}};
 const std::set<Position> expectedPositions2 = {};
 
-const std::map<Position, std::deque<Tile>> tiles3 = {{Position{-1, 0}, {Tile('B', 'G')}},
-                                                     {Position{-1, 1}, {Tile('W', 'G')}},
-                                                     {Position{0, 1}, {Tile('W', 'A')}},
-                                                     {Position{1, 0}, {Tile('B', 'A')}}};
+const std::map<Position, std::deque<Tile>> tiles3 = {
+    {Position{-1, 0}, {Tile(PieceType::Grasshopper, PlayerColor::Black)}},
+    {Position{-1, 1}, {Tile(PieceType::Grasshopper, PlayerColor::White)}},
+    {Position{0, 1}, {Tile(PieceType::Ant, PlayerColor::White)}},
+    {Position{1, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}}};
 const std::set<Position> expectedPositions3 = {{-1, 1}, {0, 1}};
 
 const std::map<Position, std::deque<Tile>> tiles4 = {
-    {Position{-1, 0}, {Tile('B', 'A')}}, {Position{-2, 0}, {Tile('B', 'A')}},
-    {Position{-2, 1}, {Tile('B', 'B')}}, {Position{-3, 1}, {Tile('B', 'Q')}},
-    {Position{-1, 3}, {Tile('B', 'A')}}, {Position{0, 0}, {Tile('W', 'A')}},
-    {Position{0, 1}, {Tile('W', 'A')}},  {Position{0, 2}, {Tile('W', 'Q')}},
-    {Position{-4, 2}, {Tile('W', 'A')}}};
+    {Position{-1, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}},
+    {Position{-2, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}},
+    {Position{-2, 1}, {Tile(PieceType::Beetle, PlayerColor::Black)}},
+    {Position{-3, 1}, {Tile(PieceType::Queen, PlayerColor::Black)}},
+    {Position{-1, 3}, {Tile(PieceType::Ant, PlayerColor::Black)}},
+    {Position{0, 0}, {Tile(PieceType::Ant, PlayerColor::White)}},
+    {Position{0, 1}, {Tile(PieceType::Ant, PlayerColor::White)}},
+    {Position{0, 2}, {Tile(PieceType::Queen, PlayerColor::White)}},
+    {Position{-4, 2}, {Tile(PieceType::Ant, PlayerColor::White)}}};
 const std::set<Position> expectedPositions4 = {{-3, 1}, {-1, 0}, {0, 0}, {0, 1}, {0, 2}};
 
-const std::map<Position, std::deque<Tile>> tiles5 = {{Position{0, 0}, {Tile('W', 'Q')}},
-                                                     {Position{1, 0}, {Tile('B', 'A')}},
-                                                     {Position{-1, 0}, {Tile('W', 'A')}},
-                                                     {Position{-2, 0}, {Tile('B', 'A')}}};
+const std::map<Position, std::deque<Tile>> tiles5 = {
+    {Position{0, 0}, {Tile(PieceType::Queen, PlayerColor::White)}},
+    {Position{1, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}},
+    {Position{-1, 0}, {Tile(PieceType::Ant, PlayerColor::White)}},
+    {Position{-2, 0}, {Tile(PieceType::Ant, PlayerColor::Black)}}};
 const std::set<Position> expectedPositions5 = {{0, 0}, {-1, 0}};
 
 } // namespace

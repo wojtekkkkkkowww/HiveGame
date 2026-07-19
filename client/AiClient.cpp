@@ -15,7 +15,7 @@ using namespace hive;
 class AIClient : public Client
 {
   public:
-    AIClient(const std::string &serverIP, unsigned short port, char player, Game &game,
+    AIClient(const std::string &serverIP, unsigned short port, PlayerColor player, Game &game,
              AIAlgorithm &aiAlgorithm)
         : Client(serverIP, port, player), game(game), aiAlgorithm(aiAlgorithm)
     {
@@ -60,7 +60,7 @@ class AIClient : public Client
 
 int main(int argc, char *argv[])
 {
-    char player{'W'};
+    PlayerColor player{PlayerColor::White};
     int port{54000};
 
     std::string serverIP = "127.0.0.1";

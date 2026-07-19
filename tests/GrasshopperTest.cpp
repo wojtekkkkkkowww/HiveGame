@@ -14,12 +14,12 @@ class GrasshopperTest : public BaseTest
 
 TEST_F(GrasshopperTest, GrasshopperMove)
 {
-    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, 'Q')));
-    ASSERT_TRUE(applyAction(makePlaceAction({0, -1}, 'Q')));
+    ASSERT_TRUE(applyAction(makePlaceAction({0, 0}, PieceType::Queen)));
+    ASSERT_TRUE(applyAction(makePlaceAction({0, -1}, PieceType::Queen)));
     Position firstGrasshopperPosition = {.x = 0, .y = 1};
-    ASSERT_TRUE(applyAction(makePlaceAction(firstGrasshopperPosition, 'G')));
+    ASSERT_TRUE(applyAction(makePlaceAction(firstGrasshopperPosition, PieceType::Grasshopper)));
     Position secondGrasshopperPosition = {.x = 0, .y = -2};
-    ASSERT_TRUE(applyAction(makePlaceAction(secondGrasshopperPosition, 'G')));
+    ASSERT_TRUE(applyAction(makePlaceAction(secondGrasshopperPosition, PieceType::Grasshopper)));
 
     std::set<Position> expectedMoves = {{0, -3}};
     checkMoves(firstGrasshopperPosition, expectedMoves);

@@ -31,7 +31,7 @@ class AiTester
     std::string ai2Type;
 
     void perft(int depth, long long &nodes);
-    int playTestGame(char player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game) const;
+    int playTestGame(PlayerColor player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game) const;
     int runParallelGames(std::vector<double> &weights1, std::vector<double> &weights2) const;
     int runParallelGames(std::vector<double> &weights);
     void randomWeights(std::vector<double> &weights);

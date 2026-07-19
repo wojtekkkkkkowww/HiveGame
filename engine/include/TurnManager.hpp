@@ -15,8 +15,8 @@ namespace hive
 class TurnManager
 {
   public:
-    TurnManager(Board &board, Players &players, char &currentTurn,
-                std::string &status, std::size_t &plyCount, const std::size_t &maxPly)
+    TurnManager(Board &board, Players &players, PlayerColor &currentTurn, GameStatus &status,
+                std::size_t &plyCount, const std::size_t &maxPly)
         : board(board), players(players), currentTurn(currentTurn), gameStatus(status),
           plyCount(plyCount), maxPly(maxPly)
     {
@@ -29,8 +29,8 @@ class TurnManager
   private:
     Board &board;
     Players &players;
-    char &currentTurn;
-    std::string &gameStatus;
+    PlayerColor &currentTurn;
+    GameStatus &gameStatus;
     std::size_t &plyCount;
     const std::size_t &maxPly;
 };
@@ -40,13 +40,13 @@ inline void TurnManager::nextTurn()
     players[currentTurn].firstMove = false;
     players[currentTurn].turnCounter++;
     ++plyCount;
-    currentTurn = (currentTurn == 'W') ? 'B' : 'W';
+    currentTurn = opposite(currentTurn);
     updateGameStatus();
 }
 
 inline void TurnManager::revertTurn()
 {
-    currentTurn = (currentTurn == 'W') ? 'B' : 'W';
+    currentTurn = opposite(currentTurn);
     players[currentTurn].turnCounter--;
     if (plyCount > 0)
     {
@@ -62,28 +62,28 @@ inline void TurnManager::revertTurn()
 
 inline void TurnManager::updateGameStatus()
 {
-    bool whiteQueenSurrounded = board.isQueenSurrounded('W');
-    bool blackQueenSurrounded = board.isQueenSurrounded('B');
+    const bool whiteQueenSurrounded = board.isQueenSurrounded(PlayerColor::White);
+    const bool blackQueenSurrounded = board.isQueenSurrounded(PlayerColor::Black);
 
     if (whiteQueenSurrounded && blackQueenSurrounded)
     {
-        gameStatus = "DRAW";
+        gameStatus = GameStatus::Draw;
     }
     else if (whiteQueenSurrounded)
     {
-        gameStatus = "BLACK_WINS";
+        gameStatus = GameStatus::BlackWins;
     }
     else if (blackQueenSurrounded)
     {
-        gameStatus = "WHITE_WINS";
+        gameStatus = GameStatus::WhiteWins;
     }
     else if (plyCount >= maxPly)
     {
-        gameStatus = "DRAW";
+        gameStatus = GameStatus::Draw;
     }
     else
     {
-        gameStatus = "PLAYING";
+        gameStatus = GameStatus::Playing;
     }
 }
 } // namespace hive

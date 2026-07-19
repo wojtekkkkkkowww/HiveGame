@@ -3,8 +3,8 @@
 #include "Action.hpp"
 #include "ArticulationPoints.hpp"
 #include "Board.hpp"
-#include "Player.hpp"
 #include "PieceCatalog.hpp"
+#include "Player.hpp"
 #include <set>
 #include <stack>
 
@@ -16,9 +16,8 @@ namespace hive
 class ActionHandler
 {
   public:
-    ActionHandler(Board &board, Players &players, char &currentTurn,
-                  std::string &status, std::stack<Action> &actions,
-                  std::vector<Action> &availableActions);
+    ActionHandler(Board &board, Players &players, PlayerColor &currentTurn, GameStatus &status,
+                  std::stack<Action> &actions, std::vector<Action> &availableActions);
     bool applyAction(const Action &action);
     void applyValidAction(const Action &action);
     void revertAction();
@@ -32,14 +31,14 @@ class ActionHandler
     void generateMoveActions();
     bool isMoveActionValid(const Action &action) const;
     void moveTile(Position position, Position newPosition);
-    void placeTile(Position position, char type);
+    void placeTile(Position position, PieceType type);
     void updateQueenPosition(const Tile &tile, const Position &newPosition);
     void generatePlaceActions();
     inline bool isPlaceActionValid(const Position &position) const;
     Board &board;
     Players &players;
-    char &currentTurn;
-    std::string &status;
+    PlayerColor &currentTurn;
+    GameStatus &status;
     std::stack<Action> &actions;
     std::vector<Action> &availableActions;
     ArticulationPointFinder articulationPointFinder;

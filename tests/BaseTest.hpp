@@ -80,8 +80,8 @@ class BaseTest : public ::testing::Test, public Game
 
     void saveBoardState()
     {
-        int turnCounter1 = players['W'].turnCounter;
-        int turnCounter2 = players['B'].turnCounter;
+        int turnCounter1 = players[PlayerColor::White].turnCounter;
+        int turnCounter2 = players[PlayerColor::Black].turnCounter;
         int turnCounter = turnCounter1 + turnCounter2;
 
         const ::testing::TestInfo *test_info =

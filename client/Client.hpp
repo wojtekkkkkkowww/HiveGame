@@ -12,7 +12,7 @@
 class Client
 {
   public:
-    Client(const std::string &serverIP, unsigned short port, char player);
+    Client(const std::string &serverIP, unsigned short port, hive::PlayerColor player);
 
     /**
      * @brief Main loop of the client
@@ -26,12 +26,14 @@ class Client
     virtual void handleMyAction() = 0;
     virtual void handleOpponentAction() = 0;
     virtual void prepare() = 0;
+
     virtual bool shouldStop() const { return false; }
+
     bool sendMessage(const std::string &message);
     bool receiveMessage(std::string &message);
 
     std::string message;
-    char player;
+    hive::PlayerColor player;
     bool gameStarted = false;
 
   private:
@@ -47,4 +49,4 @@ class Client
     char buffer[128];
 };
 
-void parseArguments(char &player, int &port, char *argv[]);
+void parseArguments(hive::PlayerColor &player, int &port, char *argv[]);

@@ -20,7 +20,7 @@ enum class ActionType : uint8_t
 struct Action
 {
     ActionType type{};
-    char tile_type{};
+    PieceType pieceType = PieceType::Queen;
     Position position{};
     Position newPosition{};
 
@@ -34,9 +34,9 @@ constexpr Action makeMoveAction(Position position, Position newPosition)
     return Action{.type = ActionType::MOVE, .position = position, .newPosition = newPosition};
 }
 
-constexpr Action makePlaceAction(Position position, char tile_type)
+constexpr Action makePlaceAction(Position position, PieceType pieceType)
 {
-    return Action{.type = ActionType::PLACE, .tile_type = tile_type, .newPosition = position};
+    return Action{.type = ActionType::PLACE, .pieceType = pieceType, .newPosition = position};
 }
 
 constexpr Action makeAction(const Tile &tile, Position position)
@@ -56,8 +56,8 @@ inline std::ostream &operator<<(std::ostream &os, const Action &action)
     os << "Action: ";
     if (action.type == ActionType::PLACE)
     {
-        os << "Place " << action.tile_type << " at position (" << action.newPosition.x << ", "
-           << action.newPosition.y << ")";
+        os << "Place " << toChar(action.pieceType) << " at position (" << action.newPosition.x
+           << ", " << action.newPosition.y << ")";
     }
     else if (action.type == ActionType::MOVE)
     {

@@ -35,20 +35,20 @@ class Board
     void addTile(Position position, Tile tile);
 
     std::vector<std::list<Tile>> getTiles() const;
-    std::set<Position> getPlayerTiles(char color) const;
+    std::set<Position> getPlayerTiles(PlayerColor color) const;
     std::vector<Position> getPositions() const;
 
     Tile getTile(Position position) const;
     Tile getTileByNotation(const std::string &notation) const;
 
     int getLevel(Position position) const;
-    int calculateColoredNeighbours(Position position, char color) const;
+    int calculateColoredNeighbours(Position position, PlayerColor color) const;
     int calculateNeighbours(const Position &position) const;
 
     static constexpr std::array<Position, 6> getNeighbours(Position position)
     {
         // Keep the former std::set lexicographic order so serialized replays stay stable.
-        return {position + W, position + SW, position + NW,
+        return {position + W,  position + SW, position + NW,
                 position + SE, position + NE, position + E};
     }
 
@@ -58,10 +58,11 @@ class Board
 
     int getTileCount() const;
     std::size_t getPieceCount() const;
+
     bool isEmpty(Position position) const { return getLevel(position) == 0; }
 
     // movement manager
-    void getAvailableMoves(char type, const Position &position, std::set<Position> &outMoves);
+    void getAvailableMoves(PieceType type, const Position &position, std::set<Position> &outMoves);
     void getAntMoves(const Position &position, std::set<Position> &outMoves);
     void getSpiderMoves(const Position &position, std::set<Position> &outMoves);
     void getGrasshopperMoves(const Position &position, std::set<Position> &outMoves) const;
@@ -75,8 +76,8 @@ class Board
     bool constantContact(hive::Position neighborPosition1, hive::Position neighborPosition2,
                          hive::Position newPosition) const;
     bool isDirectionBlocked(Position position, Position direction, int level) const;
-    bool isQueenSurrounded(char color) const;
-    bool isOccupiedByOpponent(Position pos, char color) const;
+    bool isQueenSurrounded(PlayerColor color) const;
+    bool isOccupiedByOpponent(Position pos, PlayerColor color) const;
     bool isMoveBlocked(Position position, Position newPosition) const;
 
     std::set<Position> articulationPoints;

@@ -126,7 +126,7 @@ bool GameController::applyLocalAction(const Action &action)
     return applied;
 }
 
-void GameController::setPlayer(char player)
+void GameController::setPlayer(PlayerColor player)
 {
     this->player = player;
     boardDrawable.setPlayer(player);
@@ -178,7 +178,7 @@ void GameController::handleBoardClick(sf::Vector2f mousePos)
 
     Position boardPos = convertMouseToBoardPos(mousePos);
 
-    if (pieceSelector.selectedPiece != '\0')
+    if (pieceSelector.selectedPiece)
     {
         handlePiecePlacement(boardPos);
     }
@@ -192,12 +192,12 @@ void GameController::handlePiecePlacement(const Position &boardPos)
 {
     if (boardPos != invalidPosition)
     {
-        if (game->applyAction(makePlaceAction(boardPos, pieceSelector.selectedPiece)))
+        if (game->applyAction(makePlaceAction(boardPos, *pieceSelector.selectedPiece)))
         {
             message = game->getLastAction();
         }
     }
-    pieceSelector.selectedPiece = '\0';
+    pieceSelector.selectedPiece.reset();
 }
 
 void GameController::handlePieceMovement(const Position &boardPos)

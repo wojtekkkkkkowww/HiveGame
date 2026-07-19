@@ -13,9 +13,12 @@ class GameController : public BaseInterface
     GameController(sf::RenderWindow &window);
     void apllyOpponentAction(const std::string &action);
     bool applyLocalAction(const Action &action);
-    void setPlayer(char player);
+    void setPlayer(hive::PlayerColor player);
+
     void setLocalHotseat(bool enabled) { localHotseat = enabled; }
+
     Game &getGame() { return *game; }
+
     std::string message = "";
 
     void processEvents() override;
@@ -34,7 +37,7 @@ class GameController : public BaseInterface
 
     PieceSelector pieceSelector;
     sf::Vector2f dragStartPos;
-    char player = 'W';
+    PlayerColor player = PlayerColor::White;
     Button waitButton;
     bool localHotseat = false;
 };

@@ -6,7 +6,7 @@
 namespace hive
 {
 Game::Game(std::size_t maxPly)
-    : currentTurn('W'), maxPly(maxPly),
+    : currentTurn(PlayerColor::White), maxPly(maxPly),
       actionHandler(board, players, currentTurn, gameStatus, actions, avaliableActions),
       turnManager(board, players, currentTurn, gameStatus, plyCount, this->maxPly),
       actionParser(board, currentTurn, players)
@@ -18,13 +18,13 @@ Game::Game(std::size_t maxPly)
     startNewGame();
 }
 
-void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char currentTurn)
+void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, PlayerColor currentTurn)
 {
-    players['W'].reset();
-    players['B'].reset();
+    players[PlayerColor::White].reset();
+    players[PlayerColor::Black].reset();
     actionStrings.clear();
     plyCount = 0;
-    gameStatus = "PLAYING";
+    gameStatus = GameStatus::Playing;
     board.setBoardTiles(tiles);
     this->currentTurn = currentTurn;
     std::array<int, 2> placedPieces{};
@@ -34,26 +34,26 @@ void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, char c
         for (const auto &t : tiles)
         {
             players[t.color].takeTile(t.type);
-            const auto playerIndex = t.color == 'W' ? 0U : 1U;
+            const auto playerIndex = t.color == PlayerColor::White ? 0U : 1U;
             ++placedPieces[playerIndex];
 
-            if (t.color == 'W' && t.type == 'Q')
+            if (t.color == PlayerColor::White && t.type == PieceType::Queen)
             {
                 board.whiteQueen = position;
-                players['W'].queenPlaced = true;
+                players[PlayerColor::White].queenPlaced = true;
             }
-            if (t.color == 'B' && t.type == 'Q')
+            if (t.color == PlayerColor::Black && t.type == PieceType::Queen)
             {
                 board.blackQueen = position;
-                players['B'].queenPlaced = true;
+                players[PlayerColor::Black].queenPlaced = true;
             }
         }
     }
 
-    players['W'].firstMove = placedPieces[0] == 0;
-    players['B'].firstMove = placedPieces[1] == 0;
-    players['W'].turnCounter = placedPieces[0];
-    players['B'].turnCounter = placedPieces[1];
+    players[PlayerColor::White].firstMove = placedPieces[0] == 0;
+    players[PlayerColor::Black].firstMove = placedPieces[1] == 0;
+    players[PlayerColor::White].turnCounter = placedPieces[0];
+    players[PlayerColor::Black].turnCounter = placedPieces[1];
     actionHandler.reset();
     turnManager.updateGameStatus();
     actionHandler.genAvailableActions();
@@ -115,22 +115,18 @@ void Game::revertValidAction()
     turnManager.revertTurn();
 }
 
-bool Game::isGameOver() const { return gameStatus != "PLAYING"; }
-
-char Game::getCurrentTurn() const { return currentTurn; }
-
-std::string Game::getGameStatus() const { return gameStatus; }
+bool Game::isGameOver() const { return gameStatus != GameStatus::Playing; }
 
 std::string Game::getLastAction() const { return actionStrings.back(); }
 
 void Game::startNewGame()
 {
-    currentTurn = 'W';
+    currentTurn = PlayerColor::White;
     plyCount = 0;
-    gameStatus = "PLAYING";
+    gameStatus = GameStatus::Playing;
     board.resetBoard();
-    players['W'].reset();
-    players['B'].reset();
+    players[PlayerColor::White].reset();
+    players[PlayerColor::Black].reset();
     actionHandler.reset();
 }
 } // namespace hive

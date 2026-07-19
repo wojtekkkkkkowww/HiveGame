@@ -15,27 +15,26 @@ namespace hive
 class Heuristic
 {
   public:
-    virtual int evaluate(const Game &state, char player) const = 0;
+    virtual int evaluate(const Game &state, PlayerColor player) const = 0;
     virtual ~Heuristic() = default;
 
   protected:
-    int tileValue(char tileType) const
+    int tileValue(PieceType tileType) const
     {
         switch (tileType)
         {
-        case 'Q':
+        case PieceType::Queen:
             return queen;
-        case 'A':
+        case PieceType::Ant:
             return ant;
-        case 'S':
+        case PieceType::Spider:
             return spider;
-        case 'G':
+        case PieceType::Grasshopper:
             return grasshopper;
-        case 'B':
+        case PieceType::Beetle:
             return beetle;
-        default:
-            return 0;
         }
+        return 0;
     }
 
     static constexpr const int queen = 5;
@@ -48,11 +47,11 @@ class Heuristic
 class BlockedTiles : public Heuristic
 {
   public:
-    int evaluate(const Game &state, char player) const override
+    int evaluate(const Game &state, PlayerColor player) const override
     {
         int value = 0.0;
 
-        for (const auto &pos : state.board.getPlayerTiles(player == 'W' ? 'B' : 'W'))
+        for (const auto &pos : state.board.getPlayerTiles(opposite(player)))
         {
             if (isTileBlocked(pos, state))
             {
@@ -72,7 +71,7 @@ class BlockedTiles : public Heuristic
             return true;
         }
 
-        if (state.board.getTile(position).type == 'B')
+        if (state.board.getTile(position).type == PieceType::Beetle)
         {
             return false;
         }
@@ -92,9 +91,10 @@ class BlockedTiles : public Heuristic
 class QueenSafty : public Heuristic
 {
   public:
-    int evaluate(const Game &state, char player) const override
+    int evaluate(const Game &state, PlayerColor player) const override
     {
-        auto myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+        auto myQueen =
+            player == PlayerColor::White ? state.board.whiteQueen : state.board.blackQueen;
 
         return quuenAvailableMoves(state, myQueen) - tilesAroundQueen(state, myQueen);
     }
@@ -129,20 +129,21 @@ class QueenSafty : public Heuristic
 class AttackOponentQueen : public QueenSafty
 {
   public:
-    int evaluate(const Game &state, char player) const override
+    int evaluate(const Game &state, PlayerColor player) const override
     {
-        auto opponent = player == 'W' ? 'B' : 'W';
-        return -1 * QueenSafty::evaluate(state, opponent);
+        return -1 * QueenSafty::evaluate(state, opposite(player));
     }
 };
 
 class WinLoseHeuristic : public Heuristic
 {
   public:
-    int evaluate(const Game &state, char player) const override
+    int evaluate(const Game &state, PlayerColor player) const override
     {
-        auto oponentQueen = player == 'W' ? state.board.blackQueen : state.board.whiteQueen;
-        auto myQueen = player == 'W' ? state.board.whiteQueen : state.board.blackQueen;
+        auto oponentQueen =
+            player == PlayerColor::White ? state.board.blackQueen : state.board.whiteQueen;
+        auto myQueen =
+            player == PlayerColor::White ? state.board.whiteQueen : state.board.blackQueen;
         int value = 0;
         if (isSurrounded(state, oponentQueen))
         {

@@ -5,8 +5,8 @@
 
 namespace hive
 {
-ActionHandler::ActionHandler(Board &board, Players &players, char &currentTurn,
-                             std::string &status, std::stack<Action> &actions,
+ActionHandler::ActionHandler(Board &board, Players &players, PlayerColor &currentTurn,
+                             GameStatus &status, std::stack<Action> &actions,
                              std::vector<Action> &availableActions)
     : board(board), players(players), currentTurn(currentTurn), status(status), actions(actions),
       availableActions(availableActions), articulationPointFinder(board)
@@ -29,13 +29,12 @@ void ActionHandler::applyValidAction(const Action &action)
     actions.push(action);
     if (action.type == ActionType::PLACE)
     {
-        placeTile(action.newPosition, action.tile_type);
+        placeTile(action.newPosition, action.pieceType);
     }
     else if (action.type == ActionType::MOVE)
     {
         moveTile(action.position, action.newPosition);
     }
-
 }
 
 void ActionHandler::revertAction()
@@ -57,19 +56,18 @@ void ActionHandler::revertAction()
         const Tile tile = board.getTile(action.newPosition);
         revertPlacedQueen(tile);
         board.removeTile(action.newPosition);
-        char lastTurn = (currentTurn == 'W') ? 'B' : 'W';
-        players[lastTurn].returnTile(action.tile_type);
+        players[opposite(currentTurn)].returnTile(action.pieceType);
     }
 }
 
 void ActionHandler::revertPlacedQueen(const Tile &tile)
 {
-    if (tile.type != 'Q')
+    if (tile.type != PieceType::Queen)
     {
         return;
     }
 
-    if (tile.color == 'W')
+    if (tile.color == PlayerColor::White)
     {
         board.whiteQueen = invalidPosition;
     }
@@ -81,7 +79,7 @@ void ActionHandler::revertPlacedQueen(const Tile &tile)
 
 void ActionHandler::genAvailableActions()
 {
-    if (!players['W'].firstMove)
+    if (!players[PlayerColor::White].firstMove)
     {
         board.addEmptyTilesAroundBoard();
     }
@@ -91,7 +89,7 @@ void ActionHandler::genAvailableActions()
     }
 
     availableActions.clear();
-    if (status == "PLAYING")
+    if (status == GameStatus::Playing)
     {
         generatePlaceActions();
         generateMoveActions();
@@ -170,12 +168,12 @@ void ActionHandler::moveTile(Position position, Position newPosition)
     updateQueenPosition(tile, newPosition);
 }
 
-void ActionHandler::placeTile(Position position, char type)
+void ActionHandler::placeTile(Position position, PieceType type)
 {
     auto tile = players[currentTurn].takeTile(type);
     tile.placed = true;
     board.addTile(position, tile);
-    if (type == 'Q')
+    if (type == PieceType::Queen)
     {
         players[currentTurn].queenPlaced = true;
         updateQueenPosition(tile, position);
@@ -185,12 +183,12 @@ void ActionHandler::placeTile(Position position, char type)
 
 void ActionHandler::updateQueenPosition(const hive::Tile &tile, const hive::Position &newPosition)
 {
-    if (tile.color == 'W' && tile.type == 'Q')
+    if (tile.color == PlayerColor::White && tile.type == PieceType::Queen)
     {
         board.whiteQueen = newPosition;
     }
 
-    if (tile.color == 'B' && tile.type == 'Q')
+    if (tile.color == PlayerColor::Black && tile.type == PieceType::Queen)
     {
         board.blackQueen = newPosition;
     }
@@ -202,8 +200,9 @@ void ActionHandler::generatePlaceActions()
         !players[currentTurn].queenPlaced && players[currentTurn].turnCounter >= 3;
     for (const auto &definition : pieceCatalog)
     {
-        const auto type = definition.code;
-        if ((queenMustBePlaced && type != 'Q') || players[currentTurn].getTileCount(type) == 0)
+        const auto type = definition.type;
+        if ((queenMustBePlaced && type != PieceType::Queen) ||
+            players[currentTurn].getTileCount(type) == 0)
         {
             continue;
         }

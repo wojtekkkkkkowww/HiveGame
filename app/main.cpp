@@ -18,8 +18,8 @@ enum class LocalMode
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1000, 700), "Hive",
-                            sf::Style::Default, sf::ContextSettings(0, 0, 8));
+    sf::RenderWindow window(sf::VideoMode(1000, 700), "Hive", sf::Style::Default,
+                            sf::ContextSettings(0, 0, 8));
     window.setFramerateLimit(60);
 
     const auto &font = ResourceManager::getInstance().getFont("arial.ttf");
@@ -95,7 +95,7 @@ int main()
                     if (mode != LocalMode::Menu)
                     {
                         controller = std::make_unique<GameController>(window);
-                        controller->setPlayer('W');
+                        controller->setPlayer(hive::PlayerColor::White);
                         controller->setLocalHotseat(mode == LocalMode::HumanVsHuman);
                         if (mode == LocalMode::HumanVsAi)
                         {
@@ -121,7 +121,8 @@ int main()
 
         controller->handleGameControl();
         auto &game = controller->getGame();
-        if (mode == LocalMode::HumanVsAi && !game.isGameOver() && game.getCurrentTurn() == 'B')
+        if (mode == LocalMode::HumanVsAi && !game.isGameOver() &&
+            game.getCurrentTurn() == hive::PlayerColor::Black)
         {
             controller->applyLocalAction(ai->getNextMove());
         }

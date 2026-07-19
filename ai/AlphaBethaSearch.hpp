@@ -32,8 +32,8 @@ class AlphaBetaAI : public AIAlgorithm
     std::mt19937 randomGenerator{std::random_device{}()};
 
     int maxDepth = 4;
-    char player;
-    std::string playerWins;
+    PlayerColor player = PlayerColor::White;
+    GameStatus playerWins = GameStatus::WhiteWins;
 };
 
 } // namespace hive

@@ -4,6 +4,7 @@
 #include "Player.hpp"
 #include "ResourceManager.hpp"
 #include <SFML/Graphics.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -39,7 +40,7 @@ class PieceSelector : public sf::Drawable
         for (const auto &definition : hive::pieceCatalog)
         {
             PieceEntry entry;
-            entry.type = definition.code;
+            entry.type = definition.type;
             entry.sprite.setTexture(atlas);
             const auto textureRect = PieceAtlas::textureRect(atlas, entry.type);
             entry.sprite.setTextureRect(textureRect);
@@ -87,9 +88,9 @@ class PieceSelector : public sf::Drawable
                                                            : sf::Color(120, 120, 120, 110));
         }
 
-        if (selectedPiece != '\0' && countFor(selectedPiece) == 0)
+        if (selectedPiece && countFor(*selectedPiece) == 0)
         {
-            selectedPiece = '\0';
+            selectedPiece.reset();
         }
     }
 
@@ -107,19 +108,19 @@ class PieceSelector : public sf::Drawable
 
     bool contains(sf::Vector2f mousePos) { return stackRect.getGlobalBounds().contains(mousePos); }
 
-    char selectedPiece = '\0';
+    std::optional<hive::PieceType> selectedPiece;
 
   private:
     struct PieceEntry
     {
-        char type = '\0';
+        hive::PieceType type = hive::PieceType::Queen;
         int availableCount = 0;
         sf::Sprite sprite;
         sf::Text countText;
         sf::RectangleShape background;
     };
 
-    int countFor(char type) const
+    int countFor(hive::PieceType type) const
     {
         for (const auto &piece : pieces)
         {
@@ -139,13 +140,14 @@ class PieceSelector : public sf::Drawable
 
     sf::RectangleShape stackRect;
     std::vector<PieceEntry> pieces;
+
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override
     {
         target.draw(stackRect, states);
         for (const auto &piece : pieces)
         {
             auto background = piece.background;
-            const bool selected = piece.type == selectedPiece;
+            const bool selected = selectedPiece && piece.type == *selectedPiece;
             background.setFillColor(selected ? selectedFillColor : idleFillColor);
             background.setOutlineColor(selected ? selectedOutlineColor : idleOutlineColor);
             target.draw(background, states);
