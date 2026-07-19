@@ -10,4 +10,5 @@ target_include_directories(ai PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(ai PUBLIC GameEngine)
 target_link_libraries(ai PUBLIC global_compile_options)
+hive_enable_clang_tidy(ai)
 #target_compile_options(ai PRIVATE -O3)

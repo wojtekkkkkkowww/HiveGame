@@ -77,13 +77,9 @@ inline void TurnManager::updateGameStatus()
     {
         gameStatus = GameStatus::WhiteWins;
     }
-    else if (plyCount >= maxPly)
-    {
-        gameStatus = GameStatus::Draw;
-    }
     else
     {
-        gameStatus = GameStatus::Playing;
+        gameStatus = plyCount >= maxPly ? GameStatus::Draw : GameStatus::Playing;
     }
 }
 } // namespace hive

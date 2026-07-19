@@ -10,6 +10,7 @@ add_library(GameEngine
 target_include_directories(GameEngine PUBLIC ${CMAKE_SOURCE_DIR}/engine/include)
 
 target_link_libraries(GameEngine PUBLIC global_compile_options)
+hive_enable_clang_tidy(GameEngine)
 
 if(HIVE_USE_STATIC_MAP)
     target_compile_definitions(GameEngine PUBLIC HIVE_USE_STATIC_MAP=1)

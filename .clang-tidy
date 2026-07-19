@@ -1,17 +1,15 @@
 Checks: >
+  -*,
   clang-analyzer-*,
   bugprone-*,
-  modernize-*,
-  performance-*,
-  -modernize-use-trailing-return-type,
-  -modernize-use-nodiscard,
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
-  -performance-avoid-endl
-
+  performance-*,
+  portability-*,
+  -portability-avoid-pragma-once,
+  modernize-use-nullptr,
+  modernize-use-override
 WarningsAsErrors: ''
-HeaderFilterRegex: '^(/Users/wojtusmaczek/Projekty/HiveGame/(engine|ai|tests)/).*'
+HeaderFilterRegex: '.*/(engine|ai|gui|client|app)/.*'
+SystemHeaders: false
 FormatStyle: file
-CheckOptions:
-  - key: performance-move-const-arg.CheckTriviallyCopyableMove
-    value: 'false'
