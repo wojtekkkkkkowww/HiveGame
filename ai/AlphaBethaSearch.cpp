@@ -61,7 +61,9 @@ std::pair<double, Action> AlphaBetaAI::alphabetha(double alpha, double beta, int
     }
 
     game.genAvailableActions();
-    auto actions = game.avaliableActions;
+    auto &actions = actionBuffers[static_cast<std::size_t>(depth)];
+    actions.clear();
+    actions.swap(game.avaliableActions);
 
     std::pair<double, Action> best = std::make_pair(negative_infinity, actions.front());
 

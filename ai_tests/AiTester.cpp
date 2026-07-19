@@ -37,7 +37,9 @@ void AiTester::perft(int depth, long long &nodes)
         return;
     }
     game.genAvailableActions();
-    auto actions = game.avaliableActions;
+    auto &actions = perftActionBuffers[static_cast<std::size_t>(depth)];
+    actions.clear();
+    actions.swap(game.avaliableActions);
 
     int i = 0;
     for (const auto &action : actions)
@@ -55,6 +57,7 @@ void AiTester::perft(int depth, long long &nodes)
 
 void AiTester::performPerftTest(int maxDepth)
 {
+    perftActionBuffers.resize(static_cast<std::size_t>(maxDepth + 1));
     std::cout << "Depth & Time (ms) & Nodes & Nodes/s \\\\" << '\n';
     for (int depth = 2; depth <= maxDepth; ++depth)
     {

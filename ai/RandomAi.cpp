@@ -30,7 +30,7 @@ Action RandomAIAlgorithm::getNextMove()
 
 std::optional<Action> RandomAIAlgorithm::winInOneMove(PlayerColor player)
 {
-    auto availableActions = game.avaliableActions;
+    const auto &availableActions = game.avaliableActions;
     for (const auto &action : availableActions)
     {
         game.applyValidAction(action);
@@ -39,13 +39,11 @@ std::optional<Action> RandomAIAlgorithm::winInOneMove(PlayerColor player)
         if (game.isGameOver() && game.getGameStatus() == playerWin)
         {
             game.revertValidAction();
-            game.genAvailableActions();
             return action;
         }
         game.revertValidAction();
     }
 
-    game.genAvailableActions();
     return std::nullopt;
 }
 } // namespace hive

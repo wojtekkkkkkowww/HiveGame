@@ -29,6 +29,7 @@ class AiTester
 
     std::string ai1Type;
     std::string ai2Type;
+    std::vector<std::vector<Action>> perftActionBuffers;
 
     void perft(int depth, long long &nodes);
     int playTestGame(PlayerColor player, AIAlgorithm &ai1, AIAlgorithm &ai2, Game &game) const;
