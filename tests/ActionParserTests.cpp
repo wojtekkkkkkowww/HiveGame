@@ -43,6 +43,10 @@ TEST_F(ActionParserTests, simpleGame)
 
 TEST_F(ActionParserTests, RejectsPartialAndUnknownNotation)
 {
+    const auto invalidNotationResult = applyActionExpected("prefix WQ suffix");
+    ASSERT_FALSE(invalidNotationResult.has_value());
+    EXPECT_EQ(invalidNotationResult.error(), ApplyActionError::InvalidNotation);
+
     EXPECT_FALSE(applyAction("prefix WQ suffix"));
     EXPECT_FALSE(applyAction("not a move"));
     EXPECT_EQ(getPlyCount(), 0U);

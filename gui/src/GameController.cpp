@@ -55,11 +55,11 @@ void GameController::handleMouseButtonReleased(sf::Mouse::Button button)
     {
         dragging = false;
         auto clickEndTime = std::chrono::high_resolution_clock::now();
-        auto clickDurtion =
+        auto clickDuration =
             std::chrono::duration_cast<std::chrono::milliseconds>(clickEndTime - clickStartTime)
                 .count();
 
-        if (clickDurtion < 200.0f && isMyTurn())
+        if (clickDuration < 200.0f && isMyTurn())
         {
             handleMouseClick();
         }
@@ -86,7 +86,7 @@ void GameController::handleMouseButtonPressed(sf::Mouse::Button button)
 
 void GameController::render()
 {
-    pieceSelector.updateCounts(game->players[game->currentTurn]);
+    pieceSelector.updateCounts(game->getPlayers()[game->getCurrentTurn()]);
 
     window.clear(sf::Color(82, 78, 72));
 
@@ -98,8 +98,8 @@ void GameController::render()
     window.draw(turnText);
     window.draw(pieceSelector);
 
-    if (game->avaliableActions.size() == 1 &&
-        game->avaliableActions.begin()->type == ActionType::WAIT)
+    const auto &availableActions = game->getAvailableActions();
+    if (availableActions.size() == 1 && availableActions.begin()->type == ActionType::WAIT)
     {
         window.draw(waitButton);
     }
@@ -107,11 +107,12 @@ void GameController::render()
     window.display();
 }
 
-void GameController::apllyOpponentAction(const std::string &action)
+void GameController::applyOpponentAction(const std::string &action)
 {
-    if (!game->applyAction(action))
+    if (const auto result = game->applyActionExpected(action); !result)
     {
-        std::cerr << "Failed to apply action: " << action << std::endl;
+        std::cerr << "Failed to apply action: " << action << " reason: " << toString(result.error())
+                  << std::endl;
     }
     change = true;
 }
@@ -132,7 +133,7 @@ void GameController::setPlayer(PlayerColor player)
     boardDrawable.setPlayer(player);
 }
 
-bool GameController::isMyTurn() { return localHotseat || game->currentTurn == player; }
+bool GameController::isMyTurn() { return localHotseat || game->getCurrentTurn() == player; }
 
 void GameController::handleMouseClick()
 {
@@ -155,11 +156,13 @@ void GameController::handleMouseClick()
 
 void GameController::handleWaitButtonClick()
 {
-    if (game->avaliableActions.size() == 1 &&
-        game->avaliableActions.begin()->type == ActionType::WAIT)
+    const auto &availableActions = game->getAvailableActions();
+    if (availableActions.size() == 1 && availableActions.begin()->type == ActionType::WAIT)
     {
-        game->applyAction(makeWaitAction());
-        message = game->getLastAction();
+        if (game->applyAction(makeWaitAction()))
+        {
+            message = game->getLastAction();
+        }
     }
 }
 

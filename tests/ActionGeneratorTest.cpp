@@ -15,9 +15,9 @@ class ActionGeneratorTest : public BaseTest
     void checkFirstMove(const std::string &move)
     {
         applyAction(move);
-        ASSERT_EQ(avaliableActions.size(), 5 * 6);
+        ASSERT_EQ(availableActions.size(), 5 * 6);
         revertAction();
-        ASSERT_EQ(avaliableActions.size(), 5);
+        ASSERT_EQ(availableActions.size(), 5);
     }
 };
 
@@ -111,8 +111,8 @@ TEST_F(ActionGeneratorTest, SecondMove)
     applyAction("WQ");
     applyAction("BG1 WQ-");
     int piecesLeft = 5 - 1;
-    int avaliablePositions = 3;
-    int avaliableQueenMoves = 2;
+    int availablePositions = 3;
+    int availableQueenMoves = 2;
 
-    ASSERT_EQ(avaliableActions.size(), (piecesLeft * avaliablePositions) + avaliableQueenMoves);
+    ASSERT_EQ(availableActions.size(), (piecesLeft * availablePositions) + availableQueenMoves);
 }

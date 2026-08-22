@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(HiveGame LANGUAGES CXX)
 
-option(HIVE_USE_STATIC_MAP "Use fixed-capacity board storage" OFF)
 option(HIVE_ENABLE_CLANG_TIDY "Run clang-tidy while compiling" OFF)
 
 if(APPLE)
@@ -10,7 +9,7 @@ if(APPLE)
     set(CMAKE_OSX_SYSROOT ${CMAKE_OSX_SYSROOT} CACHE PATH "" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

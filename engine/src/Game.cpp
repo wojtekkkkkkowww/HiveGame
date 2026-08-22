@@ -1,5 +1,6 @@
 // Game.cpp
 #include <deque>
+#include <stdexcept>
 
 #include "Game.hpp"
 
@@ -7,7 +8,7 @@ namespace hive
 {
 Game::Game(std::size_t maxPly)
     : currentTurn(PlayerColor::White), maxPly(maxPly),
-      actionHandler(board, players, currentTurn, gameStatus, actions, avaliableActions),
+      actionHandler(board, players, currentTurn, gameStatus, actions, availableActions),
       turnManager(board, players, currentTurn, gameStatus, plyCount, this->maxPly),
       actionParser(board, currentTurn, players)
 {
@@ -61,42 +62,48 @@ void Game::startGameFromState(std::map<Position, std::deque<Tile>> tiles, Player
 
 bool Game::applyAction(const Action &action)
 {
-    const std::string actionString = actionParser.actionToString(action);
+    return applyActionExpected(action).has_value();
+}
 
-    if (actionHandler.applyAction(action))
-    {
-        actionStrings.push_back(actionString);
-        turnManager.nextTurn();
-        actionHandler.genAvailableActions();
-
-        return true;
-    }
-    return false;
+std::expected<void, ApplyActionError> Game::applyActionExpected(const Action &action)
+{
+    return applyActionExpected(action, actionParser.actionToString(action));
 }
 
 bool Game::applyAction(const std::string &actionString)
 {
+    return applyActionExpected(actionString).has_value();
+}
 
-    const auto action = actionParser.stringToAction(actionString);
+std::expected<void, ApplyActionError> Game::applyActionExpected(const std::string &actionString)
+{
+    const auto action = actionParser.parseAction(actionString);
     if (!action)
     {
-        return false;
+        return std::unexpected(ApplyActionError::InvalidNotation);
     }
+    return applyActionExpected(*action, actionString);
+}
 
-    if (actionHandler.applyAction(*action))
+std::expected<void, ApplyActionError> Game::applyActionExpected(const Action &action,
+                                                                const std::string &actionString)
+{
+    if (!actionHandler.applyAction(action))
     {
-        actionStrings.push_back(actionString);
-        turnManager.nextTurn();
-        actionHandler.genAvailableActions();
-
-        return true;
+        return std::unexpected(ApplyActionError::InvalidAction);
     }
-
-    return false;
+    actionStrings.push_back(actionString);
+    turnManager.nextTurn();
+    actionHandler.genAvailableActions();
+    return {};
 }
 
 void Game::revertAction()
 {
+    if (!canRevertAction())
+    {
+        return;
+    }
     if (!actionStrings.empty())
     {
         actionStrings.pop_back();
@@ -111,19 +118,33 @@ void Game::genAvailableActions() { actionHandler.genAvailableActions(); }
 
 void Game::revertValidAction()
 {
+    if (!canRevertAction())
+    {
+        return;
+    }
     actionHandler.revertAction();
     turnManager.revertTurn();
 }
 
 bool Game::isGameOver() const { return gameStatus != GameStatus::Playing; }
 
-std::string Game::getLastAction() const { return actionStrings.back(); }
+bool Game::canRevertAction() const noexcept { return !actions.empty(); }
+
+std::string Game::getLastAction() const
+{
+    if (actionStrings.empty())
+    {
+        throw std::logic_error("No actions recorded");
+    }
+    return actionStrings.back();
+}
 
 void Game::startNewGame()
 {
     currentTurn = PlayerColor::White;
     plyCount = 0;
     gameStatus = GameStatus::Playing;
+    actionStrings.clear();
     board.resetBoard();
     players[PlayerColor::White].reset();
     players[PlayerColor::Black].reset();

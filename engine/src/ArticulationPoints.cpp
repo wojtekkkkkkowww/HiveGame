@@ -1,8 +1,5 @@
 #include "ArticulationPoints.hpp"
 #include "Board.hpp"
-#include <map>
-#include <set>
-#include <vector>
 
 namespace hive
 {
@@ -20,7 +17,7 @@ void ArticulationPointFinder::dfsAP(Position u, Position parent)
         if (val.isEmpty(v))
             continue;
 
-        if (visited.find(v) == visited.end())
+        if (!visited.contains(v))
         {
             children++;
             dfsAP(v, u);
@@ -40,12 +37,12 @@ void ArticulationPointFinder::findArticulationPoints()
 {
     prepareData();
 
-    if (tiles.size() == 0)
+    if (tiles.empty())
     {
         return;
     }
 
-    dfsAP(tiles.at(0), invalidPosition);
+    dfsAP(tiles[0], invalidPosition);
 
     for (const auto &position : ap)
     {
@@ -59,7 +56,11 @@ void ArticulationPointFinder::findArticulationPoints()
 
 void ArticulationPointFinder::prepareData()
 {
-    tiles = val.getPositions();
+    tiles.clear();
+    for (const auto &position : val.getPositions())
+    {
+        tiles.push_back(position);
+    }
     val.articulationPoints.clear();
     disc.clear();
     low.clear();

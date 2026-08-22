@@ -6,6 +6,7 @@
 #include "Position.hpp"
 #include "Tile.hpp"
 
+#include <expected>
 #include <optional>
 #include <regex>
 #include <sstream>
@@ -20,6 +21,11 @@ namespace hive
 class ActionParser
 {
   public:
+    enum class ParseError
+    {
+        InvalidNotation
+    };
+
     ActionParser(const Board &board, const PlayerColor &currentTurn, const Players &players)
         : board(board), currentTurn(currentTurn), players(players)
     {
@@ -30,7 +36,7 @@ class ActionParser
      * @param notation The string notation, e.g., "WG2-bQ".
      * @return The corresponding Action object.
      */
-    std::optional<Action> stringToAction(const std::string &notation) const
+    std::expected<Action, ParseError> parseAction(const std::string &notation) const
     {
         static const std::regex rightDirectionRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)([-\\/]))");
         static const std::regex beetleMoveRegex(R"(([WB][A-Z]\d?) ([WB][A-Z]\d?)\.)");
@@ -58,6 +64,15 @@ class ActionParser
         if (notation == "Wait")
         {
             return makeWaitAction();
+        }
+        return std::unexpected(ParseError::InvalidNotation);
+    }
+
+    std::optional<Action> stringToAction(const std::string &notation) const
+    {
+        if (auto action = parseAction(notation))
+        {
+            return *action;
         }
         return std::nullopt;
     }

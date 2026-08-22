@@ -9,7 +9,11 @@ namespace hive
 class BaseTest : public ::testing::Test, public Game
 {
   public:
-    BaseTest() : Game() {}
+    BaseTest()
+        : Game(), board(Game::getBoard()), players(Game::getPlayers()),
+          availableActions(Game::getAvailableActions()), actionStrings(Game::getActionHistory())
+    {
+    }
 
     void SetUp() override
     {
@@ -39,7 +43,7 @@ class BaseTest : public ::testing::Test, public Game
 
     void checkMoves(Position position, const std::set<Position> &expectedMoves)
     {
-        auto actions = avaliableActions;
+        auto actions = availableActions;
         std::set<Position> actualMoves{};
 
         for (const auto &action : actions)
@@ -93,6 +97,11 @@ class BaseTest : public ::testing::Test, public Game
     }
 
   protected:
+    Board &board;
+    Players &players;
+    const std::vector<Action> &availableActions;
+    const std::vector<std::string> &actionStrings;
+
     void saveGame()
     {
         const ::testing::TestInfo *test_info =

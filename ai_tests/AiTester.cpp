@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
+#include <stdexcept>
 
 /*
 Depth & Time (ms) & Nodes & Nodes/s \\
@@ -38,8 +39,7 @@ void AiTester::perft(int depth, long long &nodes)
     }
     game.genAvailableActions();
     auto &actions = perftActionBuffers[static_cast<std::size_t>(depth)];
-    actions.clear();
-    actions.swap(game.avaliableActions);
+    actions = game.takeAvailableActions();
 
     int i = 0;
     for (const auto &action : actions)
@@ -102,7 +102,10 @@ int AiTester::playTestGame(PlayerColor player, AIAlgorithm &ai1, AIAlgorithm &ai
     while (!game.isGameOver() && moves < MAX_NUMBER_OF_MOVES)
     {
         Action action = currentAi->getNextMove();
-        game.applyAction(action);
+        if (!game.applyAction(action))
+        {
+            throw std::runtime_error("AI produced invalid action");
+        }
         moves++;
         std::swap(currentAi, opponentAi);
     }
@@ -330,7 +333,10 @@ void AiTester::runGameSimulation()
                 std::cout << "AI 2: " << action << '\n';
             }
 
-            game.applyAction(action);
+            if (!game.applyAction(action))
+            {
+                throw std::runtime_error("AI produced invalid action in simulation");
+            }
             moves.push_back(game.getLastAction());
             movesCounter++;
             std::cout << "Move: " << moves.back() << '\n';
@@ -390,7 +396,7 @@ void AiTester::performRandomMoves(int iterations, int epochs)
             }
 
             game.genAvailableActions();
-            auto actions = game.avaliableActions;
+            auto actions = game.getAvailableActions();
             branchingFactorSum[epoch][i] = actions.size();
 
             if (actions.empty())

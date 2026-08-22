@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <limits>
+#include <optional>
 
 namespace hive
 {
@@ -42,22 +43,22 @@ constexpr Position SW{.x = -1, .y = 1};
 constexpr Position W{.x = -1, .y = 0};
 constexpr std::array<Position, 6> directions = {NW, NE, E, SE, SW, W};
 
-constexpr std::array<Position, 2> neighboringDirections(Position p)
+constexpr std::optional<std::array<Position, 2>> neighboringDirections(Position p)
 {
     if (p == NW)
-        return {W, NE};
+        return std::array<Position, 2>{W, NE};
     if (p == NE)
-        return {NW, E};
+        return std::array<Position, 2>{NW, E};
     if (p == E)
-        return {NE, SE};
+        return std::array<Position, 2>{NE, SE};
     if (p == SE)
-        return {E, SW};
+        return std::array<Position, 2>{E, SW};
     if (p == SW)
-        return {SE, W};
+        return std::array<Position, 2>{SE, W};
     if (p == W)
-        return {SW, NW};
+        return std::array<Position, 2>{SW, NW};
 
-    return {};
+    return std::nullopt;
 }
 
 } // namespace hive

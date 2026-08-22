@@ -49,13 +49,14 @@ class BlockedTiles : public Heuristic
   public:
     int evaluate(const Game &state, PlayerColor player) const override
     {
+        const auto &board = state.getBoard();
         int value = 0.0;
 
-        for (const auto &pos : state.board.getPlayerTiles(opposite(player)))
+        for (const auto &pos : board.getPlayerTiles(opposite(player)))
         {
             if (isTileBlocked(pos, state))
             {
-                value += tileValue(state.board.getTile(pos).type);
+                value += tileValue(board.getTile(pos).type);
             }
         }
 
@@ -65,21 +66,21 @@ class BlockedTiles : public Heuristic
   private:
     bool isTileBlocked(const hive::Position &position, const Game &state) const
     {
+        const auto &board = state.getBoard();
 
-        if (state.board.articulationPoints.find(position) != state.board.articulationPoints.end())
+        if (board.articulationPoints.find(position) != board.articulationPoints.end())
         {
             return true;
         }
 
-        if (state.board.getTile(position).type == PieceType::Beetle)
+        if (board.getTile(position).type == PieceType::Beetle)
         {
             return false;
         }
 
         for (const auto &dir : directions)
         {
-            if (state.board.isEmpty(position + dir) &&
-                !state.board.isDirectionBlocked(position, dir, 1))
+            if (board.isEmpty(position + dir) && !board.isDirectionBlocked(position, dir, 1))
             {
                 return false;
             }
@@ -93,8 +94,9 @@ class QueenSafty : public Heuristic
   public:
     int evaluate(const Game &state, PlayerColor player) const override
     {
+        const auto &board = state.getBoard();
         auto myQueen =
-            player == PlayerColor::White ? state.board.whiteQueen : state.board.blackQueen;
+            player == PlayerColor::White ? board.whiteQueen : board.blackQueen;
 
         return quuenAvailableMoves(state, myQueen) - tilesAroundQueen(state, myQueen);
     }
@@ -102,10 +104,11 @@ class QueenSafty : public Heuristic
   private:
     int tilesAroundQueen(const hive::Game &state, hive::Position &Queen) const
     {
+        const auto &board = state.getBoard();
         int value = 0;
         for (auto &direction : directions)
         {
-            if (!state.board.isEmpty(Queen + direction))
+            if (!board.isEmpty(Queen + direction))
             {
                 value += 1;
             }
@@ -115,13 +118,14 @@ class QueenSafty : public Heuristic
 
     int quuenAvailableMoves(const hive::Game &state, hive::Position &Queen) const
     {
+        const auto &board = state.getBoard();
         if (Queen == invalidPosition)
         {
             return 0;
         }
 
-        std::set<hive::Position> queenMoves;
-        state.board.getQueenMoves(Queen, queenMoves);
+        Board::PositionSet queenMoves;
+        board.getQueenMoves(Queen, queenMoves);
         return static_cast<int>(queenMoves.size());
     }
 };
@@ -140,10 +144,11 @@ class WinLoseHeuristic : public Heuristic
   public:
     int evaluate(const Game &state, PlayerColor player) const override
     {
+        const auto &board = state.getBoard();
         auto oponentQueen =
-            player == PlayerColor::White ? state.board.blackQueen : state.board.whiteQueen;
+            player == PlayerColor::White ? board.blackQueen : board.whiteQueen;
         auto myQueen =
-            player == PlayerColor::White ? state.board.whiteQueen : state.board.blackQueen;
+            player == PlayerColor::White ? board.whiteQueen : board.blackQueen;
         int value = 0;
         if (isSurrounded(state, oponentQueen))
         {
@@ -160,9 +165,10 @@ class WinLoseHeuristic : public Heuristic
   private:
     bool isSurrounded(const hive::Game &state, hive::Position &Queen) const
     {
+        const auto &board = state.getBoard();
         for (auto &direction : directions)
         {
-            if (state.board.isEmpty(Queen + direction))
+            if (board.isEmpty(Queen + direction))
             {
                 return false;
             }

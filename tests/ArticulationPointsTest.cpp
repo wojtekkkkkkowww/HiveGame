@@ -18,8 +18,9 @@ class ArticulationPointsTest : public BaseTest
         board.setBoardTiles(tiles);
 
         articulationPointFinder.findArticulationPoints();
-        EXPECT_EQ(board.articulationPoints, expectedPositions);
-        if (board.articulationPoints == expectedPositions)
+        const auto actualPositions = toStdSet(board.articulationPoints);
+        EXPECT_EQ(actualPositions, expectedPositions);
+        if (actualPositions == expectedPositions)
         {
             std::cerr << "correct check \n";
         }
@@ -30,6 +31,12 @@ class ArticulationPointsTest : public BaseTest
                 std::cerr << "articulation point: " << pos.x << " " << pos.y << std::endl;
             }
         }
+    }
+
+  private:
+    static std::set<Position> toStdSet(const Board::PlayerTileSet &positions)
+    {
+        return {positions.begin(), positions.end()};
     }
 };
 

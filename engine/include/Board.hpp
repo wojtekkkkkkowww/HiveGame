@@ -1,7 +1,8 @@
 #pragma once
 
+#include "PieceCatalog.hpp"
 #include "Position.hpp"
-#include "StaticMap.hpp"
+#include "StaticContainers.hpp"
 #include "Tile.hpp"
 #include <array>
 #include <cstdint>
@@ -20,8 +21,27 @@ class Board
 {
   public:
     static constexpr std::size_t maxPieceCount = 22;
+    static constexpr std::size_t beetlesPerPlayer = []() constexpr {
+        for (const auto &definition : pieceCatalog)
+        {
+            if (definition.type == PieceType::Beetle)
+            {
+                return static_cast<std::size_t>(definition.initialCount);
+            }
+        }
+        return std::size_t{0};
+    }();
+    static_assert(beetlesPerPlayer > 0, "Piece catalog must define beetles");
+    static constexpr std::size_t maxStackHeight = (2 * beetlesPerPlayer) + 1;
+    static constexpr std::size_t neighborDirections = directions.size();
+    // For a connected hive on hex grid, the number of distinct empty neighbor cells
+    // around occupied positions is bounded by 2N + 4, where N is occupied positions.
+    static constexpr std::size_t maxConnectedEmptyNeighbors = (2 * maxPieceCount) + 4;
+    static constexpr std::size_t maxTraversalPositions = maxConnectedEmptyNeighbors + 1;
 
-    using PieceStack = std::deque<Tile>;
+    using PieceStack = StaticVector<Tile, maxStackHeight>;
+    using PositionSet = StaticSet<Position, maxConnectedEmptyNeighbors>;
+    using PlayerTileSet = StaticSet<Position, maxPieceCount>;
 
     Board() { resetBoard(); }
 
@@ -35,7 +55,7 @@ class Board
     void addTile(Position position, Tile tile);
 
     std::vector<std::list<Tile>> getTiles() const;
-    std::set<Position> getPlayerTiles(PlayerColor color) const;
+    PlayerTileSet getPlayerTiles(PlayerColor color) const;
     std::vector<Position> getPositions() const;
 
     Tile getTile(Position position) const;
@@ -54,7 +74,7 @@ class Board
 
     Position whiteQueen = invalidPosition;
     Position blackQueen = invalidPosition;
-    std::set<Position> emptyTiles;
+    PositionSet emptyTiles;
 
     int getTileCount() const;
     std::size_t getPieceCount() const;
@@ -62,12 +82,13 @@ class Board
     bool isEmpty(Position position) const { return getLevel(position) == 0; }
 
     // movement manager
+    void getAvailableMoves(PieceType type, const Position &position, PositionSet &outMoves);
     void getAvailableMoves(PieceType type, const Position &position, std::set<Position> &outMoves);
-    void getAntMoves(const Position &position, std::set<Position> &outMoves);
-    void getSpiderMoves(const Position &position, std::set<Position> &outMoves);
-    void getGrasshopperMoves(const Position &position, std::set<Position> &outMoves) const;
-    void getBeetleMoves(const Position &position, std::set<Position> &outMoves) const;
-    void getQueenMoves(const Position &position, std::set<Position> &outMoves) const;
+    void getAntMoves(const Position &position, PositionSet &outMoves);
+    void getSpiderMoves(const Position &position, PositionSet &outMoves);
+    void getGrasshopperMoves(const Position &position, PositionSet &outMoves) const;
+    void getBeetleMoves(const Position &position, PositionSet &outMoves) const;
+    void getQueenMoves(const Position &position, PositionSet &outMoves) const;
 
     // move validator
     bool isTouchingHiveAfterMove(Position position, Position newPosition) const;
@@ -80,14 +101,10 @@ class Board
     bool isOccupiedByOpponent(Position pos, PlayerColor color) const;
     bool isMoveBlocked(Position position, Position newPosition) const;
 
-    std::set<Position> articulationPoints;
+    PlayerTileSet articulationPoints;
 
   private:
-#if HIVE_USE_STATIC_MAP
     using BoardStorage = StaticMap<Position, PieceStack, maxPieceCount>;
-#else
-    using BoardStorage = std::map<Position, PieceStack>;
-#endif
 
     BoardStorage boardTiles;
 };

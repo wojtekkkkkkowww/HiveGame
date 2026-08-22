@@ -31,11 +31,14 @@ class AIClient : public Client
     {
         if (game.getCurrentTurn() == player)
         {
-            auto availableActions = game.avaliableActions;
-            if (!availableActions.empty())
+            if (!game.getAvailableActions().empty())
             {
                 Action action = aiAlgorithm.getNextMove();
-                game.applyAction(action);
+                if (!game.applyAction(action))
+                {
+                    std::cerr << "AI generated invalid action: " << action << '\n';
+                    return;
+                }
                 std::string actionString = game.getLastAction();
 
                 if (!sendMessage(actionString))
@@ -52,7 +55,11 @@ class AIClient : public Client
         {
             if (receiveMessage(message))
             {
-                game.applyAction(message);
+                if (const auto result = game.applyActionExpected(message); !result)
+                {
+                    std::cerr << "Failed to apply opponent action: " << message
+                              << " reason: " << toString(result.error()) << '\n';
+                }
             }
         }
     }

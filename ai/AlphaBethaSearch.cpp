@@ -1,5 +1,6 @@
 #include "AlphaBethaSearch.hpp"
 #include "Heuristic.hpp"
+#include <algorithm>
 
 namespace hive
 {
@@ -62,8 +63,7 @@ std::pair<double, Action> AlphaBetaAI::alphabetha(double alpha, double beta, int
 
     game.genAvailableActions();
     auto &actions = actionBuffers[static_cast<std::size_t>(depth)];
-    actions.clear();
-    actions.swap(game.avaliableActions);
+    actions = game.takeAvailableActions();
 
     std::pair<double, Action> best = std::make_pair(negative_infinity, actions.front());
 

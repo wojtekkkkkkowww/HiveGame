@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Position.hpp"
-#include <map>
-#include <set>
-#include <vector>
+#include "StaticContainers.hpp"
 
 namespace hive
 {
@@ -25,11 +23,12 @@ class ArticulationPointFinder
   private:
     Board &val;
 
-    std::vector<Position> tiles;
-    std::map<Position, int> disc;
-    std::map<Position, int> low;
-    std::set<Position> ap;
-    std::set<Position> visited;
+    static constexpr std::size_t maxHivePieces = 22;
+    StaticVector<Position, maxHivePieces> tiles;
+    StaticMap<Position, int, maxHivePieces> disc;
+    StaticMap<Position, int, maxHivePieces> low;
+    StaticSet<Position, maxHivePieces> ap;
+    StaticSet<Position, maxHivePieces> visited;
 
     int time;
     void dfsAP(Position u, Position parent);

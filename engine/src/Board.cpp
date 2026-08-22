@@ -1,4 +1,5 @@
 #include "Board.hpp"
+#include "StaticContainers.hpp"
 #include <algorithm>
 #include <array>
 #include <queue>
@@ -8,7 +9,6 @@
 
 namespace hive
 {
-
 void Board::resetBoard()
 {
     boardTiles.clear();
@@ -56,9 +56,9 @@ std::vector<std::list<Tile>> Board::getTiles() const
     return tiles;
 }
 
-std::set<Position> Board::getPlayerTiles(PlayerColor color) const
+Board::PlayerTileSet Board::getPlayerTiles(PlayerColor color) const
 {
-    std::set<Position> playerTiles;
+    PlayerTileSet playerTiles;
     for (const auto &[position, stack] : boardTiles)
     {
         const auto &tile = stack.back();
@@ -208,7 +208,7 @@ std::size_t Board::getPieceCount() const
 
 // movement manager
 void Board::getAvailableMoves(PieceType type, const Position &position,
-                              std::set<Position> &outMoves)
+                              PositionSet &outMoves)
 {
     outMoves.clear();
     switch (type)
@@ -231,32 +231,43 @@ void Board::getAvailableMoves(PieceType type, const Position &position,
     }
 }
 
+void Board::getAvailableMoves(PieceType type, const Position &position,
+                              std::set<Position> &outMoves)
+{
+    PositionSet staticMoves;
+    getAvailableMoves(type, position, staticMoves);
+    outMoves.clear();
+    outMoves.insert(staticMoves.begin(), staticMoves.end());
+}
+
 /*
 Ant:
 Can move to any tile it can physically reach.
 DFS on tiles that are in the emptyTiles set.
 The list of visited tiles is the possible moves for the ant.
 */
-void Board::getAntMoves(const Position &position, std::set<Position> &outMoves)
+void Board::getAntMoves(const Position &position, PositionSet &outMoves)
 {
     outMoves.clear();
 
-    std::stack<Position> stack;
+    StaticVector<Position, maxConnectedEmptyNeighbors> stack;
+    PositionSet discovered;
 
     for (const auto &direction : directions)
     {
         Position neighbour = position + direction;
         if (emptyTiles.find(neighbour) != emptyTiles.end() &&
-            !isDirectionBlocked(position, direction, 1))
+            !isDirectionBlocked(position, direction, 1) && !discovered.contains(neighbour))
         {
-            stack.push(neighbour);
+            discovered.insert(neighbour);
+            stack.push_back(neighbour);
         }
     }
 
     while (!stack.empty())
     {
-        Position current = stack.top();
-        stack.pop();
+        Position current = stack.back();
+        stack.pop_back();
 
         if (outMoves.find(current) != outMoves.end())
         {
@@ -266,11 +277,12 @@ void Board::getAntMoves(const Position &position, std::set<Position> &outMoves)
 
         for (const auto &direction : directions)
         {
-            if (emptyTiles.find(current + direction) != emptyTiles.end() &&
-                outMoves.find(current + direction) == outMoves.end() &&
+            const Position next = current + direction;
+            if (emptyTiles.find(next) != emptyTiles.end() && !discovered.contains(next) &&
                 !isDirectionBlocked(current, direction, 1))
             {
-                stack.push(current + direction);
+                discovered.insert(next);
+                stack.push_back(next);
             }
         }
     }
@@ -280,7 +292,7 @@ void Board::getAntMoves(const Position &position, std::set<Position> &outMoves)
 BEETLE:
 Can move to adjacent tiles on the same level or on diferent level.
 */
-void Board::getBeetleMoves(const Position &position, std::set<Position> &outMoves) const
+void Board::getBeetleMoves(const Position &position, PositionSet &outMoves) const
 {
     outMoves.clear();
 
@@ -311,12 +323,12 @@ Moves exactly 3 spaces without backtracking and must touch another piece at each
 Implementation requires BFS which expands breadth-first and then depth-first to find all paths of
 length 3.
 */
-void Board::getSpiderMoves(const Position &position, std::set<Position> &outMoves)
+void Board::getSpiderMoves(const Position &position, PositionSet &outMoves)
 {
     outMoves.clear();
 
-    std::set<Position> visited;
-    std::queue<std::pair<Position, int>> q;
+    StaticSet<Position, maxTraversalPositions> visited;
+    StaticQueue<std::pair<Position, int>, maxTraversalPositions> q;
     const auto spiderNeighbours = getNeighbours(position);
 
     q.push({position, 0});
@@ -336,8 +348,7 @@ void Board::getSpiderMoves(const Position &position, std::set<Position> &outMove
         for (const auto &direction : directions)
         {
             Position neighbor = currentPos + direction;
-            if (visited.find(neighbor) == visited.end() &&
-                emptyTiles.find(neighbor) != emptyTiles.end())
+            if (!visited.contains(neighbor) && emptyTiles.find(neighbor) != emptyTiles.end())
             {
                 int isSpiderNeighbour = (std::find(spiderNeighbours.begin(), spiderNeighbours.end(),
                                                    neighbor) != spiderNeighbours.end())
@@ -362,7 +373,7 @@ GRASSHOPPER:
 Jumps over pieces to an empty tile behind them. In any direction.
 Must jump over at least one piece.
 */
-void Board::getGrasshopperMoves(const Position &position, std::set<Position> &outMoves) const
+void Board::getGrasshopperMoves(const Position &position, PositionSet &outMoves) const
 {
     outMoves.clear();
 
@@ -388,7 +399,7 @@ void Board::getGrasshopperMoves(const Position &position, std::set<Position> &ou
 Queen:
 Can move to adjacent tiles
 */
-void Board::getQueenMoves(const Position &position, std::set<Position> &outMoves) const
+void Board::getQueenMoves(const Position &position, PositionSet &outMoves) const
 {
     outMoves.clear();
 
@@ -424,13 +435,15 @@ bool Board::isQueenSurrounded(PlayerColor color) const
 bool Board::isDirectionBlocked(Position position, Position direction, int level) const
 {
     const auto neighbors = neighboringDirections(direction);
-
-    if (neighbors[0] == Position{} && neighbors[1] == Position{})
-    { // invalid direction
+    if (!neighbors.has_value())
+    {
         return true;
     }
 
-    if (fredomToMove(position + neighbors[0], level, position + neighbors[1]))
+    const auto &firstNeighbor = neighbors->at(0);
+    const auto &secondNeighbor = neighbors->at(1);
+
+    if (fredomToMove(position + firstNeighbor, level, position + secondNeighbor))
     {
         return true;
     }
@@ -440,7 +453,7 @@ bool Board::isDirectionBlocked(Position position, Position direction, int level)
         return false;
     }
 
-    if (constantContact(position + neighbors[0], position + neighbors[1], position + direction))
+    if (constantContact(position + firstNeighbor, position + secondNeighbor, position + direction))
     {
         return true;
     }

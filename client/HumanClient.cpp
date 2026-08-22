@@ -40,7 +40,7 @@ class HumanClient : public Client
         if (receiveMessage(message))
         {
             std::cerr << "received message: " << message << std::endl;
-            gameController.apllyOpponentAction(message);
+            gameController.applyOpponentAction(message);
         }
     }
 };

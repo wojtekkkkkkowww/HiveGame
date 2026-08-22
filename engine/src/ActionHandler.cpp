@@ -5,6 +5,13 @@
 
 namespace hive
 {
+namespace
+{
+constexpr std::size_t reservedActionCapacity =
+    (pieceCatalog.size() * Board::maxConnectedEmptyNeighbors) +
+    Board::maxConnectedEmptyNeighbors + 1;
+}
+
 ActionHandler::ActionHandler(Board &board, Players &players, PlayerColor &currentTurn,
                              GameStatus &status, std::stack<Action> &actions,
                              std::vector<Action> &availableActions)
@@ -85,9 +92,14 @@ void ActionHandler::genAvailableActions()
     }
     else
     {
-        board.emptyTiles = {{0, 0}};
+        board.emptyTiles.clear();
+        board.emptyTiles.insert({0, 0});
     }
 
+    if (availableActions.capacity() < reservedActionCapacity)
+    {
+        availableActions.reserve(reservedActionCapacity);
+    }
     availableActions.clear();
     if (status == GameStatus::Playing)
     {
@@ -142,7 +154,7 @@ void ActionHandler::generateMoveActions()
             continue;
         }
 
-        std::set<Position> availablePositions;
+        Board::PositionSet availablePositions;
         board.getAvailableMoves(tile.type, position, availablePositions);
         for (const auto &newPosition : availablePositions)
         {

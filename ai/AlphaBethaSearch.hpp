@@ -31,7 +31,7 @@ class AlphaBetaAI : public AIAlgorithm
 
     std::mt19937 randomGenerator{std::random_device{}()};
 
-    int maxDepth = 4;
+    int maxDepth = 6;
     std::vector<std::vector<Action>> actionBuffers =
         std::vector<std::vector<Action>>(static_cast<std::size_t>(maxDepth + 1));
     PlayerColor player = PlayerColor::White;

@@ -16,7 +16,7 @@ Action RandomAIAlgorithm::getNextMove()
         return action.value();
     }
 
-    const auto &availableActions = game.avaliableActions;
+    const auto &availableActions = game.getAvailableActions();
     if (!availableActions.empty())
     {
         std::uniform_int_distribution<size_t> dist(0, availableActions.size() - 1);
@@ -30,7 +30,7 @@ Action RandomAIAlgorithm::getNextMove()
 
 std::optional<Action> RandomAIAlgorithm::winInOneMove(PlayerColor player)
 {
-    const auto &availableActions = game.avaliableActions;
+    const auto &availableActions = game.getAvailableActions();
     for (const auto &action : availableActions)
     {
         game.applyValidAction(action);

@@ -3,7 +3,7 @@
 
 BaseInterface::BaseInterface(sf::RenderWindow &window)
     : window(window), boardView(window.getDefaultView()), game(std::make_unique<Game>()),
-      boardDrawable(game->board, 32.0f)
+      boardDrawable(game->getBoard(), 32.0f)
 {
     ResourceManager &resourceManager = ResourceManager::getInstance();
 
@@ -83,12 +83,12 @@ void BaseInterface::handleWindowResized(unsigned int width, unsigned int height)
 
 void BaseInterface::updateTurnText()
 {
-    if (game->gameStatus != GameStatus::Playing)
+    if (game->getGameStatus() != GameStatus::Playing)
     {
-        turnText.setString("Game over! " + std::string(toString(game->gameStatus)));
+        turnText.setString("Game over! " + std::string(toString(game->getGameStatus())));
         return;
     }
-    turnText.setString("Current turn: " + std::string(1, toChar(game->currentTurn)));
+    turnText.setString("Current turn: " + std::string(1, toChar(game->getCurrentTurn())));
 }
 
 Position BaseInterface::convertMouseToBoardPos(sf::Vector2f mousePos)

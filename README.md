@@ -1,114 +1,134 @@
-# HiveGame
+# Hive board game implementation (C++23)
 
-## Opis projektu
+This repository contains a modern C++23 implementation of the board game Hive with a local GUI, a rules engine, a TCP client/server layer, and a non-trivial AI opponent.
+The project follows the game rules closely, is heavily tested, and keeps move generation fast enough for real search work.
 
-Implementacja gry planszowej **Hive**. Projekt został napisany w języku C++ na linux i wykorzystuje bibliotekę **SFML**.
-Do gry wykorzystuje komunikację TCP.
+![Gameplay screenshot](docs/images/gameplay-screenshot.png)
+## What is implemented
 
-## PNG SOURCES
-https://www.instructables.com/Hive-game-with-box/
+- full Hive rules engine in C++23
+- local game UI in SFML
+- player-vs-player and player-vs-AI modes
+- alpha-beta AI with heuristic evaluation
+- perft-style benchmarking for search and move generation
+- TCP client/server support
+- official move notation support
+- replay / viewer tooling for recorded games
 
+## Architecture
 
-## Wymagania
+The code is split into a small number of clear layers:
 
-Przed uruchomieniem projektu należy zainstalować następujące pakiety:
-
-- `SFML`
-- `SFML-devel`
-- `gtest`
-- `gtest-devel`
-- `cmake`
-
-
-## Budowanie projektu
-
-1. Utwórz nowy katalog `build`:
-   ```bash
-   mkdir build
-   cd build
-   ```
-
-2. W katalogu `build` uruchom:
-   ```bash
-   cmake ..
-   make
-   ```
-Po skompilowaniu projektu w katalogu build pojawią się foldery z plikami wykonywalnymi: `server`, `client`, `gameViewer`, `tests`, `ai_tests`.
-
-## Testy jednostkowe
-
-Po zbudowaniu projektu można uruchomić testy w katalogu `build`. Testy generują pliki `.txt` z zapisem ruchów  w katalogu `build`.
-
-Aby uruchomić wszystkie testy jednostkowe:
-```bash
-./tests/test_GameLogic
+```text
++-------------------+
+| GUI / App         |
+| SFML window, menu, input, controller |
++---------+---------+
+          |
+          v
++-------------------+
+| Engine            |
+| Game, Board, ActionHandler, rules logic |
++---------+---------+
+          |
+          v
++-------------------+
+| AI                |
+| AlphaBetaAI, heuristic evaluation      |
++-------------------+
 ```
 
-Można również uruchamiać pojedyncze testy, podając nazwę testu jako filtr. Na przykład:
-```bash
-./tests/test_GameLogic --gtest_filter=TileMovementTest.WhiteWins
+At a domain level:
+
+- Board owns the board state and adjacency rules.
+- ActionHandler generates and validates legal actions.
+- Game owns turn flow, history, and game-over status.
+- AI evaluates candidate moves and applies search over legal continuations.
+- GUI is intentionally thin and delegates gameplay to the engine.
+
+## Repository layout
+
+```text
+app/               GUI entrypoint and menu flow
+ai/                AI search and heuristic logic
+ai_tests/          AI benchmarking and search scenarios
+client/            client-side network demo code
+docs/              architecture, quality, performance notes
+engine/            main game engine
+gameViewer/        replay / visualization utility
+gui/               SFML game controller and drawable layer
+scripts/           analysis and benchmark helpers
+server/            server demo / multiplayer host
+tests/             unit and regression tests
 ```
 
-## Przeglądanie zapisanych partii
-Do przeglądania zapisanej parti można użyć programu `GameViewer`. Program przyjmuje jako argument ścieżkę do pliku z zapisem partii.
-Zapisy parti zostają wygenerowane po uruchomieniu testów jednostkowych, lub uruchomieniu pojedynczej gry w AiTester.
+## Requirements
+
+- CMake 3.20+
+- C++23 compiler
+- SFML 2.x
+- GTest
+
+## Build
 
 ```bash
-./gameViewer/GameViewer path_to_file
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
 ```
 
-## Uruchomienie gry
-Należy uruchomić server i dwóch klientów np.
+The main executable is built as:
+
 ```bash
-./server/Server 53000
-./client/HiveClient 53000 White
-./client/HiveClient 53000 Black
-```
-Gra przeciwko AI
-```bash
-./server/Server 53000
-./client/HiveClient 53000 White
-./client/AiClient 53000 Black
+./build/app/HiveGame
 ```
 
-## Eksperymenty AI
-Uruchomienie pojedynczej gry:
-```bash
-./ai_tests/AiTester random alphabeta
-``` 
-Uruchomienie testu dla wielu gier:
-```bash
-./ai_tests/AiTester test
-```
-Uruchomienie algorytmu SA:
-```bash
-./ai_tests/AiTester optimize
-```
-Uruchomienie testu performance:
-```bash
-./ai_tests/AiTester perft
-```
-Uruchomienie testu dla bf:
-```bash
-./ai_tests/AiTester bf
-```
-## Skrypty
+## Run the game
 
-W folderze `/scripts` znajdują się skrypty do analizy danych i tworzenia wykresów:
+Local game:
 
-- `bf.py`, `heat.py`, `sa.py` – skrypty do generowania wykresów
-- `calculate.sh` – skrypt mierzący czas działania bota
-
-W katalogu `/results` znajdują się pliki z wynikami testów, np. `cache.txt` i `bf.txt`.
-
-Przykład uruchomienia skryptu do wykresu Branching Factor:
 ```bash
-python3 bf.py 
+./build/app/HiveGame
 ```
-<!-- 2 & 0 & 36 & 0.00K \\
-3 & 0 & 216 & 0.00K \\
-4 & 2 & 1296 & 648.00K \\
-5 & 15 & 7776 & 518.40K \\
-6 & 52 & 46656 & 897.23K \\
-7 & 268 & 279408 & 1042.57K \\
-8 & 1396 & 1665980 & 1193.40K \\ -->
+
+## Tests
+
+The project includes both deterministic logic tests and randomized robustness checks.
+
+Run the complete suite:
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+Or run a specific test binary directly if desired:
+
+```bash
+./build/tests/test_GameLogic
+```
+
+The regression coverage includes dedicated tests for each piece type, action parsing, full official-game playthroughs, and randomized smoke tests over many legal games.
+
+
+## AI and performance
+
+The search layer is designed around legal move generation and minimax-style pruning. The AI uses the project’s own move generator, so search quality depends on the same rules engine that powers the game itself.
+Hot paths use fixed-capacity static containers where it makes sense, which keeps allocations low and move generation fast.
+
+Performance is measured with perft-like runs and AI benchmark helpers in the project:
+
+```bash
+./build/ai_tests/AiTester perft 8
+```
+
+Current branch results:
+
+- depth 2: 36 nodes, 0 ms
+- depth 3: 216 nodes, 0 ms
+- depth 4: 1,296 nodes, 0 ms
+- depth 5: 7,776 nodes, 2 ms
+- depth 6: 46,656 nodes, 19 ms
+- depth 7: 279,408 nodes, 109 ms
+- depth 8: 1,665,980 nodes, 610 ms
+- total runtime: 1.056 s real
+
+![Perft benchmark](results/perft_depth8.png)

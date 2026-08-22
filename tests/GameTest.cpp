@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <set>
+#include <stdexcept>
 #include <thread>
 
 using namespace hive;
@@ -148,6 +149,19 @@ TEST_F(GameTest, RevertingPlacedQueenRestoresQueenState)
     EXPECT_EQ(getPlyCount(), 0U);
 }
 
+TEST_F(GameTest, RevertingWithoutActionsKeepsInitialState)
+{
+    EXPECT_FALSE(canRevertAction());
+    revertAction();
+    revertValidAction();
+
+    EXPECT_EQ(getCurrentTurn(), PlayerColor::White);
+    EXPECT_EQ(getPlyCount(), 0U);
+    EXPECT_EQ(getGameStatus(), GameStatus::Playing);
+    EXPECT_TRUE(board.isEmpty({0, 0}));
+    EXPECT_THROW(getLastAction(), std::logic_error);
+}
+
 TEST(GameMoveLimitTest, DrawsAtConfiguredPlyLimitAndCanBeReverted)
 {
     Game game(2);
@@ -174,7 +188,7 @@ TEST_F(GameTest, SearchApplyAndUndoPreserveRecordedHistory)
     const auto lastRecordedAction = getLastAction();
     const auto turnBeforeSearch = getCurrentTurn();
     const auto plyBeforeSearch = getPlyCount();
-    const auto searchAction = avaliableActions.front();
+    const auto searchAction = availableActions.front();
 
     applyValidAction(searchAction);
     revertValidAction();

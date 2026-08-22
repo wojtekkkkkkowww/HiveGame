@@ -5,7 +5,6 @@
 #include "Board.hpp"
 #include "PieceCatalog.hpp"
 #include "Player.hpp"
-#include <set>
 #include <stack>
 
 namespace hive

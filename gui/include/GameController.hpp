@@ -11,7 +11,7 @@ class GameController : public BaseInterface
 {
   public:
     GameController(sf::RenderWindow &window);
-    void apllyOpponentAction(const std::string &action);
+    void applyOpponentAction(const std::string &action);
     bool applyLocalAction(const Action &action);
     void setPlayer(hive::PlayerColor player);
 
